@@ -1,0 +1,29 @@
+name: build
+
+on: [push]
+
+#defaults:
+  #run:
+  #  shell: bash
+
+jobs:
+  ####################
+  build-windows:
+    runs-on: windows-latest
+
+    defaults:
+      run:
+        #shell: msys2 {0}
+        #shell: /msys64/msys2_shell.cmd -mingw64 -where . -c {0}
+        shell: \msys64\msys2_shell.cmd -mingw64 -where . -c {0}
+
+        #steps:
+        #- name: Check out sources
+        #  uses: actions/checkout@v3.3.0
+        #  with:
+        #    submodules: recursive
+
+    - name: check MSys2
+      run: |
+        pwd
+        find
