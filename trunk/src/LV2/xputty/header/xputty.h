@@ -33,11 +33,17 @@
 
 #include <math.h>
 #include <cairo.h>
+#ifdef _WIN32
+#include <windows.h>
+//#include <windowsx.h>
+#include <cairo-win32.h>
+#elif __linux__
 #include <cairo-xlib.h>
 #include <X11/Xutil.h>
 #include <X11/keysym.h>
 #include <X11/Xatom.h>
-
+#elif _APPLE_
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -178,11 +184,18 @@ struct Xputty{
 /** pointer to the main childlist */
     Childlist_t *childlist;
 /** pointer to the display in use */
+#ifdef _WIN32
+    void *dpy;
+    //void *color_scheme;
+    XColor_t *color_scheme;
+    void *hold_grab;
+#else
     Display *dpy;
 /** theming scheme for all Widget_t */
     XColor_t *color_scheme;
 /** pointer to a modal Widget_t */
     Widget_t *hold_grab;
+#endif
 /** bool to quit the main loop */
     bool run;
 /** small fontsize for all Widget_t*/

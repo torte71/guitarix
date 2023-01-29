@@ -128,7 +128,8 @@ typedef enum {
     ADJ_INTERN,
     VALUE_CHANGED,
     USER,
-    MEM_FREE,
+//TM:WIN32:MEM_FREE reserved
+    _MEM_FREE,
     CONFIGURE_NOTIFY,
     MAP_NOTIFY,
     UNMAP_NOTIFY,
@@ -292,6 +293,66 @@ enum {
  * @param xim                - Context to Locale and UTF 8 support
  */
 
+#ifdef _WIN32
+
+typedef unsigned long int XID;
+typedef unsigned long int Atom;
+typedef unsigned long int VisualID;
+typedef unsigned long int Time;
+typedef XID Window;
+typedef XID Font;
+typedef XID Pixmap;
+typedef unsigned char KeyCode;
+typedef XID Drawable;
+typedef XID Cursor;
+typedef XID Colormap;
+typedef XID GContext;
+typedef XID KeySym;
+
+typedef struct {
+  int x;
+  int y;
+} XKeyEvent;
+typedef struct {
+  int x;
+  int y;
+} XMotionEvent;
+typedef struct {
+  int button;
+  int x;
+  int y;
+} XButtonEvent;
+//typedef struct {
+//  void *widget;
+//} Window;
+typedef struct {
+  int width=0;
+  int height=0;
+  int map_state=0;
+} XWindowAttributes;
+typedef XID *Display;
+typedef XID *Status;
+//typedef void *Display;
+//typedef void *Pixmap;
+//typedef void *Atom;
+//typedef int Status;
+//typedef int KeySym;
+//typedef void *XButtonEvent;
+#define XGetWindowAttributes(a,b,c) 0
+#define IsViewable 1
+#define Button1 1
+#define Button2 2
+#define Button3 3
+#define Button4 4
+#define Button5 5
+#define XCreatePixmap(a,b,c,d,e) 0
+#define XResizeWindow(a,b,c,d) 0
+#define XOpenDisplay(a) 0
+#define XMoveWindow(a,b,c,d) 0
+#define cairo_xlib_surface_get_width(a) 0
+#define cairo_xlib_surface_set_size(a,b,c) 0
+#define cairo_xlib_surface_get_height(a) 0
+#endif
 struct Widget_t {
 /** pointer to the main struct */
     Xputty *app;
@@ -331,10 +392,15 @@ struct Widget_t {
     Adjustment_t *adj;
 /** pointer to Widget_t child list */
     Childlist_t *childlist;
+#ifdef __linux__
 /** Locale and UTF 8 support */
     XIC xic;
 /** Context to Locale and UTF 8 support */
     XIM xim;
+#elif _WIN32
+    void *xic;
+    void *xim;
+#endif
 /** int to hold the widget state default = 0 */
     int state;
 /** mouse pointer x position on button press */
