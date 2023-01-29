@@ -46,7 +46,7 @@ jobs:
         ./tmbuild.sh
 
     - name: zip
-      run: cd trunk/_bin ; 7z a -mx9 ../../plugin.7z lv2 ; cd ../..
+      run: cd trunk ; 7z a -mx9 ../plugin.7z _bin ; cd ..
 
     - uses: actions/upload-artifact@v3.1.2
       with:
