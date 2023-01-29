@@ -13,26 +13,39 @@ jobs:
 
     defaults:
       run:
-        #shell: msys2 {0}
-        #shell: /msys64/msys2_shell.cmd -mingw64 -where . -c {0}
-        #shell: \msys64\msys2_shell.cmd -mingw64 -where . -c {0}
-        #shell: /msys64/mingw64 bash -c {0}
-        shell: \\msys64\\mingw64 bash -c {0}
+        shell: msys2 {0}
 
     steps:
-    - name: Add msys2 to PATH
-      shell: pwsh
-      run: |
-        echo "c:\msys64;%PATH%" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
+    - name: Prepare MSys2
+      uses: msys2/setup-msys2@v2
+      with:
+        update: true
+        install: >-
+          base-devel
+          git
+          make
+          mingw-w64-x86_64-gcc
+          mingw-w64-x86_64-lv2
+          mingw-w64-x86_64-cairo
+          mingw-w64-x86_64-pkgconf
+          pkgconf
+          mingw-w64-x86_64-7zip
         
-      #echo "c:\msys64" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-        
-    #- name: Check out sources
-    #  uses: actions/checkout@v3.3.0
-    #  with:
-    #    submodules: recursive
+    - name: Check out sources
+      uses: actions/checkout@v3.3.0
+      with:
+        submodules: recursive
 
-    - name: check MSys2
+    - name: build
       run: |
-        pwd
-        find
+        cd trunk
+        ./tmbuild.sh
+
+    - name: zip
+      run: cd _bin ; 7z a -mx9 ../plugin.7z lv2 ; cd ..
+
+    - uses: actions/upload-artifact@v3.1.2
+      with:
+        name: guitarix-lv2-plugins-win64.7z
+        path: plugin.7z
+
