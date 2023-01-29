@@ -21,10 +21,6 @@ jobs:
       with:
         update: true
         install: >-
-          #make
-          #mingw-w64-x86_64-cairo
-          #mingw-w64-x86_64-pkgconf
-          #pkgconf
           mingw-w64-x86_64-7zip
           git
           base-devel
@@ -37,6 +33,11 @@ jobs:
           mingw-w64-x86_64-fftw
           mingw-w64-x86_64-libffi
           mingw-w64-x86_64-libsndfile
+
+          #make
+          #mingw-w64-x86_64-cairo
+          #mingw-w64-x86_64-pkgconf
+          #pkgconf
 
     - name: Check out sources
       uses: actions/checkout@v3.3.0
