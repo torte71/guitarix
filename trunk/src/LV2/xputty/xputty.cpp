@@ -20,6 +20,11 @@
 
 #include "xputty.h"
 
+#ifdef _WIN32
+#define True true
+#define False false
+#endif
+
 
 void main_init(Xputty *main) {
     main->dpy = XOpenDisplay(0);
@@ -39,6 +44,7 @@ void main_init(Xputty *main) {
 }
 
 void main_run(Xputty *main) {
+#ifndef _WIN32
     Widget_t * wid = main->childlist->childs[0]; 
     Atom WM_DELETE_WINDOW;
     WM_DELETE_WINDOW = XInternAtom(wid->app->dpy, "WM_DELETE_WINDOW", True);
@@ -90,9 +96,11 @@ void main_run(Xputty *main) {
             break;
         }
     }
+#endif
 }
 
 void run_embedded(Xputty *main) {
+#ifndef _WIN32
 
     XEvent xev;
     int ew = -1;
@@ -148,6 +156,7 @@ void run_embedded(Xputty *main) {
         break;
         }
     }
+#endif
 }
 
 void main_quit(Xputty *main) {
@@ -159,6 +168,8 @@ void main_quit(Xputty *main) {
     childlist_destroy(main->childlist);
     free(main->childlist);
     free(main->color_scheme);
+#ifndef _WIN32
     XCloseDisplay(main->dpy);
+#endif
     debug_print("quit\n");
 }

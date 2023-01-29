@@ -24,6 +24,7 @@
 
 
 void pop_menu_show(Widget_t *parent, Widget_t *menu, int elem, bool above) {
+#ifndef _WIN32
     if (!childlist_has_child(menu->childlist)) return;
     Widget_t* view_port =  menu->childlist->childs[0];
     if (!view_port->childlist->elem) return;
@@ -35,6 +36,7 @@ void pop_menu_show(Widget_t *parent, Widget_t *menu, int elem, bool above) {
     menu->app->hold_grab = menu;
 
     if (err) debug_print("Error grap pointer\n");
+#endif
 }
 
 Widget_t* create_viewport(Widget_t *parent, int width, int height) {
@@ -49,6 +51,7 @@ Widget_t* create_viewport(Widget_t *parent, int width, int height) {
 }
 
 Widget_t* create_menu(Widget_t *parent, int height) {
+#ifndef _WIN32
 
     int x1, y1;
     Window child;
@@ -76,9 +79,11 @@ Widget_t* create_menu(Widget_t *parent, int height) {
     wid->scale.gravity = NONE;
     childlist_add_child(parent->childlist, wid);
     return wid;
+#endif
 }
 
 Widget_t* menu_add_item(Widget_t *menu,const char * label) {
+#ifndef _WIN32
     Widget_t* view_port =  menu->childlist->childs[0];
     XWindowAttributes attrs;
     XGetWindowAttributes(menu->app->dpy, (Window)menu->widget, &attrs);
@@ -95,6 +100,7 @@ Widget_t* menu_add_item(Widget_t *menu,const char * label) {
     wid->func.enter_callback = transparent_draw;
     wid->func.leave_callback = transparent_draw;
     return wid;
+#endif
 }
 
 Widget_t* menu_add_check_item(Widget_t *menu, const char * label) {

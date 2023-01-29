@@ -24,6 +24,7 @@
 
 
 int key_mapping(Display *dpy, XKeyEvent *xkey) {
+#ifndef _WIN32
     if (xkey->keycode == XKeysymToKeycode(dpy,XK_Tab))
         return (xkey->state == ShiftMask) ? 1 : 2;
     else if (xkey->keycode == XKeysymToKeycode(dpy,XK_Up))
@@ -66,9 +67,11 @@ int key_mapping(Display *dpy, XKeyEvent *xkey) {
     else if (xkey->keycode == XKeysymToKeycode(dpy,XK_KP_Enter))
         return 10;
     else return 0;
+#endif
 }
 
 void destroy_widget(Widget_t * w, Xputty *main) {
+#ifndef _WIN32
     int count = childlist_find_child(main->childlist, w);
     if (count == 0 && main->run == true) {
         quit(w);
@@ -109,9 +112,11 @@ void destroy_widget(Widget_t * w, Xputty *main) {
         free(w);
         w = NULL;
     }
+#endif
 }
 
 void configure_event(void *w_, void* user_data) {
+#ifndef _WIN32
     Widget_t *wid = (Widget_t*)w_;
     XWindowAttributes attrs;
     XGetWindowAttributes(wid->app->dpy, (Window)wid->widget, &attrs);
@@ -131,6 +136,7 @@ void configure_event(void *w_, void* user_data) {
 
         _resize_childs(wid);
     }
+#endif
 }
 
 void widget_reset_scale(Widget_t *w) {
@@ -143,6 +149,7 @@ void widget_set_scale(Widget_t *w) {
 
 Widget_t *create_window(Xputty *app, Window win,
                           int x, int y, int width, int height) {
+#ifndef _WIN32
 
     Widget_t *w = (Widget_t*)malloc(sizeof(Widget_t));
     assert(w != NULL);
@@ -261,10 +268,12 @@ Widget_t *create_window(Xputty *app, Window win,
     //XMapWindow(app->dpy, w->widget);
     debug_print("size of Func_t = %lu\n", sizeof(w->func)/sizeof(void*));
     return w;
+#endif
 }
 
 Widget_t *create_widget(Xputty *app, Widget_t *parent,
                           int x, int y, int width, int height) {
+#ifndef _WIN32
 
     Widget_t *w = (Widget_t*)malloc(sizeof(Widget_t));
     assert(w != NULL);
@@ -372,6 +381,7 @@ Widget_t *create_widget(Xputty *app, Widget_t *parent,
     //XMapWindow(app->dpy, w->widget);
     debug_print("size of Widget_t = %ld\n", sizeof(struct Widget_t));
     return w;
+#endif
 }
 
 void connect_func(void (**event)(), void (*handler)()) {
@@ -382,24 +392,31 @@ void connect_func(void (**event)(), void (*handler)()) {
 }
 
 void widget_set_title(Widget_t *w, const char *title) {
+#ifndef _WIN32
     XStoreName(w->app->dpy, w->widget, title);
+#endif
 }
 
 void widget_show(Widget_t *w) {
+#ifndef _WIN32
     w->func.map_notify_callback(w, NULL);
     XMapWindow(w->app->dpy, w->widget);
+#endif
 }
 
 void widget_hide(Widget_t *w) {
+#ifndef _WIN32
     int i=0;
     for(;i<w->childlist->elem;i++) {
         widget_hide(w->childlist->childs[i]);
     }
     w->func.unmap_notify_callback(w, NULL);
     XUnmapWindow(w->app->dpy, w->widget);
+#endif
 }
 
 void widget_show_all(Widget_t *w) {
+#ifndef _WIN32
     if (w->flags & IS_POPUP || w->flags & IS_TOOLTIP) {
         return;
     } else {
@@ -410,18 +427,22 @@ void widget_show_all(Widget_t *w) {
             widget_show_all(w->childlist->childs[i]);
         }
     }
+#endif
 }
 
 void pop_widget_show_all(Widget_t *w) {
+#ifndef _WIN32
     w->func.map_notify_callback(w, NULL);
     XMapWindow(w->app->dpy, w->widget);
     int i=0;
     for(;i<w->childlist->elem;i++) {
         pop_widget_show_all(w->childlist->childs[i]);
     }
+#endif
 }
 
 void show_tooltip(Widget_t *wid) {
+#ifndef _WIN32
     int i = 0;
     for(;i<wid->childlist->elem;i++) {
         Widget_t *w = wid->childlist->childs[i];
@@ -438,9 +459,11 @@ void show_tooltip(Widget_t *wid) {
             break;
         }
     }
+#endif
 }
 
 void hide_tooltip(Widget_t *wid) {
+#ifndef _WIN32
     int i = 0;
     for(;i<wid->childlist->elem;i++) {
         Widget_t *w = wid->childlist->childs[i];
@@ -449,6 +472,7 @@ void hide_tooltip(Widget_t *wid) {
             break;
         }
     }
+#endif
 }
 
 Widget_t *get_toplevel_widget(Xputty *main) {
@@ -456,14 +480,17 @@ Widget_t *get_toplevel_widget(Xputty *main) {
 }
 
 void expose_widget(Widget_t *w) {
+#ifndef _WIN32
     XEvent exp;
     memset(&exp, 0, sizeof(exp));
     exp.type = Expose;
     exp.xexpose.window = w->widget;
     XSendEvent(w->app->dpy, w->widget, False, ExposureMask, (XEvent *)&exp);
+#endif
 }
 
 void transparent_draw(void * w_, void* user_data) {
+#ifndef _WIN32
     Widget_t *wid = (Widget_t*)w_;
 
     cairo_push_group (wid->cr);
@@ -489,9 +516,11 @@ void transparent_draw(void * w_, void* user_data) {
     cairo_pop_group_to_source (wid->cr);
     cairo_paint (wid->cr);
     _propagate_child_expose(wid);
+#endif
 }
 
 void widget_event_loop(void *w_, void* event, Xputty *main, void* user_data) {
+#ifndef _WIN32
     Widget_t *wid = (Widget_t*)w_;
     XEvent *xev = (XEvent*)event;
     if (XFilterEvent(xev, wid->widget))
@@ -609,9 +638,11 @@ void widget_event_loop(void *w_, void* event, Xputty *main, void* user_data) {
         main->queue_event = false;
         transparent_draw(w_, user_data);
     }
+#endif
 }
 
 void send_configure_event(Widget_t *w,int x, int y, int width, int height) {
+#ifndef _WIN32
     XConfigureEvent notify;
     memset(&notify, 0, sizeof(notify));
     notify.type = ConfigureNotify;
@@ -627,9 +658,11 @@ void send_configure_event(Widget_t *w,int x, int y, int width, int height) {
     notify.above = None;
     notify.override_redirect = 1;
     XSendEvent( w->app->dpy, w->widget, true, StructureNotifyMask, (XEvent*)&notify );    
+#endif
 }
 
 void send_button_press_event(Widget_t *w) {
+#ifndef _WIN32
     XEvent event;
     memset(&event, 0, sizeof(XEvent));
     XWindowAttributes attr;
@@ -646,9 +679,11 @@ void send_button_press_event(Widget_t *w) {
     event.xbutton.state = 0;
     event.xbutton.button = Button1;
     XSendEvent(w->app->dpy, PointerWindow, True, ButtonPressMask, &event);
+#endif
 }
 
 void send_button_release_event(Widget_t *w) {
+#ifndef _WIN32
     XEvent event;
     memset(&event, 0, sizeof(XEvent));
     XWindowAttributes attr;
@@ -665,9 +700,11 @@ void send_button_release_event(Widget_t *w) {
     event.xbutton.state = 0;
     event.xbutton.button = Button1;
     XSendEvent(w->app->dpy, PointerWindow, True, ButtonReleaseMask, &event);
+#endif
 }
 
 void send_systray_message(Widget_t *w) {
+#ifndef _WIN32
     XEvent event;
     Screen *xscreen;
     char buf[256];
@@ -698,9 +735,11 @@ void send_systray_message(Widget_t *w) {
     event.xclient.data.l[4] = 0;
 
     XSendEvent(w->app->dpy, tray, False, NoEventMask, &event);
+#endif
 }
 
 void quit(Widget_t *w) {
+#ifndef _WIN32
     Atom WM_DELETE_WINDOW = XInternAtom(w->app->dpy, "WM_DELETE_WINDOW", True);
     XClientMessageEvent xevent;
     xevent.type = ClientMessage;
@@ -710,9 +749,11 @@ void quit(Widget_t *w) {
     xevent.format = 16;
     xevent.data.l[0] = WM_DELETE_WINDOW;
     XSendEvent(w->app->dpy, w->widget, 0, 0, (XEvent *)&xevent);
+#endif
 }
 
 void quit_widget(Widget_t *w) {
+#ifndef _WIN32
     Atom QUIT_WIDGET = XInternAtom(w->app->dpy, "WIDGET_DESTROY", False);
     XClientMessageEvent xevent;
     xevent.type = ClientMessage;
@@ -722,5 +763,6 @@ void quit_widget(Widget_t *w) {
     xevent.format = 16;
     xevent.data.l[0] = 1;
     XSendEvent(w->app->dpy, w->widget, 0, 0, (XEvent *)&xevent);
+#endif
 }
 

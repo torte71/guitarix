@@ -31,6 +31,7 @@ void _draw_listbox(void *w_, void* user_data) {
 }
 
 void _draw_listbox_item(void *w_, void* user_data) {
+#ifndef _WIN32
     Widget_t *w = (Widget_t*)w_;
     if (!w) return;
     XWindowAttributes attrs;
@@ -72,9 +73,11 @@ void _draw_listbox_item(void *w_, void* user_data) {
     } else {
         w->flags &= ~HAS_TOOLTIP;
     }
+#endif
 }
 
 void _reconfigure_listbox_viewport(void *w_, void* user_data) {
+#ifndef _WIN32
     Widget_t *w = (Widget_t*)w_;
     float st = adj_get_state(w->adj);
     Widget_t* listbox = (Widget_t*)w->parent;
@@ -85,9 +88,11 @@ void _reconfigure_listbox_viewport(void *w_, void* user_data) {
     int si = childlist_has_child(w->childlist);
     w->adj->max_value = si-elem;
     adj_set_state(w->adj,st);
+#endif
 }
 
 void _configure_listbox(void *w_, void* user_data) {
+#ifndef _WIN32
     Widget_t *w = (Widget_t*)w_;
     int si = max(1,childlist_has_child(w->childlist));
     Widget_t* listbox = (Widget_t*)w->parent;
@@ -95,9 +100,11 @@ void _configure_listbox(void *w_, void* user_data) {
     XGetWindowAttributes(listbox->app->dpy, (Window)listbox->widget, &attrs);
     int width = attrs.width;
     XResizeWindow (w->app->dpy, w->widget, width, 25*(si));
+#endif
 }
 
 void _draw_listbox_viewslider(void *w_, void* user_data) {
+#ifndef _WIN32
     Widget_t *w = (Widget_t*)w_;
     int v = (int)w->adj->max_value;
     if (!v) return;
@@ -118,18 +125,22 @@ void _draw_listbox_viewslider(void *w_, void* user_data) {
     use_fg_color_scheme(w, NORMAL_);
     cairo_set_line_width(w->crb,1);
     cairo_stroke(w->crb);
+#endif
 }
 
 void _set_listbox_viewpoint(void *w_, void* user_data) {
+#ifndef _WIN32
     Widget_t *w = (Widget_t*)w_;
     int v = (int)adj_get_value(w->adj);
     XWindowAttributes attrs;
     XGetWindowAttributes(w->app->dpy, (Window)w->childlist->childs[0]->widget, &attrs);
     int height = attrs.height;
     XMoveWindow(w->app->dpy,w->widget,0, -height*v);
+#endif
 }
 
 void _listbox_entry_released(void *w_, void* button_, void* user_data) {
+#ifndef _WIN32
     Widget_t *w = (Widget_t*)w_;
     Widget_t* view_port = (Widget_t*)w->parent;
     int direction = 0 ;
@@ -164,5 +175,6 @@ void _listbox_entry_released(void *w_, void* button_, void* user_data) {
             check_value_changed(view_port->adj, &value);
         }
     }
+#endif
 }
 

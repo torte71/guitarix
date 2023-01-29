@@ -45,6 +45,7 @@ void add_tooltip(Widget_t *w, const char* label) {
 }
 
 Widget_t* create_tooltip(Widget_t *parent, int width, int height) {
+#ifndef _WIN32
 
     int x1, y1;
     Window child;
@@ -62,4 +63,5 @@ Widget_t* create_tooltip(Widget_t *parent, int width, int height) {
     wid->scale.gravity = NONE;
     childlist_add_child(parent->childlist, wid);
     return wid;
+#endif
 }

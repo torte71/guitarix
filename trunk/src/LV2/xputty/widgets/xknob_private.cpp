@@ -33,6 +33,7 @@ static void _show_label(Widget_t *w, int width, int height) {
 }
 
 void _draw_image_knob(Widget_t *w, int width_t, int height_t) {
+#ifndef _WIN32
     int width = cairo_xlib_surface_get_width(w->image);
     int height = cairo_xlib_surface_get_height(w->image);
     double x = (double)width_t/(double)height;
@@ -46,6 +47,7 @@ void _draw_image_knob(Widget_t *w, int width_t, int height_t) {
     cairo_fill(w->crb);
     //widget_reset_scale(w);
     cairo_scale(w->crb, y,y);
+#endif
 }
 
 void _draw_knob_image(void *w_, void* user_data) {
@@ -55,6 +57,7 @@ void _draw_knob_image(void *w_, void* user_data) {
 }
 
 void _draw_knob(void *w_, void* user_data) {
+#ifndef _WIN32
     Widget_t *w = (Widget_t*)w_;
     XWindowAttributes attrs;
     XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
@@ -136,6 +139,7 @@ void _draw_knob(void *w_, void* user_data) {
     }
 
     _show_label(w, width, height);
+#endif
 }
 
 void _knob_released(void *w_, void* button_, void* user_data) {

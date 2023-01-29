@@ -22,6 +22,7 @@
 
 
 void keysym_azerty_to_midi_key(long inkey, float *midi_key) {
+#ifndef _WIN32
     switch(inkey) {
         case(XK_w) : (*midi_key) = 12.0; /* w = C0 */
         break;
@@ -85,9 +86,11 @@ void keysym_azerty_to_midi_key(long inkey, float *midi_key) {
         case(XK_dead_circumflex) : (*midi_key) = 41.0; /* dead circumflex */
         break;
     }
+#endif
 }
 
 void keysym_qwertz_to_midi_key(long inkey, float *midi_key) {
+#ifndef _WIN32
     switch(inkey) {
         case(XK_y) : (*midi_key) = 12.0; /* y = C0 */
         break;
@@ -152,6 +155,7 @@ void keysym_qwertz_to_midi_key(long inkey, float *midi_key) {
         case(XK_plus) : (*midi_key) = 42.0; /* + */
         break;
     }
+#endif
 }
 
 void keysym_qwerty_to_midi_key(unsigned int inkey, float *midi_key) {
@@ -342,7 +346,9 @@ static void draw_keyboard(void *w_, void* user_data) {
     MidiKeyboard *keys = (MidiKeyboard*)w->parent_struct;
     
     cairo_rectangle(w->crb,0,0,width_t,height_t*0.4);
+#ifndef _WIN32
     set_pattern(w,&w->app->color_scheme->selected,&w->app->color_scheme->normal,BACKGROUND_);
+#endif
     cairo_fill (w->crb);
     //set_pattern(w,&w->app->color_scheme->normal,&w->app->color_scheme->selected,BACKGROUND_);
     use_bg_color_scheme(w, SELECTED_);
@@ -468,6 +474,7 @@ static void keyboard_motion(void *w_, void* xmotion_, void* user_data) {
             if (space!=3) {
                 if(xmotion->x > i+15 && xmotion->x < i+35) {
                     keys->prelight_key = set_key+keys->octave;
+#ifndef _WIN32
                     if(xmotion->state & Button1Mask) {
                         if (keys->active_key != keys->prelight_key) {
                             keys->send_key = keys->active_key;
@@ -477,6 +484,7 @@ static void keyboard_motion(void *w_, void* xmotion_, void* user_data) {
                             keys->mk_send_note(p, &keys->send_key,true);
                         }
                     }
+#endif
                     catchit = true;
                     expose_widget(w);
                     break;
@@ -507,6 +515,7 @@ static void keyboard_motion(void *w_, void* xmotion_, void* user_data) {
         for(;i<width;i++) {
             if(xmotion->x > i && xmotion->x < i+25) {
                 keys->prelight_key = k+keys->octave;
+#ifndef _WIN32
                 if(xmotion->state & Button1Mask) {
                     if (keys->active_key != keys->prelight_key) {
                         keys->send_key = keys->active_key;
@@ -516,6 +525,7 @@ static void keyboard_motion(void *w_, void* xmotion_, void* user_data) {
                         keys->mk_send_note(p, &keys->send_key,true);
                     }
                 }
+#endif
                 expose_widget(w);
                 break;
             }
@@ -554,6 +564,7 @@ static void get_outkey(MidiKeyboard *keys, KeySym sym, float *outkey) {
 }
 
 static void key_press(void *w_, void *key_, void *user_data) {
+#ifndef _WIN32
     Widget_t *w = (Widget_t*)w_;
     Widget_t *p = (Widget_t *)w->parent;
     if (!w) return;
@@ -575,9 +586,11 @@ static void key_press(void *w_, void *key_, void *user_data) {
         keys->mk_send_all_sound_off(p, NULL);
         expose_widget(w);
     } 
+#endif
 }
 
 static void key_release(void *w_, void *key_, void *user_data) {
+#ifndef _WIN32
     Widget_t *w = (Widget_t*)w_;
     Widget_t *p = (Widget_t *)w->parent;
     if (!w) return;
@@ -593,6 +606,7 @@ static void key_release(void *w_, void *key_, void *user_data) {
         keys->mk_send_note(p,&keys->send_key,false);
         expose_widget(w);
     }
+#endif
 }
 
 static void leave_keyboard(void *w_, void* user_data) {
@@ -603,6 +617,7 @@ static void leave_keyboard(void *w_, void* user_data) {
 }
 
 static void button_pressed_keyboard(void *w_, void* button_, void* user_data) {
+#ifndef _WIN32
     Widget_t *w = (Widget_t*)w_;
     Widget_t *p = (Widget_t *)w->parent;
     if (w->flags & HAS_POINTER) {
@@ -615,9 +630,11 @@ static void button_pressed_keyboard(void *w_, void* button_, void* user_data) {
             expose_widget(w);
         }
     }
+#endif
 }
 
 static void button_released_keyboard(void *w_, void* button_, void* user_data) {
+#ifndef _WIN32
     Widget_t *w = (Widget_t*)w_;
     Widget_t *p = (Widget_t *)w->parent;
     if (w->flags & HAS_POINTER) {
@@ -630,6 +647,7 @@ static void button_released_keyboard(void *w_, void* button_, void* user_data) {
             expose_widget(w);
         }
     }
+#endif
 }
 
 static void octave_callback(void *w_, void* user_data) {
@@ -747,6 +765,7 @@ static void wheel_key_press(void *w_, void *key_, void *user_data) {
  */
 
 static void keyboard_mem_free(void *w_, void* user_data) {
+#ifndef _WIN32
     Widget_t *w = (Widget_t*)w_;
     MidiKeyboard *keys = (MidiKeyboard*)w->parent_struct;
     if(keys->icon) {
@@ -754,6 +773,7 @@ static void keyboard_mem_free(void *w_, void* user_data) {
         keys->icon = NULL;
     }
     free(keys);
+#endif
 }
 
 static void map_keyboard(void *w_, void* user_data) {
@@ -791,6 +811,7 @@ Widget_t *add_keyboard_knob(Widget_t *parent, const char * label,
 }
 
 Widget_t *open_midi_keyboard(Widget_t *w) {
+#ifndef _WIN32
     Widget_t *wid = create_window(w->app, DefaultRootWindow(w->app->dpy), 0, 0, 700, 200);
     XSelectInput(wid->app->dpy, wid->widget,StructureNotifyMask|ExposureMask|KeyPressMask 
                     |EnterWindowMask|LeaveWindowMask|ButtonReleaseMask|KeyReleaseMask
@@ -887,4 +908,5 @@ Widget_t *open_midi_keyboard(Widget_t *w) {
     layout->func.value_changed_callback = layout_callback;
 
  return wid;
+#endif
 }

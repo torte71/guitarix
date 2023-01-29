@@ -28,6 +28,7 @@
 
 // setup a color theme
 static void set_default_theme(Xputty *main) {
+#ifndef _WIN32
     main->color_scheme->normal = (Colors) {
          /* cairo    / r  / g  / b  / a  /  */
         /*fg */       { 0.68, 0.44, 0.00, 1.00},
@@ -68,6 +69,7 @@ static void set_default_theme(Xputty *main) {
         /*frame */    { 0.18, 0.18, 0.18, 1.0},
         /*light */    { 0.85, 0.52, 0.00, 0.6}
     };
+#endif
 }
 
 static void set_default_knob_color(KnobColors* kp) {
@@ -88,6 +90,7 @@ static void set_default_knob_color(KnobColors* kp) {
 
 // draw the window
 static void draw_window(void *w_, void* user_data) {
+#ifndef _WIN32
     Widget_t *w = (Widget_t*)w_;
     X11_UI* ui = (X11_UI*)w->parent_struct;
     set_pattern(w,&w->app->color_scheme->selected,&w->app->color_scheme->normal,BACKGROUND_);
@@ -122,10 +125,12 @@ static void draw_window(void *w_, void* user_data) {
     cairo_paint (w->crb);
     cairo_scale (w->crb, 1.05, 1.05);
     widget_reset_scale(w);
+#endif
 }
 
 // draw the knobs
 static void draw_my_knob(void *w_, void* user_data) {
+#ifndef _WIN32
     Widget_t *w = (Widget_t*)w_;
     X11_UI* ui = (X11_UI*)w->parent_struct;
     int width = w->width-2;
@@ -232,6 +237,7 @@ static void draw_my_knob(void *w_, void* user_data) {
     cairo_move_to (w->crb, knobx1-extents.width/2, height-2 );
     cairo_show_text(w->crb, w->label);
     cairo_new_path (w->crb);
+#endif
 }
 
 // draw a bypass switch
@@ -261,11 +267,13 @@ static void draw_my_bypass(void *w_, void* user_data) {
     cairo_new_path (w->crb);
 
     pat = cairo_pattern_create_linear (0, 0, 0, switch_y);
+#ifndef _WIN32
     cairo_pattern_add_color_stop_rgba (pat, 1, ui->kp->p1f[0],ui->kp->p1f[1],ui->kp->p1f[2],ui->kp->p1f[3]);
     cairo_pattern_add_color_stop_rgba (pat, 0.75, ui->kp->p2f[0],ui->kp->p2f[1],ui->kp->p2f[2],ui->kp->p2f[3]);
     cairo_pattern_add_color_stop_rgba (pat, 0.5,  ui->kp->p3f[0],ui->kp->p3f[1],ui->kp->p3f[2],ui->kp->p3f[3]);
     cairo_pattern_add_color_stop_rgba (pat, 0.25,  ui->kp->p4f[0],ui->kp->p4f[1],ui->kp->p4f[2],ui->kp->p4f[3]);
     cairo_pattern_add_color_stop_rgba (pat, 0,  ui->kp->p5f[0],ui->kp->p5f[1],ui->kp->p5f[2],ui->kp->p5f[3]);
+#endif
 
     cairo_scale (w->crb, 0.95, 1.05);
     cairo_arc(w->crb,switchx1+arc_offset/2, switchy1-arc_offset, switch_x/2.2, 0, 2 * M_PI );

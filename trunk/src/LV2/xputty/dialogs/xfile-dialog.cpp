@@ -38,6 +38,7 @@
 
 
 static void draw_window(void *w_, void* user_data) {
+#ifndef _WIN32
     Widget_t *w = (Widget_t*)w_;
     XWindowAttributes attrs;
     XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
@@ -63,6 +64,7 @@ static void draw_window(void *w_, void* user_data) {
     cairo_move_to (w->crb, 60, 340);
     cairo_show_text(w->crb, w->label);
     widget_reset_scale(w);
+#endif
 }
 
 static void button_quit_callback(void *w_, void* user_data) {
@@ -100,11 +102,13 @@ static void set_dirs(FileDialog *file_dialog) {
 }
 
 static void center_widget(Widget_t *wid, Widget_t *w) {
+#ifndef _WIN32
     XMoveWindow(wid->app->dpy,w->widget,w->scale.init_x /
         wid->scale.cscale_x,w->scale.init_y / wid->scale.cscale_y);
     XResizeWindow (wid->app->dpy, w->widget, max(1,
         w->scale.init_width / (wid->scale.cscale_x)), 
         max(1,w->scale.init_height / (wid->scale.cscale_y)));
+#endif
 }
 
 static void set_selected_file(FileDialog *file_dialog) {
@@ -235,6 +239,7 @@ static void set_filter_callback(void *w_, void* user_data) {
 }
 
 static void fd_mem_free(void *w_, void* user_data) {
+#ifndef _WIN32
     Widget_t *w = (Widget_t*)w_;
     FileDialog *file_dialog = (FileDialog *)w->parent_struct;
     if(file_dialog->icon) {
@@ -246,9 +251,11 @@ static void fd_mem_free(void *w_, void* user_data) {
     fp_free(file_dialog->fp);
     free(file_dialog->fp);
     free(file_dialog);
+#endif
 }
 
 Widget_t *open_file_dialog(Widget_t *w, const char *path, const char *filter) {
+#ifndef _WIN32
     FileDialog *file_dialog = (FileDialog*)malloc(sizeof(FileDialog));
     
     file_dialog->fp = (FilePicker*)malloc(sizeof(FilePicker));
@@ -323,6 +330,7 @@ Widget_t *open_file_dialog(Widget_t *w, const char *path, const char *filter) {
 
     widget_show_all(file_dialog->w);
     return file_dialog->w;
+#endif
 }
 
 /*---------------------------------------------------------------------

@@ -22,7 +22,7 @@
 
 
 static void draw_message_label(Widget_t *w, int width, int height) {
-    MessageBox *mb = (MessageBox *)w->parent_struct;
+    xxMessageBox *mb = (xxMessageBox *)w->parent_struct;
     cairo_text_extents_t extents;
     use_fg_color_scheme(w, NORMAL_);
     cairo_set_font_size (w->crb, 12.0);
@@ -36,6 +36,7 @@ static void draw_message_label(Widget_t *w, int width, int height) {
 }
 
 static void draw_message_window(void *w_, void* user_data) {
+#ifndef _WIN32
     Widget_t *w = (Widget_t*)w_;
     XWindowAttributes attrs;
     XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
@@ -62,6 +63,7 @@ static void draw_message_window(void *w_, void* user_data) {
 
     draw_message_label(w,width_t,height_t);
     widget_reset_scale(w);
+#endif
 }
 
 static void draw_entry(void *w_, void* user_data) {
@@ -149,7 +151,7 @@ static void message_okay_callback(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
     if (w->flags & HAS_POINTER && !*(int*)user_data){
         Widget_t *p = (Widget_t*)w->parent;
-        MessageBox *mb = (MessageBox *)p->parent_struct;
+        xxMessageBox *mb = (xxMessageBox *)p->parent_struct;
         if(mb->message_type == QUESTION_BOX || mb->message_type == SELECTION_BOX) {
             Widget_t *pa = (Widget_t*)p->parent;
             pa->func.dialog_callback(pa,&mb->response);
@@ -168,7 +170,7 @@ static void message_no_callback(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
     if (w->flags & HAS_POINTER && !*(int*)user_data){
         Widget_t *p = (Widget_t*)w->parent;
-        MessageBox *mb = (MessageBox *)p->parent_struct;
+        xxMessageBox *mb = (xxMessageBox *)p->parent_struct;
         if(mb->message_type == QUESTION_BOX) {
             Widget_t *pa = (Widget_t*)p->parent;
             mb->response = -1;
@@ -180,7 +182,7 @@ static void message_no_callback(void *w_, void* user_data) {
 
 static void radio_box_set_active(Widget_t *w) {
     Widget_t * p = (Widget_t*)w->parent;
-    MessageBox *mb = (MessageBox *)p->parent_struct;
+    xxMessageBox *mb = (xxMessageBox *)p->parent_struct;
     int response = 0;
     int i = 0;
     for(;i<p->childlist->elem;i++) {
@@ -201,7 +203,7 @@ static void radio_box_button_pressed(void *w_, void* button_, void* user_data) {
 }
 
 static void create_checkboxes(Widget_t *w) {
-    MessageBox *mb = (MessageBox *)w->parent_struct;
+    xxMessageBox *mb = (xxMessageBox *)w->parent_struct;
     int y = (mb->lin + 1) * 24 +12;
     int i = 0;
     for(;i<(int)mb->sel;i++) {
@@ -222,7 +224,7 @@ static void entry_get_text(void *w_, void *key_, void *user_data) {
             case 10: 
                 {
                 Widget_t *p = (Widget_t*)w->parent;
-                MessageBox *mb = (MessageBox *)p->parent_struct;
+                xxMessageBox *mb = (xxMessageBox *)p->parent_struct;
                 Widget_t *pa = (Widget_t*)p->parent;
                 if (strlen( mb->text_entry->input_label))
                     mb->text_entry->input_label[strlen( mb->text_entry->input_label)-1] = 0;
@@ -238,6 +240,7 @@ static void entry_get_text(void *w_, void *key_, void *user_data) {
             break;
         }
     } else {
+#ifndef _WIN32
         Status status;
         KeySym keysym;
         char buf[32];
@@ -245,11 +248,12 @@ static void entry_get_text(void *w_, void *key_, void *user_data) {
         if(status == XLookupChars || status == XLookupBoth){
             entry_add_text(w, buf);
         }
+#endif
     }
 }
 
 static void create_entry_box(Widget_t *w) {
-    MessageBox *mb = (MessageBox *)w->parent_struct;
+    xxMessageBox *mb = (xxMessageBox *)w->parent_struct;
 
     mb->text_entry = create_widget(w->app, w, 20, mb->height-90, mb->width-40, 40);
     memset(mb->text_entry->input_label, 0, 32 * (sizeof mb->text_entry->input_label[0]) );
@@ -259,7 +263,7 @@ static void create_entry_box(Widget_t *w) {
     mb->text_entry->scale.gravity = CENTER;
 }
 
-static void check_for_message(MessageBox *mb, const char *message) {
+static void check_for_message(xxMessageBox *mb, const char *message) {
     if(!message) return;
     if(!strlen(message)) return;
     int len = 0;
@@ -276,7 +280,7 @@ static void check_for_message(MessageBox *mb, const char *message) {
     mb->height = mb->lin*12+100;
 }
 
-static void check_for_choices(MessageBox *mb, const char *choices) {
+static void check_for_choices(xxMessageBox *mb, const char *choices) {
     if(!choices) return;
     if(!strlen(choices)) return;
     int len = 0;
@@ -293,7 +297,7 @@ static void check_for_choices(MessageBox *mb, const char *choices) {
     mb->height += mb->sel*12+50;
 }
 
-static void check_for_style(MessageBox *mb, int style) {
+static void check_for_style(xxMessageBox *mb, int style) {
     if(style == ENTRY_BOX) {
         mb->width = max(330,mb->width);
         mb->height = max(140,mb->height+60);
@@ -302,9 +306,11 @@ static void check_for_style(MessageBox *mb, int style) {
 
 static void mg_mem_free(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
-    MessageBox *mb = (MessageBox *)w->parent_struct;
+    xxMessageBox *mb = (xxMessageBox *)w->parent_struct;
     if(mb->icon) {
+#ifndef _WIN32
         XFreePixmap(w->app->dpy, (*mb->icon));
+#endif
         mb->icon = NULL;
     }
     int i = 0;
@@ -321,8 +327,9 @@ static void mg_mem_free(void *w_, void* user_data) {
 
 Widget_t *open_message_dialog(Widget_t *w, int style, const char *title,
                               const char *message, const char *choices) {
+#ifndef _WIN32
 
-    MessageBox *mb = (MessageBox*)malloc(sizeof(MessageBox));
+    xxMessageBox *mb = (xxMessageBox*)malloc(sizeof(xxMessageBox));
     mb->response = 0;
     mb->message_type = 0;
     mb->lin = 0;
@@ -398,4 +405,5 @@ Widget_t *open_message_dialog(Widget_t *w, int style, const char *title,
 
     widget_show_all(wid);
     return wid;
+#endif
 }

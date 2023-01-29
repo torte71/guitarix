@@ -30,6 +30,7 @@ void _draw_menu(void *w_, void* user_data) {
 }
 
 void _draw_item(void *w_, void* user_data) {
+#ifndef _WIN32
     Widget_t *w = (Widget_t*)w_;
     if (!w) return;
     XWindowAttributes attrs;
@@ -61,9 +62,11 @@ void _draw_item(void *w_, void* user_data) {
     cairo_move_to (w->crb, (width-extents.width)/2., height - extents.height );
     cairo_show_text(w->crb, w->label);
     cairo_new_path (w->crb);
+#endif
 }
 
 void _draw_check_item(void *w_, void* user_data) {
+#ifndef _WIN32
     _draw_item(w_, user_data);
     Widget_t *w = (Widget_t*)w_;
     XWindowAttributes attrs;
@@ -85,9 +88,11 @@ void _draw_check_item(void *w_, void* user_data) {
         use_fg_color_scheme(w, ACTIVE_);
         cairo_fill(w->crb);
     }
+#endif
 }
 
 void _draw_viewslider(void *w_, void* user_data) {
+#ifndef _WIN32
     Widget_t *w = (Widget_t*)w_;
     int v = (int)w->adj->max_value;
     if (!v) return;
@@ -108,15 +113,18 @@ void _draw_viewslider(void *w_, void* user_data) {
     use_fg_color_scheme(w, NORMAL_);
     cairo_set_line_width(w->crb,1);
     cairo_stroke(w->crb);
+#endif
 }
 
 void _set_viewpoint(void *w_, void* user_data) {
+#ifndef _WIN32
     Widget_t *w = (Widget_t*)w_;
     int v = (int)max(0,adj_get_value(w->adj));
     XWindowAttributes attrs;
     XGetWindowAttributes(w->app->dpy, (Window)w->childlist->childs[0]->widget, &attrs);
     int height = attrs.height;
     XMoveWindow(w->app->dpy,w->widget,0, -height*v);
+#endif
 }
 
 void _check_item_button_pressed(void *w_, void* button_, void* user_data) {
@@ -135,6 +143,7 @@ void _radio_item_button_pressed(void *w_, void* button_, void* user_data) {
 }
 
 void _configure_menu(Widget_t *parent, Widget_t *menu, int elem, bool above) {
+#ifndef _WIN32
     Widget_t* view_port =  menu->childlist->childs[0];
     if (!view_port->childlist->elem) return;
     XWindowAttributes attrs;
@@ -167,4 +176,5 @@ void _configure_menu(Widget_t *parent, Widget_t *menu, int elem, bool above) {
     XResizeWindow (menu->app->dpy, menu->widget, item_width, height*elem);
     XResizeWindow (view_port->app->dpy, view_port->widget, item_width, height*view_port->childlist->elem);
     XMoveWindow(menu->app->dpy,menu->widget,x1, y1);   
+#endif
 }

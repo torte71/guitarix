@@ -23,6 +23,7 @@
 
 
 void _create_playhead_image(Widget_t *w, int width, int height) {
+#ifndef _WIN32
     w->image = cairo_surface_create_similar (w->surface, 
                         CAIRO_CONTENT_COLOR_ALPHA, width, height*2);
     cairo_t *cri = cairo_create (w->image);
@@ -54,9 +55,11 @@ void _create_playhead_image(Widget_t *w, int width, int height) {
     }
 
     cairo_destroy(cri);
+#endif
 }
 
 void _draw_playhead(void *w_, void* user_data) {
+#ifndef _WIN32
     Widget_t *w = (Widget_t*)w_;
 
     int width = cairo_xlib_surface_get_width(w->image);
@@ -80,4 +83,5 @@ void _draw_playhead(void *w_, void* user_data) {
     cairo_fill(w->crb);
 
     widget_reset_scale(w);
+#endif
 }

@@ -110,6 +110,7 @@ void _button_press(Widget_t * wid, XButtonEvent *xbutton, void* user_data) {
 }
 
 void _check_grab(Widget_t * wid, XButtonEvent *xbutton, Xputty *main) {
+#ifndef _WIN32
     if(main->hold_grab != NULL) {
         Widget_t *view_port = main->hold_grab->childlist->childs[0];
         if(xbutton->button == Button1) {
@@ -134,6 +135,7 @@ void _check_grab(Widget_t * wid, XButtonEvent *xbutton, Xputty *main) {
             _scroll_event(view_port, -1);
         }
     }
+#endif
 }
 
 void _propagate_child_expose(Widget_t *wid) {
@@ -152,6 +154,7 @@ void _propagate_child_expose(Widget_t *wid) {
 }
 
 void _check_keymap (void *w_ ,XKeyEvent xkey) {
+#ifndef _WIN32
     Widget_t *wid = (Widget_t*)w_;
     int n = 1;
     int i = 0;
@@ -195,6 +198,7 @@ void _check_keymap (void *w_ ,XKeyEvent xkey) {
             break;
         }
     }
+#endif
 }
 
 void _hide_all_tooltips(Widget_t *wid) {

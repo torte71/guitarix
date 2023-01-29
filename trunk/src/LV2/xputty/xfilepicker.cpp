@@ -130,6 +130,7 @@ static inline int fp_prefill_dirbuffer(FilePicker *filepicker, char *path) {
 
 int fp_get_files(FilePicker *filepicker, char *path, int get_dirs) {
     int ret = 0;
+#ifndef _WIN32
     fp_clear_filebuffer(filepicker);
 
     DIR *dirp;
@@ -170,6 +171,7 @@ int fp_get_files(FilePicker *filepicker, char *path, int get_dirs) {
     }
     closedir(dirp);
     fp_sort_buffers(filepicker, get_dirs);
+#endif
     return ret;
 }
 
