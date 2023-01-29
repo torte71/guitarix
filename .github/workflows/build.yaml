@@ -33,6 +33,7 @@ jobs:
           mingw-w64-x86_64-fftw
           mingw-w64-x86_64-libffi
           mingw-w64-x86_64-libsndfile
+          mingw-w64-x86_64-cairo
 
     - name: Check out sources
       uses: actions/checkout@v3.3.0
