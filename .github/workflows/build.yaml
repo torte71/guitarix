@@ -16,7 +16,8 @@ jobs:
         #shell: msys2 {0}
         #shell: /msys64/msys2_shell.cmd -mingw64 -where . -c {0}
         #shell: \msys64\msys2_shell.cmd -mingw64 -where . -c {0}
-        shell: /msys64/mingw64 bash -c {0}
+        #shell: /msys64/mingw64 bash -c {0}
+        shell: bash
 
     steps:
         #- name: Check out sources
@@ -24,6 +25,11 @@ jobs:
         #  with:
         #    submodules: recursive
 
+    - name: Add msys2 to PATH
+      shell: pwsh
+      run: |
+        echo "c:\msys64" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+        
     - name: check MSys2
       run: |
         pwd
