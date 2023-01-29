@@ -20,16 +20,18 @@ jobs:
         shell: bash
 
     steps:
-        #- name: Check out sources
-        #  uses: actions/checkout@v3.3.0
-        #  with:
-        #    submodules: recursive
-
     - name: Add msys2 to PATH
       shell: pwsh
       run: |
-        echo "c:\msys64" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+        echo "c:\msys64;%PATH%" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
         
+      #echo "c:\msys64" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+        
+    - name: Check out sources
+      uses: actions/checkout@v3.3.0
+      with:
+        submodules: recursive
+
     - name: check MSys2
       run: |
         pwd
