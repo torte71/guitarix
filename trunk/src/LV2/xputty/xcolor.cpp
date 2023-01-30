@@ -22,7 +22,6 @@
 
 
 void set_dark_theme(Xputty *main) {
-#ifndef _WIN32
     main->color_scheme->normal = (Colors) {
          /* cairo    / r  / g  / b  / a  /  */
         /*fg */       { 0.85, 0.85, 0.85, 1.0},
@@ -73,11 +72,9 @@ void set_dark_theme(Xputty *main) {
         /*frame */    { 0.0, 0.0, 0.0, 0.5},
         /*light */    { 0.1, 0.1, 0.1, 0.5}
     };
-#endif
 }
 
 void set_light_theme(Xputty *main) {
-#ifndef _WIN32
     main->color_scheme->normal = (Colors) {
          /* cairo    / r  / g  / b  / a  /  */
         /*fg */       { 0.15, 0.15, 0.15, 1.0},
@@ -128,11 +125,9 @@ void set_light_theme(Xputty *main) {
         /*frame */    { 0.2, 0.2, 0.2, 0.5},
         /*light */    { 0.9, 0.9, 0.9, 0.5}
     };
-#endif
 }
 
 Colors *get_color_scheme(Xputty *main, Color_state st) {
-#ifndef _WIN32
     switch(st) {
         case NORMAL_:
             return &main->color_scheme->normal;
@@ -155,11 +150,9 @@ Colors *get_color_scheme(Xputty *main, Color_state st) {
     }
     return NULL;
    
-#endif
 }
 
 Color_state get_color_state(Widget_t *wid) {
-#ifndef _WIN32
     switch(wid->state) {
         case 0:
             return NORMAL_;
@@ -180,7 +173,6 @@ Color_state get_color_state(Widget_t *wid) {
             return NORMAL_;
         break;        
     }
-#endif
 }
 
 void use_fg_color_scheme(Widget_t *w, Color_state st) {

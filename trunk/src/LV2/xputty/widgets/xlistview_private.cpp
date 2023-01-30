@@ -24,12 +24,10 @@
 
 
 void _draw_listview(void *w_, void* user_data) {
-#ifndef _WIN32
     Widget_t *w = (Widget_t*)w_;
     if (!w) return;
     set_pattern(w,&w->app->color_scheme->normal,&w->app->color_scheme->active,BACKGROUND_);
     cairo_paint (w->cr);
-#endif
 }
 
 void _draw_list(void *w_, void* user_data) {

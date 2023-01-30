@@ -316,6 +316,7 @@ typedef struct {
 typedef struct {
   int x;
   int y;
+  unsigned int state;	/* key or button mask */
 } XMotionEvent;
 typedef struct {
   int button;
@@ -352,6 +353,55 @@ typedef XID *Status;
 #define cairo_xlib_surface_get_width(a) 0
 #define cairo_xlib_surface_set_size(a,b,c) 0
 #define cairo_xlib_surface_get_height(a) 0
+
+#define XLookupKeysym(a,b) 0
+#define Button1Mask (1<<8)
+
+#define XK_space	' '
+#define XK_0	'0'
+#define XK_2	'2'
+#define XK_3	'3'
+#define XK_5	'5'
+#define XK_6	'6'
+#define XK_7	'7'
+#define XK_9	'9'
+#define XK_m	'm'
+#define XK_q	'q'
+#define XK_a	'a'
+#define XK_b	'b'
+#define XK_c	'c'
+#define XK_d	'd'
+#define XK_e	'e'
+#define XK_g	'g'
+#define XK_h	'h'
+#define XK_i	'i'
+#define XK_j	'j'
+#define XK_n	'n'
+#define XK_o	'o'
+#define XK_p	'p'
+#define XK_r	'r'
+#define XK_s	's'
+#define XK_t	't'
+#define XK_u	'u'
+#define XK_v	'v'
+#define XK_w	'w'
+#define XK_x	'x'
+#define XK_y	'y'
+#define XK_z	'z'
+#define XK_comma	','
+#define XK_quotedbl	'"'
+#define XK_parenleft	'('
+#define XK_minus	'-'
+#define XK_plus		'+'
+#define XK_agrave	'à'
+#define XK_ccedilla	'ç'
+#define XK_eacute	'é'
+#define XK_egrave	'è'
+#define XK_udiaeresis	'ü'
+#define XK_dead_circumflex	'^'
+// ??
+#define XK_dead_diaeresis	'ü'
+
 #endif
 struct Widget_t {
 /** pointer to the main struct */

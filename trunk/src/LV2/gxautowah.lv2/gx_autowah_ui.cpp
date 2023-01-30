@@ -49,7 +49,6 @@
 
 // setup a color theme
 static void set_my_theme(Xputty *main) {
-#ifndef _WIN32
     main->color_scheme->normal = (Colors) {
          /* cairo    / r  / g  / b  / a  /  */
         /*fg */       { 0.85, 0.85, 0.85, 1.0},
@@ -90,7 +89,6 @@ static void set_my_theme(Xputty *main) {
         /*frame */    { 0.18, 0.18, 0.18, 1.0},
         /*light */    { 0.3, 0.3, 0.3, 1.0}
     };
-#endif
 }
 
 // set knob colors
