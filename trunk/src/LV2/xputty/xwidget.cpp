@@ -179,7 +179,7 @@ Widget_t *create_widget(Xputty *app, Widget_t *parent,
     Widget_t *w = (Widget_t*)malloc(sizeof(Widget_t));
     assert(w != NULL);
     debug_print("assert(w)\n");
-os_create_widget_window_and_surface(w, app, x, y, width, height);
+os_create_widget_window_and_surface(w, app, parent, x, y, width, height);
     assert(cairo_surface_status(w->surface) == CAIRO_STATUS_SUCCESS);
     w->cr = cairo_create(w->surface);
     cairo_select_font_face (w->cr, "Roboto", CAIRO_FONT_SLANT_NORMAL,
@@ -302,7 +302,7 @@ void show_tooltip(Widget_t *wid) {
     for(;i<wid->childlist->elem;i++) {
         Widget_t *w = wid->childlist->childs[i];
         if (w->flags & IS_TOOLTIP) {
-	    os_show_tooltip(wid);
+	    os_show_tooltip(wid, w);
             widget_show(w);
             break;
         }

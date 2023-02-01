@@ -36,7 +36,7 @@ void os_destroy_window(Widget_t *w) {
     XDestroyWindow(w->app->dpy, w->widget);
 }
 
-void os_get_window_size(Widget_t *w, int *x, int *y, int *width, int *height) {
+void os_get_window_size(Widget_t *w_, int *x, int *y, int *width, int *height) {
     Widget_t *wid = (Widget_t*)w_;
     XWindowAttributes attrs;
     XGetWindowAttributes(wid->app->dpy, (Window)wid->widget, &attrs);
@@ -91,7 +91,7 @@ void os_create_main_window_and_surface(Widget_t *w, Xputty *app, Window win,
 
 }
 
-void os_create_widget_window_and_surface(Widget_t *w, Xputty *app,
+void os_create_widget_window_and_surface(Widget_t *w, Xputty *app, Widget_t *parent,
                           int x, int y, int width, int height) {
     XSetWindowAttributes attributes;
     attributes.save_under = True;
@@ -140,7 +140,7 @@ void os_widget_hide(Widget_t *w) {
     XUnmapWindow(w->app->dpy, w->widget);
 }
 
-void os_show_tooltip(Widget_t *wid) {
+void os_show_tooltip(Widget_t *wid, Widget_t *w) {
     unsigned int mask;
     int x, y, rx, ry;
     Window child, root;

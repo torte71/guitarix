@@ -586,15 +586,15 @@ void expose_widget(Widget_t *w);
 
 int key_mapping(Display *dpy, XKeyEvent *xkey);
 void os_destroy_window(Widget_t *w);
-void os_get_window_size(Widget_t *w, int *x, int *y, int *width, int *height);
+void os_get_window_size(Widget_t *w_, int *x, int *y, int *width, int *height);
 void os_create_main_window_and_surface(Widget_t *w, Xputty *app, Window win,
                           int x, int y, int width, int height);
-void os_create_widget_window_and_surface(Widget_t *w, Xputty *app,
+void os_create_widget_window_and_surface(Widget_t *w, Xputty *app, Widget_t *parent,
                           int x, int y, int width, int height);
 void os_set_title(Widget_t *w, const char *title);
 void os_widget_show(Widget_t *w);
 void os_widget_hide(Widget_t *w);
-void os_show_tooltip(Widget_t *wid);
+void os_show_tooltip(Widget_t *wid, Widget_t *w);
 void os_expose_widget(Widget_t *w);
 void os_widget_event_loop(void *w_, void* event, Xputty *main, void* user_data);
 void os_send_configure_event(Widget_t *w,int x, int y, int width, int height);
