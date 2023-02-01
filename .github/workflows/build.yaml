@@ -65,8 +65,8 @@ jobs:
     - name: remove temporary workarounds
       run: |
         git fetch --all
-        git revert 100dc10bf80949a071b68b2e5f1e2c96f8ff98cb
-        git revert 09edc29124823f3b126cd748de01b3f68250835e
+        git revert 100dc10b
+        git revert 09edc291
 
     - name: install dependencies
       run: |
