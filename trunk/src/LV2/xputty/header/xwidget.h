@@ -293,116 +293,6 @@ enum {
  * @param xim                - Context to Locale and UTF 8 support
  */
 
-#ifdef _WIN32
-
-typedef unsigned long int XID;
-typedef unsigned long int Atom;
-typedef unsigned long int VisualID;
-typedef unsigned long int Time;
-typedef XID Window;
-typedef XID Font;
-typedef XID Pixmap;
-typedef unsigned char KeyCode;
-typedef XID Drawable;
-typedef XID Cursor;
-typedef XID Colormap;
-typedef XID GContext;
-typedef XID KeySym;
-
-typedef struct {
-  int x;
-  int y;
-} XKeyEvent;
-typedef struct {
-  int x;
-  int y;
-  unsigned int state;	/* key or button mask */
-} XMotionEvent;
-typedef struct {
-  int button;
-  int x;
-  int y;
-} XButtonEvent;
-//typedef struct {
-//  void *widget;
-//} Window;
-typedef struct {
-  int width=0;
-  int height=0;
-  int map_state=0;
-} XWindowAttributes;
-typedef XID *Display;
-typedef XID *Status;
-//typedef void *Display;
-//typedef void *Pixmap;
-//typedef void *Atom;
-//typedef int Status;
-//typedef int KeySym;
-//typedef void *XButtonEvent;
-#define XGetWindowAttributes(a,b,c) 0
-#define IsViewable 1
-#define Button1 1
-#define Button2 2
-#define Button3 3
-#define Button4 4
-#define Button5 5
-#define XCreatePixmap(a,b,c,d,e) 0
-#define XResizeWindow(a,b,c,d) 0
-#define XOpenDisplay(a) 0
-#define XMoveWindow(a,b,c,d) 0
-#define cairo_xlib_surface_get_width(a) 0
-#define cairo_xlib_surface_set_size(a,b,c) 0
-#define cairo_xlib_surface_get_height(a) 0
-
-#define XLookupKeysym(a,b) 0
-#define Button1Mask (1<<8)
-
-#define XK_space	' '
-#define XK_0	'0'
-#define XK_2	'2'
-#define XK_3	'3'
-#define XK_5	'5'
-#define XK_6	'6'
-#define XK_7	'7'
-#define XK_9	'9'
-#define XK_m	'm'
-#define XK_q	'q'
-#define XK_a	'a'
-#define XK_b	'b'
-#define XK_c	'c'
-#define XK_d	'd'
-#define XK_e	'e'
-#define XK_g	'g'
-#define XK_h	'h'
-#define XK_i	'i'
-#define XK_j	'j'
-#define XK_n	'n'
-#define XK_o	'o'
-#define XK_p	'p'
-#define XK_r	'r'
-#define XK_s	's'
-#define XK_t	't'
-#define XK_u	'u'
-#define XK_v	'v'
-#define XK_w	'w'
-#define XK_x	'x'
-#define XK_y	'y'
-#define XK_z	'z'
-#define XK_comma	','
-#define XK_quotedbl	'"'
-#define XK_parenleft	'('
-#define XK_minus	'-'
-#define XK_plus		'+'
-#define XK_agrave	'à'
-#define XK_ccedilla	'ç'
-#define XK_eacute	'é'
-#define XK_egrave	'è'
-#define XK_udiaeresis	'ü'
-#define XK_dead_circumflex	'^'
-// ??
-#define XK_dead_diaeresis	'ü'
-
-#endif
 struct Widget_t {
 /** pointer to the main struct */
     Xputty *app;
@@ -442,15 +332,10 @@ struct Widget_t {
     Adjustment_t *adj;
 /** pointer to Widget_t child list */
     Childlist_t *childlist;
-#ifdef __linux__
 /** Locale and UTF 8 support */
     XIC xic;
 /** Context to Locale and UTF 8 support */
     XIM xim;
-#elif _WIN32
-    void *xic;
-    void *xim;
-#endif
 /** int to hold the widget state default = 0 */
     int state;
 /** mouse pointer x position on button press */
@@ -700,6 +585,25 @@ void expose_widget(Widget_t *w);
  */
 
 int key_mapping(Display *dpy, XKeyEvent *xkey);
+void os_destroy_window(Widget_t *w);
+void os_get_window_size(Widget_t *w, int *x, int *y, int *width, int *height);
+void os_create_main_window_and_surface(Widget_t *w, Xputty *app, Window win,
+                          int x, int y, int width, int height);
+void os_create_widget_window_and_surface(Widget_t *w, Xputty *app,
+                          int x, int y, int width, int height);
+void os_set_title(Widget_t *w, const char *title);
+void os_widget_show(Widget_t *w);
+void os_widget_hide(Widget_t *w);
+void os_show_tooltip(Widget_t *wid);
+void os_expose_widget(Widget_t *w);
+void os_widget_event_loop(void *w_, void* event, Xputty *main, void* user_data);
+void os_send_configure_event(Widget_t *w,int x, int y, int width, int height);
+void os_send_button_press_event(Widget_t *w);
+void os_send_button_release_event(Widget_t *w);
+void os_send_systray_message(Widget_t *w);
+void os_quit(Widget_t *w);
+void os_quit_widget(Widget_t *w);
+
 
 #ifdef __cplusplus
 }

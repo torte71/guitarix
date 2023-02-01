@@ -110,6 +110,145 @@ extern "C" {
 -----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
 
+#ifdef _WIN32
+
+typedef unsigned long int XID;
+typedef unsigned long int Atom;
+typedef unsigned long int VisualID;
+typedef unsigned long int Time;
+typedef XID Window;
+typedef XID Font;
+typedef XID Pixmap;
+typedef unsigned char KeyCode;
+typedef XID Drawable;
+typedef XID Cursor;
+typedef XID Colormap;
+typedef XID GContext;
+typedef XID KeySym;
+typedef void *XIC;
+typedef void *XIM;
+
+typedef struct {
+  int x;
+  int y;
+  int keycode;
+  unsigned int state;	/* key or button mask */
+} XKeyEvent;
+typedef struct {
+  int x;
+  int y;
+  unsigned int state;	/* key or button mask */
+} XMotionEvent;
+typedef struct {
+  int button;
+  int x;
+  int y;
+} XButtonEvent;
+//typedef struct {
+//  void *widget;
+//} Window;
+typedef struct {
+  int width=0;
+  int height=0;
+  int map_state=0;
+} XWindowAttributes;
+typedef XID *Display;
+typedef XID *Status;
+//typedef void *Display;
+//typedef void *Pixmap;
+//typedef void *Atom;
+//typedef int Status;
+//typedef int KeySym;
+//typedef void *XButtonEvent;
+#define XGetWindowAttributes(a,b,c) 0
+#define IsViewable 1
+#define Button1 1
+#define Button2 2
+#define Button3 3
+#define Button4 4
+#define Button5 5
+#define XCreatePixmap(a,b,c,d,e) 0
+#define XResizeWindow(a,b,c,d) 0
+#define XOpenDisplay(a) 0
+#define XMoveWindow(a,b,c,d) 0
+#define cairo_xlib_surface_get_width(a) 0
+#define cairo_xlib_surface_set_size(a,b,c) 0
+#define cairo_xlib_surface_get_height(a) 0
+
+#define XLookupKeysym(a,b) 0
+#define ShiftMask	(1<<0)
+#define Button1Mask (1<<8)
+
+#define XK_space	VK_SPACE
+#define XK_0	'0'
+#define XK_2	'2'
+#define XK_3	'3'
+#define XK_5	'5'
+#define XK_6	'6'
+#define XK_7	'7'
+#define XK_9	'9'
+#define XK_m	'm'
+#define XK_q	'q'
+#define XK_a	'a'
+#define XK_b	'b'
+#define XK_c	'c'
+#define XK_d	'd'
+#define XK_e	'e'
+#define XK_g	'g'
+#define XK_h	'h'
+#define XK_i	'i'
+#define XK_j	'j'
+#define XK_n	'n'
+#define XK_o	'o'
+#define XK_p	'p'
+#define XK_r	'r'
+#define XK_s	's'
+#define XK_t	't'
+#define XK_u	'u'
+#define XK_v	'v'
+#define XK_w	'w'
+#define XK_x	'x'
+#define XK_y	'y'
+#define XK_z	'z'
+#define XK_comma	','
+#define XK_quotedbl	'"'
+#define XK_parenleft	'('
+#define XK_minus	'-'
+#define XK_plus		'+'
+#define XK_agrave	'à'
+#define XK_ccedilla	'ç'
+#define XK_eacute	'é'
+#define XK_egrave	'è'
+#define XK_udiaeresis	'ü'
+#define XK_dead_circumflex	'^'
+// ??
+#define XK_dead_diaeresis	'ü'
+
+#define XK_Tab		VK_TAB
+#define XK_Up		VK_UP
+#define XK_Right	VK_RIGHT
+#define XK_Down		VK_DOWN
+#define XK_Left		VK_LEFT
+#define XK_Home		VK_HOME
+#define XK_Insert	VK_INSERT
+#define XK_End		VK_END
+#define XK_BackSpace	VK_BACK
+#define XK_KP_Subtract	VK_SUBTRACT
+#define XK_KP_Add	VK_ADD
+#define XK_KP_Up	VK_UP
+#define XK_KP_Right	VK_RIGHT
+#define XK_KP_Down	VK_DOWN
+#define XK_KP_Left	VK_LEFT
+#define XK_KP_Home	VK_HOME
+#define XK_KP_Insert	VK_INSERT
+#define XK_KP_End	VK_END
+#define XK_KP_Enter	VK_RETURN
+#define XK_Return	VK_RETURN
+
+
+#endif
+
+
 /**
  * @brief Childlist_t       - maintain a Widget_t list of childs for a Widget_t
  */
@@ -184,18 +323,11 @@ struct Xputty{
 /** pointer to the main childlist */
     Childlist_t *childlist;
 /** pointer to the display in use */
-#ifdef _WIN32
-    void *dpy;
-    //void *color_scheme;
-    XColor_t *color_scheme;
-    void *hold_grab;
-#else
     Display *dpy;
 /** theming scheme for all Widget_t */
     XColor_t *color_scheme;
 /** pointer to a modal Widget_t */
     Widget_t *hold_grab;
-#endif
 /** bool to quit the main loop */
     bool run;
 /** small fontsize for all Widget_t*/
