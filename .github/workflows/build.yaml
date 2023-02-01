@@ -80,7 +80,9 @@ jobs:
         ./waf build && ./waf --destdir=$(pwd)/_bin install
 
     - name: create archive
-      run: tar -cvjf guitarix-lv2-plugins-linux64.tar.bz2 bin_
+      run: |
+        cd trunk
+        tar -cvjf guitarix-lv2-plugins-linux64.tar.bz2 bin_
 
     - uses: actions/upload-artifact@v3.1.2
       with:
