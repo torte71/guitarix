@@ -69,7 +69,7 @@ jobs:
 
     - name: install dependencies
       run: |
-        sudo apt-get install lv2-dev debhelper fakeroot pkg-config meson libsigc++-2.0-dev libeigen3-dev libfftw3-dev libffi-dev libsndfile1-dev cairo
+        sudo apt-get install lv2-dev debhelper fakeroot pkg-config meson libsigc++-2.0-dev libeigen3-dev libfftw3-dev libffi-dev libsndfile1-dev libcairo-dev
     - name: configure
       run: ./waf configure -j 4 --no-standalone --no-faust --includeconvolver --includeresampler --no-avahi --no-bluez --no-nsm --no-desktop-update
     - name: build
