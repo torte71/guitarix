@@ -62,9 +62,10 @@ jobs:
       uses: actions/checkout@v3.3.0
     - name: remove temporary workarounds
       run: |
-        git fetch --all
-        git revert -n 100dc10b
-        git revert -n 09edc291
+        wget https://github.com/torte71/guitarix/commit/09edc29124823f3b126cd748de01b3f68250835e.patch
+        wget https://github.com/torte71/guitarix/commit/100dc10bf80949a071b68b2e5f1e2c96f8ff98cb.patch
+        patch -p1 < 09edc29124823f3b126cd748de01b3f68250835e.patch
+        patch -p1 < 100dc10bf80949a071b68b2e5f1e2c96f8ff98cb.patch
 
     - name: install dependencies
       run: |
