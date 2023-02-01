@@ -87,5 +87,5 @@ jobs:
     - uses: actions/upload-artifact@v3.1.2
       with:
         name: guitarix-lv2-plugins-linux64.tar.bz2
-        path: guitarix-lv2-plugins-linux64.tar.bz2
+        path: trunk/guitarix-lv2-plugins-linux64.tar.bz2
 
