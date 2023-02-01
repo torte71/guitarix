@@ -60,13 +60,11 @@ jobs:
     steps:
     - name: Check out sources
       uses: actions/checkout@v3.3.0
-      with:
-        submodules: recursive
     - name: remove temporary workarounds
       run: |
         git fetch --all
-        git revert 100dc10b
-        git revert 09edc291
+        git revert -n 100dc10b
+        git revert -n 09edc291
 
     - name: install dependencies
       run: |
