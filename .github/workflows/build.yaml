@@ -53,3 +53,33 @@ jobs:
         name: guitarix-lv2-plugins-win64.7z
         path: plugin.7z
 
+  ####################
+  build-linux:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out sources
+      uses: actions/checkout@v3.3.0
+      with:
+        submodules: recursive
+    - name: remove temporary workarounds
+      run: |
+        git revert 100dc10bf80949a071b68b2e5f1e2c96f8ff98cb
+        git revert 09edc29124823f3b126cd748de01b3f68250835e
+
+    - name: install dependencies
+      run: |
+        sudo apt-get install lv2-dev debhelper fakeroot pkg-config meson libsigc++-2.0-dev libeigen3-dev libfftw3-dev libffi-dev libsndfile1-dev cairo
+    - name: configure
+      run: ./waf configure -j 4 --no-standalone --no-faust --includeconvolver --includeresampler --no-avahi --no-bluez --no-nsm --no-desktop-update
+    - name: build
+      run: ./waf build && ./waf --destdir=$(pwd)/_bin install
+
+    - name: create archive
+      run: tar -cvjf guitarix-lv2-plugins-linux64.tar.bz2 bin_
+
+    - uses: actions/upload-artifact@v3.1.2
+      with:
+        name: guitarix-lv2-plugins-linux64.tar.bz2
+        path: guitarix-lv2-plugins-linux64.tar.bz2
+
