@@ -40,6 +40,8 @@ void os_get_window_size(Widget_t *w_, int *x, int *y, int *width, int *height) {
     Widget_t *wid = (Widget_t*)w_;
     XWindowAttributes attrs;
     XGetWindowAttributes(wid->app->dpy, (Window)wid->widget, &attrs);
+    *x = attrs.x;
+    *y = attrs.y;
     *width = attrs.width;
     *height = attrs.height;
 }
