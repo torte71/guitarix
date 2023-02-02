@@ -32,18 +32,16 @@ void _get_width(Widget_t *w) {
 }
 
 void _draw_tooltip(void *w_, void* user_data) {
+    Metrics_t m;
+    int width, height;
     Widget_t *w = (Widget_t*)w_;
     if (!w) return;
-    XWindowAttributes attrs;
-#ifdef _WIN32
-    int width = 0;
-    int height = 0;
-#else
-    XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
-    if (attrs.map_state != IsViewable) return;
-    int width = attrs.width;
-    int height = attrs.height;
-#endif
+
+    os_get_window_metrics((Window)w->widget, &m);
+    if (!m.visible) return;
+    width = m.width;
+    height = m.height;
+
     use_bg_color_scheme(w, get_color_state(w));
     cairo_paint (w->crb);
     cairo_text_extents_t extents;

@@ -36,14 +36,15 @@ void os_destroy_window(Widget_t *w) {
     XDestroyWindow(w->app->dpy, w->widget);
 }
 
-void os_get_window_size(Widget_t *w_, int *x, int *y, int *width, int *height) {
+void os_get_window_metrics(Widget_t *w_, Metrics_t *metrics) {
     Widget_t *wid = (Widget_t*)w_;
     XWindowAttributes attrs;
     XGetWindowAttributes(wid->app->dpy, (Window)wid->widget, &attrs);
-    *x = attrs.x;
-    *y = attrs.y;
-    *width = attrs.width;
-    *height = attrs.height;
+    metrics->x = attrs.x;
+    metrics->y = attrs.y;
+    metrics->width = attrs.width;
+    metrics->height = attrs.height;
+    metrics->visible = (attrs.map_state == IsViewable);
 }
 
 void os_create_main_window_and_surface(Widget_t *w, Xputty *app, Window win,

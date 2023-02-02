@@ -39,18 +39,12 @@
 
 static void draw_window(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
-    XWindowAttributes attrs;
-#ifdef _WIN32
-    int width = 0;
-    int height = 0;
-#else
-    XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
-    int width = attrs.width;
-    int height = attrs.height;
-    if (attrs.map_state != IsViewable) return;
-#endif
+    Metrics_t m;
 
-    cairo_rectangle(w->crb,0,0,width,height);
+    os_get_window_metrics((Window)w->widget, &m);
+    if (!m.visible) return;
+
+    cairo_rectangle(w->crb,0,0,m.width,m.height);
     set_pattern(w,&w->app->color_scheme->selected,&w->app->color_scheme->normal,BACKGROUND_);
     cairo_fill (w->crb);
 

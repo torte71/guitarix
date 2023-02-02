@@ -31,7 +31,7 @@ void os_destroy_window(Widget_t *w) {
   // STUB
 }
 
-void os_get_window_size(Widget_t *w_, int *x, int *y, int *width, int *height) {
+void os_get_window_metrics(Widget_t *w_, Metrics_t *metrics) {
   // STUB
 }
 

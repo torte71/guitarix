@@ -64,22 +64,22 @@ void destroy_widget(Widget_t * w, Xputty *main) {
 
 void configure_event(void *w_, void* user_data) {
     Widget_t *wid = (Widget_t*)w_;
-    int x, y, width, height;
+    Metrics_t m;
 
-    os_get_window_size(wid, &x, &y, &width, &height);
-    if (wid->width != width || wid->height != height) {
-        wid->scale.scale_x    = (float)wid->scale.init_width - width;
-        wid->scale.scale_y    = (float)wid->scale.init_height - height;
-        wid->scale.cscale_x   = (float)((float)wid->scale.init_width/(float)width);
-        wid->scale.cscale_y   = (float)((float)wid->scale.init_height/(float)height);
-        wid->scale.rcscale_x   = (float)((float)width/(float)wid->scale.init_width);
-        wid->scale.rcscale_y   = (float)((float)height/(float)wid->scale.init_height);
+    os_get_window_metrics((Window)wid->widget, &m);
+    if (wid->width != m.width || wid->height != m.height) {
+        wid->scale.scale_x    = (float)wid->scale.init_width - m.width;
+        wid->scale.scale_y    = (float)wid->scale.init_height - m.height;
+        wid->scale.cscale_x   = (float)((float)wid->scale.init_width/(float)m.width);
+        wid->scale.cscale_y   = (float)((float)wid->scale.init_height/(float)m.height);
+        wid->scale.rcscale_x   = (float)((float)m.width/(float)wid->scale.init_width);
+        wid->scale.rcscale_y   = (float)((float)m.height/(float)wid->scale.init_height);
         wid->scale.ascale     = wid->scale.cscale_x < wid->scale.cscale_y ? 
                                 wid->scale.cscale_y : wid->scale.cscale_x;
 
-        _resize_surface(wid, width, height); 
+        _resize_surface(wid, m.width, m.height); 
 
-        debug_print("Widget_t configure callback width %i height %i\n", width, height);
+        debug_print("Widget_t configure callback width %i height %i\n", m.width, m.height);
 
         _resize_childs(wid);
     }
@@ -330,16 +330,15 @@ void expose_widget(Widget_t *w) {
 
 void transparent_draw(void * w_, void* user_data) {
     Widget_t *wid = (Widget_t*)w_;
-    int x, y, width, height;
 
     cairo_push_group (wid->cr);
 
     if (wid->flags & USE_TRANSPARENCY) {
         Widget_t *parent = (Widget_t*)wid->parent;
-os_get_window_size(wid, &x, &y, &width, &height);
-
+	Metrics_t m;
+	os_get_window_metrics(wid->widget, &m);
         debug_print("Widget_t _transparency \n");
-        cairo_set_source_surface (wid->crb, parent->buffer, -x, -y);
+        cairo_set_source_surface (wid->crb, parent->buffer, -m.x, -m.y);
         cairo_paint (wid->crb);
     }
 

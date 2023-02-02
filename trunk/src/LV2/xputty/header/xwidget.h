@@ -583,10 +583,18 @@ void expose_widget(Widget_t *w);
  * @param *xkey             - the key to map
  * @return int              - value (1-10) or 0 when not mapped 
  */
+typedef struct {
+  int width;
+  int height;
+  int x;
+  int y;
+  bool visible;
+} Metrics_t;
+
 
 int key_mapping(Display *dpy, XKeyEvent *xkey);
 void os_destroy_window(Widget_t *w);
-void os_get_window_size(Widget_t *w_, int *x, int *y, int *width, int *height);
+void os_get_window_metrics(Widget_t *w_, Metrics_t *metrics);
 void os_create_main_window_and_surface(Widget_t *w, Xputty *app, Window win,
                           int x, int y, int width, int height);
 void os_create_widget_window_and_surface(Widget_t *w, Xputty *app, Widget_t *parent,

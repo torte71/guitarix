@@ -60,16 +60,13 @@ void _draw_knob_image(void *w_, void* user_data) {
 }
 
 void _draw_knob(void *w_, void* user_data) {
+    Metrics_t m;
+    int width, height;
     Widget_t *w = (Widget_t*)w_;
-    XWindowAttributes attrs;
-#ifdef _WIN32
-    int width = 0;
-    int height = 0;
-#else
-    XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
-    int width = attrs.width-2;
-    int height = attrs.height-2;
-#endif
+
+    os_get_window_metrics((Window)w->widget, &m);
+    width = m.width-2;
+    height = m.height-2;
 
     const double scale_zero = 20 * (M_PI/180); // defines "dead zone" for knobs
     int arc_offset = 0;

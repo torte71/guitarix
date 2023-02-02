@@ -30,18 +30,15 @@ void _draw_menu(void *w_, void* user_data) {
 }
 
 void _draw_item(void *w_, void* user_data) {
+    Metrics_t m;
+    int width, height;
     Widget_t *w = (Widget_t*)w_;
     if (!w) return;
-    XWindowAttributes attrs;
-    XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
-#ifdef _WIN32
-    int width = 0;
-    int height = 0;
-#else
-    int width = attrs.width;
-    int height = attrs.height;
-    if (attrs.map_state != IsViewable) return;
-#endif
+
+    os_get_window_metrics((Window)w->widget, &m);
+    if (!m.visible) return;
+    width = m.width;
+    height = m.height;
 
     use_base_color_scheme(w, NORMAL_);
     cairo_rectangle(w->crb, 0, 0, width , height);
@@ -71,13 +68,12 @@ void _draw_item(void *w_, void* user_data) {
 void _draw_check_item(void *w_, void* user_data) {
     _draw_item(w_, user_data);
     Widget_t *w = (Widget_t*)w_;
-    XWindowAttributes attrs;
-#ifdef _WIN32
-    int height = 0;
-#else
-    XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
-    int height = attrs.height;
-#endif
+    Metrics_t m;
+    int height;
+
+    os_get_window_metrics((Window)w->widget, &m);
+    height = m.height;
+
     if (w->flags & IS_RADIO) {
         cairo_arc(w->crb, height/3, height/2, height/6, 0, 2 * M_PI );
     } else {
@@ -97,19 +93,18 @@ void _draw_check_item(void *w_, void* user_data) {
 }
 
 void _draw_viewslider(void *w_, void* user_data) {
+    Metrics_t m;
+    int width, height;
     Widget_t *w = (Widget_t*)w_;
     int v = (int)w->adj->max_value;
     if (!v) return;
+
+    os_get_window_metrics((Window)w->widget, &m);
+    if (!m.visible) return;
+    width = m.width;
+    height = m.height;
+
     XWindowAttributes attrs;
-#ifdef _WIN32
-    int width = 0;
-    int height = 0;
-#else
-    XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
-    if (attrs.map_state != IsViewable) return;
-    int width = attrs.width;
-    int height = attrs.height;
-#endif
     float sliderstate = adj_get_state(w->adj);
     use_bg_color_scheme(w, NORMAL_);
     cairo_rectangle(w->crb, width-5,0,5,height);
@@ -125,13 +120,13 @@ void _draw_viewslider(void *w_, void* user_data) {
 }
 
 void _set_viewpoint(void *w_, void* user_data) {
+    Metrics_t m;
     Widget_t *w = (Widget_t*)w_;
     int v = (int)max(0,adj_get_value(w->adj));
+
+    os_get_window_metrics((Window)w->childlist->childs[0]->widget, &m);
 #ifndef _WIN32
-    XWindowAttributes attrs;
-    XGetWindowAttributes(w->app->dpy, (Window)w->childlist->childs[0]->widget, &attrs);
-    int height = attrs.height;
-    XMoveWindow(w->app->dpy,w->widget,0, -height*v);
+    XMoveWindow(w->app->dpy,w->widget,0, -m.height*v);
 #endif
 }
 
@@ -151,16 +146,14 @@ void _radio_item_button_pressed(void *w_, void* button_, void* user_data) {
 }
 
 void _configure_menu(Widget_t *parent, Widget_t *menu, int elem, bool above) {
+    Metrics_t m;
+    int height;
     Widget_t* view_port =  menu->childlist->childs[0];
     if (!view_port->childlist->elem) return;
-    XWindowAttributes attrs;
-#ifdef _WIN32
-    int width = 0;
-    int height = 0;
-#else
-    XGetWindowAttributes(menu->app->dpy, (Window)view_port->childlist->childs[0]->widget, &attrs);
-    int height = attrs.height;
-#endif
+
+    os_get_window_metrics((Window)view_port->childlist->childs[0]->widget, &m);
+    height = m.height;
+
     int x1, y1;
     int posy = (above) ? parent->height : 0;
     Window child;

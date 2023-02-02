@@ -37,16 +37,13 @@ static void draw_message_label(Widget_t *w, int width, int height) {
 
 static void draw_message_window(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
-    XWindowAttributes attrs;
-#ifdef _WIN32
-    int width_t = 0;
-    int height_t = 0;
-#else
-    XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
-    int width_t = attrs.width;
-    int height_t = attrs.height;
-    if (attrs.map_state != IsViewable) return;
-#endif
+    Metrics_t m;
+    int width_t, height_t;
+
+    os_get_window_metrics((Window)w->widget, &m);
+    if (!m.visible) return;
+    width_t = m.width;
+    height_t = m.height;
 
     cairo_rectangle(w->crb,0,0,width_t,height_t);
     set_pattern(w,&w->app->color_scheme->selected,&w->app->color_scheme->normal,BACKGROUND_);
