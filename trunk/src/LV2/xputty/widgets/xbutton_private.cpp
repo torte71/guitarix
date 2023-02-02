@@ -127,7 +127,7 @@ void _draw_switch_image_button(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
     if (!w) return;
 
-    os_get_window_metrics((Window)w->widget, &m);
+    os_get_window_metrics(w, &m);
     if (!m.visible) return;
     width = m.width-2;
     height = m.height-2;
@@ -193,7 +193,7 @@ void _draw_button(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
     if (!w) return;
 
-    os_get_window_metrics((Window)w->widget, &m);
+    os_get_window_metrics(w, &m);
     if (!m.visible) return;
     width = m.width-2;
     height = m.height-2;
@@ -239,7 +239,7 @@ void _draw_on_off_button(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
     if (!w) return;
 
-    os_get_window_metrics((Window)w->widget, &m);
+    os_get_window_metrics(w, &m);
     if (!m.visible) return;
     width = m.width-2;
     height = m.height-2;
@@ -283,7 +283,7 @@ void _draw_ti_button(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
     if (!w) return;
 
-    os_get_window_metrics((Window)w->widget, &m);
+    os_get_window_metrics(w, &m);
     if (!m.visible) return;
     width = m.width-2;
     height = m.height-2;
@@ -311,7 +311,7 @@ void _draw_check_button(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
     if (!w) return;
 
-    os_get_window_metrics((Window)w->widget, &m);
+    os_get_window_metrics(w, &m);
     if (!m.visible) return;
     width = m.width-2;
     height = m.height-2;
@@ -347,7 +347,7 @@ void _draw_check_box(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
     if (!w) return;
 
-    os_get_window_metrics((Window)w->widget, &m);
+    os_get_window_metrics(w, &m);
     if (!m.visible) return;
     height = m.height-2;
 

@@ -37,7 +37,7 @@ void _draw_tooltip(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
     if (!w) return;
 
-    os_get_window_metrics((Window)w->widget, &m);
+    os_get_window_metrics(w, &m);
     if (!m.visible) return;
     width = m.width;
     height = m.height;

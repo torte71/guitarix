@@ -40,7 +40,7 @@ static void draw_message_window(void *w_, void* user_data) {
     Metrics_t m;
     int width_t, height_t;
 
-    os_get_window_metrics((Window)w->widget, &m);
+    os_get_window_metrics(w, &m);
     if (!m.visible) return;
     width_t = m.width;
     height_t = m.height;

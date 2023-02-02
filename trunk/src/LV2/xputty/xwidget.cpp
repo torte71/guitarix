@@ -66,7 +66,7 @@ void configure_event(void *w_, void* user_data) {
     Widget_t *wid = (Widget_t*)w_;
     Metrics_t m;
 
-    os_get_window_metrics((Window)wid->widget, &m);
+    os_get_window_metrics(wid, &m);
     if (wid->width != m.width || wid->height != m.height) {
         wid->scale.scale_x    = (float)wid->scale.init_width - m.width;
         wid->scale.scale_y    = (float)wid->scale.init_height - m.height;
@@ -336,7 +336,7 @@ void transparent_draw(void * w_, void* user_data) {
     if (wid->flags & USE_TRANSPARENCY) {
         Widget_t *parent = (Widget_t*)wid->parent;
 	Metrics_t m;
-	os_get_window_metrics(wid->widget, &m);
+	os_get_window_metrics(wid, &m);
         debug_print("Widget_t _transparency \n");
         cairo_set_source_surface (wid->crb, parent->buffer, -m.x, -m.y);
         cairo_paint (wid->crb);

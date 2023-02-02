@@ -89,7 +89,7 @@ Widget_t* menu_add_item(Widget_t *menu,const char * label) {
     int width, height;
     Widget_t* view_port =  menu->childlist->childs[0];
 
-    os_get_window_metrics((Window)menu->widget, &m);
+    os_get_window_metrics(menu, &m);
     width = m.width;
     height = m.height;
 

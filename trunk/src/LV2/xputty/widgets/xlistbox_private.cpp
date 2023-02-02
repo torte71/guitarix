@@ -36,7 +36,7 @@ void _draw_listbox_item(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
     if (!w) return;
 
-    os_get_window_metrics((Window)w->widget, &m);
+    os_get_window_metrics(w, &m);
     if (!m.visible) return;
     width = m.width;
     height = m.height;
@@ -83,7 +83,7 @@ void _reconfigure_listbox_viewport(void *w_, void* user_data) {
     float st = adj_get_state(w->adj);
     Widget_t* listbox = (Widget_t*)w->parent;
 
-    os_get_window_metrics((Window)listbox->widget, &m);
+    os_get_window_metrics(listbox, &m);
 
     int elem = m.height/25;
     int si = childlist_has_child(w->childlist);
@@ -97,7 +97,7 @@ void _configure_listbox(void *w_, void* user_data) {
     int si = max(1,childlist_has_child(w->childlist));
     Widget_t* listbox = (Widget_t*)w->parent;
 
-    os_get_window_metrics((Window)listbox->widget, &m);
+    os_get_window_metrics(listbox, &m);
 #ifndef _WIN32
     XResizeWindow (w->app->dpy, w->widget, m.width, 25*(si));
 #endif
@@ -110,7 +110,7 @@ void _draw_listbox_viewslider(void *w_, void* user_data) {
     int v = (int)w->adj->max_value;
     if (!v) return;
 
-    os_get_window_metrics((Window)w->widget, &m);
+    os_get_window_metrics(w, &m);
     if (!m.visible) return;
     width = m.width;
     height = m.height;
@@ -134,7 +134,7 @@ void _set_listbox_viewpoint(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
     int v = (int)adj_get_value(w->adj);
 
-    os_get_window_metrics((Window)w->childlist->childs[0]->widget, &m);
+    os_get_window_metrics((Widget_t*)w->childlist->childs[0], &m);
     XMoveWindow(w->app->dpy,w->widget,0, -m.height*v);
 }
 

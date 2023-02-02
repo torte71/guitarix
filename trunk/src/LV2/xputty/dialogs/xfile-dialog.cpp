@@ -41,7 +41,7 @@ static void draw_window(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
     Metrics_t m;
 
-    os_get_window_metrics((Window)w->widget, &m);
+    os_get_window_metrics(w, &m);
     if (!m.visible) return;
 
     cairo_rectangle(w->crb,0,0,m.width,m.height);

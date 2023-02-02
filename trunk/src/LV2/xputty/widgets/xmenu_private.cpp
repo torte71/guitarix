@@ -35,7 +35,7 @@ void _draw_item(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
     if (!w) return;
 
-    os_get_window_metrics((Window)w->widget, &m);
+    os_get_window_metrics(w, &m);
     if (!m.visible) return;
     width = m.width;
     height = m.height;
@@ -71,7 +71,7 @@ void _draw_check_item(void *w_, void* user_data) {
     Metrics_t m;
     int height;
 
-    os_get_window_metrics((Window)w->widget, &m);
+    os_get_window_metrics(w, &m);
     height = m.height;
 
     if (w->flags & IS_RADIO) {
@@ -99,7 +99,7 @@ void _draw_viewslider(void *w_, void* user_data) {
     int v = (int)w->adj->max_value;
     if (!v) return;
 
-    os_get_window_metrics((Window)w->widget, &m);
+    os_get_window_metrics(w, &m);
     if (!m.visible) return;
     width = m.width;
     height = m.height;
@@ -124,7 +124,7 @@ void _set_viewpoint(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
     int v = (int)max(0,adj_get_value(w->adj));
 
-    os_get_window_metrics((Window)w->childlist->childs[0]->widget, &m);
+    os_get_window_metrics((Widget_t*)w->childlist->childs[0], &m);
 #ifndef _WIN32
     XMoveWindow(w->app->dpy,w->widget,0, -m.height*v);
 #endif
@@ -151,7 +151,7 @@ void _configure_menu(Widget_t *parent, Widget_t *menu, int elem, bool above) {
     Widget_t* view_port =  menu->childlist->childs[0];
     if (!view_port->childlist->elem) return;
 
-    os_get_window_metrics((Window)view_port->childlist->childs[0]->widget, &m);
+    os_get_window_metrics((Widget_t*)view_port->childlist->childs[0], &m);
     height = m.height;
 
     int x1, y1;
