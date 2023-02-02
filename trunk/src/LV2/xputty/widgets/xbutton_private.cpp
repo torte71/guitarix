@@ -426,7 +426,6 @@ void _toggle_button_pressed(void *w_, void* button, void* user_data) {
 }
 
 void _toggle_button_released(void *w_, void* button_, void* user_data) {
-#ifndef _WIN32
     Widget_t *w = (Widget_t*)w_;
     XButtonEvent *xbutton = (XButtonEvent*)button_;
     if (w->flags & HAS_POINTER) {
@@ -441,5 +440,4 @@ void _toggle_button_released(void *w_, void* button_, void* user_data) {
         w->state = (int) w->adj->value ? 3 : 0;
     }
     expose_widget(w);
-#endif
 }

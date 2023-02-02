@@ -36,13 +36,17 @@ static void draw_message_label(Widget_t *w, int width, int height) {
 }
 
 static void draw_message_window(void *w_, void* user_data) {
-#ifndef _WIN32
     Widget_t *w = (Widget_t*)w_;
     XWindowAttributes attrs;
+#ifdef _WIN32
+    int width_t = 0;
+    int height_t = 0;
+#else
     XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
     int width_t = attrs.width;
     int height_t = attrs.height;
     if (attrs.map_state != IsViewable) return;
+#endif
 
     cairo_rectangle(w->crb,0,0,width_t,height_t);
     set_pattern(w,&w->app->color_scheme->selected,&w->app->color_scheme->normal,BACKGROUND_);
@@ -63,7 +67,6 @@ static void draw_message_window(void *w_, void* user_data) {
 
     draw_message_label(w,width_t,height_t);
     widget_reset_scale(w);
-#endif
 }
 
 static void draw_entry(void *w_, void* user_data) {
@@ -327,7 +330,6 @@ static void mg_mem_free(void *w_, void* user_data) {
 
 Widget_t *open_message_dialog(Widget_t *w, int style, const char *title,
                               const char *message, const char *choices) {
-#ifndef _WIN32
 
     xxMessageBox *mb = (xxMessageBox*)malloc(sizeof(xxMessageBox));
     mb->response = 0;
@@ -342,7 +344,11 @@ Widget_t *open_message_dialog(Widget_t *w, int style, const char *title,
     check_for_message(mb, message);
     check_for_choices(mb, choices);
     check_for_style(mb, style);
+#ifdef _WIN32
+    Widget_t *wid = NULL;
+#else
     Widget_t *wid = create_window(w->app, DefaultRootWindow(w->app->dpy), 0, 0, mb->width, mb->height);
+#endif
     wid->label = message;
     wid->flags |= HAS_MEM;
     wid->scale.gravity = CENTER;
@@ -405,5 +411,4 @@ Widget_t *open_message_dialog(Widget_t *w, int style, const char *title,
 
     widget_show_all(wid);
     return wid;
-#endif
 }

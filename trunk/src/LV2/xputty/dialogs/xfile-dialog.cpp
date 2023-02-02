@@ -38,13 +38,17 @@
 
 
 static void draw_window(void *w_, void* user_data) {
-#ifndef _WIN32
     Widget_t *w = (Widget_t*)w_;
     XWindowAttributes attrs;
+#ifdef _WIN32
+    int width = 0;
+    int height = 0;
+#else
     XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
     int width = attrs.width;
     int height = attrs.height;
     if (attrs.map_state != IsViewable) return;
+#endif
 
     cairo_rectangle(w->crb,0,0,width,height);
     set_pattern(w,&w->app->color_scheme->selected,&w->app->color_scheme->normal,BACKGROUND_);
@@ -64,7 +68,6 @@ static void draw_window(void *w_, void* user_data) {
     cairo_move_to (w->crb, 60, 340);
     cairo_show_text(w->crb, w->label);
     widget_reset_scale(w);
-#endif
 }
 
 static void button_quit_callback(void *w_, void* user_data) {
@@ -239,11 +242,12 @@ static void set_filter_callback(void *w_, void* user_data) {
 }
 
 static void fd_mem_free(void *w_, void* user_data) {
-#ifndef _WIN32
     Widget_t *w = (Widget_t*)w_;
     FileDialog *file_dialog = (FileDialog *)w->parent_struct;
     if(file_dialog->icon) {
+#ifndef _WIN32
         XFreePixmap(w->app->dpy, (*file_dialog->icon));
+#endif
         file_dialog->icon = NULL;
     }
     if(file_dialog->send_clear_func)
@@ -251,11 +255,9 @@ static void fd_mem_free(void *w_, void* user_data) {
     fp_free(file_dialog->fp);
     free(file_dialog->fp);
     free(file_dialog);
-#endif
 }
 
 Widget_t *open_file_dialog(Widget_t *w, const char *path, const char *filter) {
-#ifndef _WIN32
     FileDialog *file_dialog = (FileDialog*)malloc(sizeof(FileDialog));
     
     file_dialog->fp = (FilePicker*)malloc(sizeof(FilePicker));
@@ -264,7 +266,9 @@ Widget_t *open_file_dialog(Widget_t *w, const char *path, const char *filter) {
     file_dialog->send_clear_func = true;
     file_dialog->icon = NULL;
 
+#ifndef _WIN32
     file_dialog->w = create_window(w->app, DefaultRootWindow(w->app->dpy), 0, 0, 660, 420);
+#endif
     file_dialog->w->flags |= HAS_MEM;
     file_dialog->w->parent_struct = file_dialog;
     widget_set_title(file_dialog->w, "File Selector");
@@ -330,7 +334,6 @@ Widget_t *open_file_dialog(Widget_t *w, const char *path, const char *filter) {
 
     widget_show_all(file_dialog->w);
     return file_dialog->w;
-#endif
 }
 
 /*---------------------------------------------------------------------
