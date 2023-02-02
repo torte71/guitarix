@@ -93,7 +93,6 @@ static void set_my_theme(Xputty *main) {
 
 // set knob colors
 static void set_my_knob_color(KnobColors* kp) {
-#ifndef _WIN32
     *kp = (KnobColors) {
          /* cairo    / r  / g  / b  / a  /  */
         /*p1f */       { 0.25, 0.25, 0.25, 1.00},
@@ -107,7 +106,6 @@ static void set_my_knob_color(KnobColors* kp) {
         /*p4k */       { 0.1, 0.1, 0.1, 1.00},
         /*p5k */       { 0.05, 0.05, 0.05, 1.0},
     };
-#endif
 }
 
 void plugin_value_changed(X11_UI *ui, Widget_t *w, PortIndex index) {

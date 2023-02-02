@@ -31,14 +31,18 @@ void _draw_listbox(void *w_, void* user_data) {
 }
 
 void _draw_listbox_item(void *w_, void* user_data) {
-#ifndef _WIN32
     Widget_t *w = (Widget_t*)w_;
     if (!w) return;
+#ifdef _WIN32
+    int width = 0;
+    int height = 0;
+#else
     XWindowAttributes attrs;
     XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
     int width = attrs.width;
     int height = attrs.height;
     if (attrs.map_state != IsViewable) return;
+#endif
     Widget_t* view_port = (Widget_t*)w->parent;
     Widget_t* listbox =  (Widget_t*)view_port->parent;
     int j = (int)listbox->adj->value;
@@ -73,29 +77,31 @@ void _draw_listbox_item(void *w_, void* user_data) {
     } else {
         w->flags &= ~HAS_TOOLTIP;
     }
-#endif
 }
 
 void _reconfigure_listbox_viewport(void *w_, void* user_data) {
-#ifndef _WIN32
     Widget_t *w = (Widget_t*)w_;
     float st = adj_get_state(w->adj);
     Widget_t* listbox = (Widget_t*)w->parent;
+#ifdef _WIN32
+    int width = 0;
+    int height = 0;
+#else
     XWindowAttributes attrs;
     XGetWindowAttributes(listbox->app->dpy, (Window)listbox->widget, &attrs);
     int height = attrs.height;
+#endif
     int elem = height/25;
     int si = childlist_has_child(w->childlist);
     w->adj->max_value = si-elem;
     adj_set_state(w->adj,st);
-#endif
 }
 
 void _configure_listbox(void *w_, void* user_data) {
-#ifndef _WIN32
     Widget_t *w = (Widget_t*)w_;
     int si = max(1,childlist_has_child(w->childlist));
     Widget_t* listbox = (Widget_t*)w->parent;
+#ifndef _WIN32
     XWindowAttributes attrs;
     XGetWindowAttributes(listbox->app->dpy, (Window)listbox->widget, &attrs);
     int width = attrs.width;
@@ -104,15 +110,19 @@ void _configure_listbox(void *w_, void* user_data) {
 }
 
 void _draw_listbox_viewslider(void *w_, void* user_data) {
-#ifndef _WIN32
     Widget_t *w = (Widget_t*)w_;
     int v = (int)w->adj->max_value;
     if (!v) return;
+#ifdef _WIN32
+    int width = 0;
+    int height = 0;
+#else
     XWindowAttributes attrs;
     XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
     if (attrs.map_state != IsViewable) return;
     int width = attrs.width;
     int height = attrs.height;
+#endif
     float sliderstate = adj_get_state(w->adj);
     use_bg_color_scheme(w, NORMAL_);
     cairo_rectangle(w->crb, width-5,0,5,height);
@@ -125,7 +135,6 @@ void _draw_listbox_viewslider(void *w_, void* user_data) {
     use_fg_color_scheme(w, NORMAL_);
     cairo_set_line_width(w->crb,1);
     cairo_stroke(w->crb);
-#endif
 }
 
 void _set_listbox_viewpoint(void *w_, void* user_data) {
@@ -140,7 +149,6 @@ void _set_listbox_viewpoint(void *w_, void* user_data) {
 }
 
 void _listbox_entry_released(void *w_, void* button_, void* user_data) {
-#ifndef _WIN32
     Widget_t *w = (Widget_t*)w_;
     Widget_t* view_port = (Widget_t*)w->parent;
     int direction = 0 ;
@@ -152,6 +160,7 @@ void _listbox_entry_released(void *w_, void* button_, void* user_data) {
             int old_value = (int) listbox->adj->value;
             for(;i>-1;i--) {
                 Widget_t *wid = view_port->childlist->childs[i];
+#ifndef _WIN32
                 if (xbutton->window == wid->widget) {
                     const char *l = view_port->childlist->childs[i]->label;
                     float value = (float)i;
@@ -159,6 +168,7 @@ void _listbox_entry_released(void *w_, void* button_, void* user_data) {
                     wid->state= 3;
                     listbox->func.button_release_callback(listbox, &i, &l);
                 }
+#endif
                 wid->state= 0;
             }
             expose_widget(view_port->childlist->childs[old_value]);
@@ -175,6 +185,5 @@ void _listbox_entry_released(void *w_, void* button_, void* user_data) {
             check_value_changed(view_port->adj, &value);
         }
     }
-#endif
 }
 

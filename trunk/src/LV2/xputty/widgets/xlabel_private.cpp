@@ -23,12 +23,16 @@
 
 
 void _draw_label(void *w_, void* user_data) {
-#ifndef _WIN32
     Widget_t *w = (Widget_t*)w_;
     XWindowAttributes attrs;
+#ifdef _WIN32
+    int width = 0;
+    int height = 0;
+#else
     XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
     int width = attrs.width;
     int height = attrs.height;
+#endif
 
     cairo_text_extents_t extents;
     use_text_color_scheme(w, get_color_state(w));
@@ -38,5 +42,4 @@ void _draw_label(void *w_, void* user_data) {
     cairo_move_to (w->crb, (width*0.5)-(extents.width/2), height);
     cairo_show_text(w->crb, w->label);
     cairo_new_path (w->crb);
-#endif
 }

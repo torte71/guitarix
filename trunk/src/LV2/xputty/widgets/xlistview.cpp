@@ -36,11 +36,12 @@ void listview_set_active_entry(Widget_t *w, int active) {
 }
 
 Widget_t* create_listview_viewport(Widget_t *parent, int elem, int width, int height) {
-#ifndef _WIN32
     Widget_t *wid = create_widget(parent->app, parent, 0, 0, width, height);
+#ifndef _WIN32
     XSelectInput(wid->app->dpy, wid->widget,StructureNotifyMask|ExposureMask|KeyPressMask 
                     |EnterWindowMask|LeaveWindowMask|ButtonReleaseMask
                     |ButtonPressMask|Button1MotionMask|PointerMotionMask);
+#endif
     wid->scale.gravity = NORTHEAST;
     ViewList_t *filelist;
     filelist = (ViewList_t*)malloc(sizeof(ViewList_t));
@@ -60,7 +61,6 @@ Widget_t* create_listview_viewport(Widget_t *parent, int elem, int width, int he
     wid->func.map_notify_callback = _configure_listview;
     wid->func.mem_free_callback = listview_mem_free;
     return wid;
-#endif
 }
 
 Widget_t* add_listview(Widget_t *parent, const char * label,

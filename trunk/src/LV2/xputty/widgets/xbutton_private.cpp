@@ -55,9 +55,13 @@ void _pattern_in(Widget_t *w, Color_state st, int height) {
 }
 
 void _draw_image_button(Widget_t *w, int width_t, int height_t, float offset) {
-#ifndef _WIN32
+#ifdef _WIN32
+    int width = 0;
+    int height = 0;
+#else
     int width = cairo_xlib_surface_get_width(w->image);
     int height = cairo_xlib_surface_get_height(w->image);
+#endif
     double half_width = (width/height >=2) ? width*0.5 : width;
     double x = (double)width_t/(double)(half_width);
     double y = (double)height_t/(double)height;
@@ -71,13 +75,16 @@ void _draw_image_button(Widget_t *w, int width_t, int height_t, float offset) {
     cairo_rectangle(w->crb,0, 0, height, height);
     cairo_fill(w->crb);
     cairo_scale(w->crb, x1,y1);
-#endif
 }
 
 void _draw_image_button_with_label(Widget_t *w, int width_t, int height_t) {
-#ifndef _WIN32
+#ifdef _WIN32
+    int width = 0;
+    int height = 0;
+#else
     int width = cairo_xlib_surface_get_width(w->image);
     int height = cairo_xlib_surface_get_height(w->image);
+#endif
     double x = (double)width_t/(double)height;
     double y = (double)height/(double)width_t;
     double buttonstate = adj_get_state(w->adj);
@@ -112,28 +119,29 @@ void _draw_image_button_with_label(Widget_t *w, int width_t, int height_t) {
         cairo_show_text(w->crb, w->label);
     }
     cairo_new_path (w->crb);
-#endif
 }
 
 void _draw_switch_image_button(void *w_, void* user_data) {
-#ifndef _WIN32
     Widget_t *w = (Widget_t*)w_;
     if (!w) return;
+#ifdef _WIN32
+    int width = 0;
+    int height = 0;
+#else
     XWindowAttributes attrs;
     XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
     int width = attrs.width-2;
     int height = attrs.height-2;
     if (attrs.map_state != IsViewable) return;    
+#endif
     if(strlen(w->label)) {
         _draw_image_button_with_label(w, width, height);
     } else {
         _draw_image_button(w, width, height,0.0);
     }
-#endif
 }
 
 void _draw_button_base(Widget_t *w, int width, int height) {
-#ifndef _WIN32
     if (!w->state && (int)w->adj_y->value) {
         w->state = 3;
     } else if (w->state == 3 && !(int)w->adj_y->value) {
@@ -179,18 +187,21 @@ void _draw_button_base(Widget_t *w, int width, int height) {
         _rounded_rectangle(w->crb,3.0, 3.0, width, height);
         cairo_stroke(w->crb);
     }
-#endif
 }
 
 void _draw_button(void *w_, void* user_data) {
-#ifndef _WIN32
     Widget_t *w = (Widget_t*)w_;
     if (!w) return;
+#ifdef _WIN32
+    int width = 0;
+    int height = 0;
+#else
     XWindowAttributes attrs;
     XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
     int width = attrs.width-2;
     int height = attrs.height-2;
     if (attrs.map_state != IsViewable) return;
+#endif
     _draw_button_base(w, width, height);
 
     float offset = 0.0;
@@ -224,18 +235,21 @@ void _draw_button(void *w_, void* user_data) {
         cairo_show_text(w->crb, w->label);
         cairo_new_path (w->crb);
     }
-#endif
 }
 
 void _draw_on_off_button(void *w_, void* user_data) {
-#ifndef _WIN32
     Widget_t *w = (Widget_t*)w_;
     if (!w) return;
+#ifdef _WIN32
+    int width = 0;
+    int height = 0;
+#else
     XWindowAttributes attrs;
     XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
     int width = attrs.width-2;
     int height = attrs.height-2;
     if (attrs.map_state != IsViewable) return;
+#endif
 
     _draw_button_base(w, width, height);
 
@@ -268,18 +282,21 @@ void _draw_on_off_button(void *w_, void* user_data) {
     cairo_show_text(w->crb, w->label);
     cairo_new_path (w->crb);
 
-#endif
 }
 
 void _draw_ti_button(void *w_, void* user_data) {
-#ifndef _WIN32
     Widget_t *w = (Widget_t*)w_;
     if (!w) return;
+#ifdef _WIN32
+    int width = 0;
+    int height = 0;
+#else
     XWindowAttributes attrs;
     XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
     int width = attrs.width-2;
     int height = attrs.height-2;
     if (attrs.map_state != IsViewable) return;
+#endif
     _draw_button_base(w, width, height);
     if (w->image) {
         float offset = 0.0;
@@ -295,18 +312,21 @@ void _draw_ti_button(void *w_, void* user_data) {
         
        _draw_image_button(w, width, height,offset);
    }
-#endif
 }
 
 void _draw_check_button(void *w_, void* user_data) {
-#ifndef _WIN32
     Widget_t *w = (Widget_t*)w_;
     if (!w) return;
+#ifdef _WIN32
+    int width = 0;
+    int height = 0;
+#else
     XWindowAttributes attrs;
     XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
     int width = attrs.width-2;
     int height = attrs.height-2;
     if (attrs.map_state != IsViewable) return;
+#endif
     if (w->image) {
         _draw_image_button(w, width, height,0.0);
     } else {
@@ -330,17 +350,20 @@ void _draw_check_button(void *w_, void* user_data) {
 
         cairo_new_path (w->crb);
     }
-#endif
 }
 
 void _draw_check_box(void *w_, void* user_data) {
-#ifndef _WIN32
     Widget_t *w = (Widget_t*)w_;
     if (!w) return;
+#ifdef _WIN32
+    int width = 0;
+    int height = 0;
+#else
     XWindowAttributes attrs;
     XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
     int height = attrs.height-2;
     if (attrs.map_state != IsViewable) return;
+#endif
     if (w->image) {
         _draw_image_button(w, height, height,0.0);
     } else {
@@ -372,7 +395,6 @@ void _draw_check_box(void *w_, void* user_data) {
         cairo_show_text(w->crb, w->label);
         cairo_new_path (w->crb);
     }
-#endif
 }
 
 /*---------------------------------------------------------------------

@@ -30,14 +30,18 @@ void _draw_menu(void *w_, void* user_data) {
 }
 
 void _draw_item(void *w_, void* user_data) {
-#ifndef _WIN32
     Widget_t *w = (Widget_t*)w_;
     if (!w) return;
     XWindowAttributes attrs;
     XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
+#ifdef _WIN32
+    int width = 0;
+    int height = 0;
+#else
     int width = attrs.width;
     int height = attrs.height;
     if (attrs.map_state != IsViewable) return;
+#endif
 
     use_base_color_scheme(w, NORMAL_);
     cairo_rectangle(w->crb, 0, 0, width , height);
@@ -62,16 +66,18 @@ void _draw_item(void *w_, void* user_data) {
     cairo_move_to (w->crb, (width-extents.width)/2., height - extents.height );
     cairo_show_text(w->crb, w->label);
     cairo_new_path (w->crb);
-#endif
 }
 
 void _draw_check_item(void *w_, void* user_data) {
-#ifndef _WIN32
     _draw_item(w_, user_data);
     Widget_t *w = (Widget_t*)w_;
     XWindowAttributes attrs;
+#ifdef _WIN32
+    int height = 0;
+#else
     XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
     int height = attrs.height;
+#endif
     if (w->flags & IS_RADIO) {
         cairo_arc(w->crb, height/3, height/2, height/6, 0, 2 * M_PI );
     } else {
@@ -88,19 +94,22 @@ void _draw_check_item(void *w_, void* user_data) {
         use_fg_color_scheme(w, ACTIVE_);
         cairo_fill(w->crb);
     }
-#endif
 }
 
 void _draw_viewslider(void *w_, void* user_data) {
-#ifndef _WIN32
     Widget_t *w = (Widget_t*)w_;
     int v = (int)w->adj->max_value;
     if (!v) return;
     XWindowAttributes attrs;
+#ifdef _WIN32
+    int width = 0;
+    int height = 0;
+#else
     XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
     if (attrs.map_state != IsViewable) return;
     int width = attrs.width;
     int height = attrs.height;
+#endif
     float sliderstate = adj_get_state(w->adj);
     use_bg_color_scheme(w, NORMAL_);
     cairo_rectangle(w->crb, width-5,0,5,height);
@@ -113,13 +122,12 @@ void _draw_viewslider(void *w_, void* user_data) {
     use_fg_color_scheme(w, NORMAL_);
     cairo_set_line_width(w->crb,1);
     cairo_stroke(w->crb);
-#endif
 }
 
 void _set_viewpoint(void *w_, void* user_data) {
-#ifndef _WIN32
     Widget_t *w = (Widget_t*)w_;
     int v = (int)max(0,adj_get_value(w->adj));
+#ifndef _WIN32
     XWindowAttributes attrs;
     XGetWindowAttributes(w->app->dpy, (Window)w->childlist->childs[0]->widget, &attrs);
     int height = attrs.height;
@@ -143,16 +151,22 @@ void _radio_item_button_pressed(void *w_, void* button_, void* user_data) {
 }
 
 void _configure_menu(Widget_t *parent, Widget_t *menu, int elem, bool above) {
-#ifndef _WIN32
     Widget_t* view_port =  menu->childlist->childs[0];
     if (!view_port->childlist->elem) return;
     XWindowAttributes attrs;
+#ifdef _WIN32
+    int width = 0;
+    int height = 0;
+#else
     XGetWindowAttributes(menu->app->dpy, (Window)view_port->childlist->childs[0]->widget, &attrs);
     int height = attrs.height;
+#endif
     int x1, y1;
     int posy = (above) ? parent->height : 0;
     Window child;
+#ifndef _WIN32
     XTranslateCoordinates( parent->app->dpy, parent->widget, DefaultRootWindow(parent->app->dpy), 0, posy, &x1, &y1, &child );
+#endif
     int item_width = 1.0;
     cairo_text_extents_t extents;
     int i = view_port->childlist->elem-1;
@@ -173,6 +187,7 @@ void _configure_menu(Widget_t *parent, Widget_t *menu, int elem, bool above) {
     if(above) {
         if(item_width<parent->width)item_width = parent->width;
     }
+#ifndef _WIN32
     XResizeWindow (menu->app->dpy, menu->widget, item_width, height*elem);
     XResizeWindow (view_port->app->dpy, view_port->widget, item_width, height*view_port->childlist->elem);
     XMoveWindow(menu->app->dpy,menu->widget,x1, y1);   

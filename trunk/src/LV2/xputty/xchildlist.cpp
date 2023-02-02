@@ -40,7 +40,6 @@ void childlist_destroy(Childlist_t *childlist) {
 }
 
 void childlist_add_child(Childlist_t *childlist, Widget_t *child) {
-#ifndef _WIN32
     if(!childlist) childlist_init(childlist);
     if (childlist->cap < childlist->elem+2) {
          _childlist_add_elem(childlist);
@@ -48,12 +47,13 @@ void childlist_add_child(Childlist_t *childlist, Widget_t *child) {
     childlist->childs[childlist->elem] = child;
     debug_print("Childlist_t  add_child\n");
     if (child->flags & IS_WINDOW) {
+#ifndef _WIN32
         Atom WM_DELETE_WINDOW;
         WM_DELETE_WINDOW = XInternAtom(child->app->dpy, "WM_DELETE_WINDOW", True);
         XSetWMProtocols(child->app->dpy, child->widget, &WM_DELETE_WINDOW, 1);
+#endif
     }
     childlist->elem +=1;
-#endif
 }
 
 void childlist_remove_child(Childlist_t *childlist, Widget_t *child) {
@@ -80,11 +80,6 @@ int childlist_find_child(Childlist_t *childlist, Widget_t *child) {
     return -1;
 }
 
-#ifdef _WIN32
-int childlist_find_widget(Childlist_t *childlist, void *child_window) {
-    return -1;
-}
-#else
 int childlist_find_widget(Childlist_t *childlist, Window child_window) {
     int i = childlist->elem-1;
     for(;i>-1;i--) {
@@ -94,7 +89,6 @@ int childlist_find_widget(Childlist_t *childlist, Window child_window) {
     }
     return -1;
 }
-#endif
 
 int childlist_has_child(Childlist_t *childlist) {
     return childlist->elem;

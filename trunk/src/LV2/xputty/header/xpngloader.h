@@ -53,17 +53,7 @@ extern "C" {
 #define LDVAR(NAME) _section$__DATA__ ## NAME
 #define LDLEN(NAME) (getsectbyname("__DATA", "__" #NAME)->size)
 
-//#elif (defined __WIN32__)  /* mingw */
-//
-//#define EXTLD(NAME) \
-//  extern const unsigned char binary_ ## NAME ## _start[]; \
-//  extern const unsigned char binary_ ## NAME ## _end[];
-//#define LDVAR(NAME) \
-//  binary_ ## NAME ## _start
-//#define LDLEN(NAME) \
-//  ((binary_ ## NAME ## _end) - (binary_ ## NAME ## _start))
-//
-#else /* gnu/linux ld */
+#else /* gnu ld (linux or mingw) */
 
 #define EXTLD(NAME) \
   extern const unsigned char _binary_ ## NAME ## _start[]; \
@@ -150,11 +140,7 @@ cairo_surface_t * surface_get_png(Widget_t *w, cairo_surface_t *sf, const unsign
  * @return void
  */
 
-#ifdef _WIN32
-void widget_set_icon_from_surface(Widget_t *w, void *icon_, cairo_surface_t *image);
-#else
 void widget_set_icon_from_surface(Widget_t *w, Pixmap *icon_, cairo_surface_t *image);
-#endif
 
 /**
  * @brief widget_set_icon_from_png   - set icon image from png binary to Widget_t 
@@ -164,11 +150,7 @@ void widget_set_icon_from_surface(Widget_t *w, Pixmap *icon_, cairo_surface_t *i
  * @return void
  */
 
-#ifdef _WIN32
-void widget_set_icon_from_png(Widget_t *w, void *icon_, const unsigned char* name);
-#else
 void widget_set_icon_from_png(Widget_t *w, Pixmap *icon_, const unsigned char* name);
-#endif
 
 #ifdef __cplusplus
 }

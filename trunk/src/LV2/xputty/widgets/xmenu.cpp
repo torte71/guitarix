@@ -24,19 +24,21 @@
 
 
 void pop_menu_show(Widget_t *parent, Widget_t *menu, int elem, bool above) {
-#ifndef _WIN32
     if (!childlist_has_child(menu->childlist)) return;
     Widget_t* view_port =  menu->childlist->childs[0];
     if (!view_port->childlist->elem) return;
     _configure_menu(parent, menu, elem, above);
     pop_widget_show_all(menu);
+#ifdef _WIN32
+    int err = -1;
+#else
     int err = XGrabPointer(menu->app->dpy, DefaultRootWindow(parent->app->dpy), True,
                  ButtonPressMask|ButtonReleaseMask|PointerMotionMask,
                  GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
+#endif
     menu->app->hold_grab = menu;
 
     if (err) debug_print("Error grap pointer\n");
-#endif
 }
 
 Widget_t* create_viewport(Widget_t *parent, int width, int height) {
@@ -83,12 +85,16 @@ Widget_t* create_menu(Widget_t *parent, int height) {
 }
 
 Widget_t* menu_add_item(Widget_t *menu,const char * label) {
-#ifndef _WIN32
     Widget_t* view_port =  menu->childlist->childs[0];
     XWindowAttributes attrs;
+#ifdef _WIN32
+    int width = 0;
+    int height = 0;
+#else
     XGetWindowAttributes(menu->app->dpy, (Window)menu->widget, &attrs);
     int width = attrs.width;
     int height = attrs.height;
+#endif
     int si = childlist_has_child(view_port->childlist);
     Widget_t *wid = create_widget(menu->app, view_port, 0, height*si, width, height);
     float max_value = view_port->adj->max_value+1.0;
@@ -100,7 +106,6 @@ Widget_t* menu_add_item(Widget_t *menu,const char * label) {
     wid->func.enter_callback = transparent_draw;
     wid->func.leave_callback = transparent_draw;
     return wid;
-#endif
 }
 
 Widget_t* menu_add_check_item(Widget_t *menu, const char * label) {

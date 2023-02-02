@@ -115,11 +115,7 @@ int childlist_find_child(Childlist_t *childlist, Widget_t *child);
  * when not found
  */
 
-#ifdef _WIN32
-int childlist_find_widget(Childlist_t *childlist, void *child_window);
-#else
 int childlist_find_widget(Childlist_t *childlist, Window child_window);
-#endif
 
 /**
  * @brief childlist_has_child  - check if a Widget_t Childlist_t contain a child

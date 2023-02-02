@@ -110,21 +110,24 @@ void _button_press(Widget_t * wid, XButtonEvent *xbutton, void* user_data) {
 }
 
 void _check_grab(Widget_t * wid, XButtonEvent *xbutton, Xputty *main) {
-#ifndef _WIN32
     if(main->hold_grab != NULL) {
         Widget_t *view_port = main->hold_grab->childlist->childs[0];
         if(xbutton->button == Button1) {
             //if (xbutton->window == view_port->widget) return;
+#ifndef _WIN32
             XUngrabPointer(main->dpy,CurrentTime);
+#endif
             int i = view_port->childlist->elem-1;
             for(;i>-1;i--) {
                 Widget_t *w = view_port->childlist->childs[i];
+#ifndef _WIN32
                 if (xbutton->window == w->widget) {
                     const char *l = view_port->childlist->childs[i]->label;
                     main->hold_grab->func.button_release_callback
                         (main->hold_grab, &i, &l);
                     break;
                 }
+#endif
             }
             widget_hide(main->hold_grab);
             main->hold_grab = NULL;
@@ -135,7 +138,6 @@ void _check_grab(Widget_t * wid, XButtonEvent *xbutton, Xputty *main) {
             _scroll_event(view_port, -1);
         }
     }
-#endif
 }
 
 void _propagate_child_expose(Widget_t *wid) {
