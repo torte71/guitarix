@@ -85,7 +85,9 @@ void _button_press(Widget_t * wid, XButtonEvent *xbutton, void* user_data) {
     switch(xbutton->button) {
         case Button1:
             wid->state = 2;
+#ifndef _WIN32
             _has_pointer(wid, xbutton);
+#endif
             wid->pos_x = xbutton->x;
             wid->pos_y = xbutton->y;
             _toggle_event(wid);
@@ -213,7 +215,8 @@ void _hide_all_tooltips(Widget_t *wid) {
     }
 }
 
-void _has_pointer(Widget_t *w, XButtonEvent *button) {
+void t_has_pointer(Widget_t *w, XButtonEvent *button) {
+#ifndef _WIN32
     XWindowAttributes attrs;
     XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
     
@@ -223,6 +226,7 @@ void _has_pointer(Widget_t *w, XButtonEvent *button) {
     } else {
         w->flags &= ~HAS_POINTER;
     }
+#endif
 }
 
 void _set_adj_value(void *w_, bool x, int direction) {
@@ -251,7 +255,9 @@ void _dummy_callback(void *w_, void* user_data) {
 void _resize_surface(Widget_t *wid, int width, int height) {
     wid->width = width;
     wid->height = height;
+#ifndef _WIN32
     cairo_xlib_surface_set_size( wid->surface, wid->width, wid->height);
+#endif
     cairo_font_face_t *ff = cairo_get_font_face(wid->crb);
     cairo_destroy(wid->crb);
     cairo_surface_destroy(wid->buffer);
@@ -267,6 +273,7 @@ void _resize_childs(Widget_t *wid) {
     int i = 0;
     for(;i<wid->childlist->elem;i++) {
         Widget_t *w = wid->childlist->childs[i];
+#ifndef _WIN32
         switch(w->scale.gravity) {
             case(NORTHWEST):
                 XResizeWindow (wid->app->dpy, w->widget, max(1,
@@ -320,5 +327,6 @@ void _resize_childs(Widget_t *wid) {
             break;
         }
         w->func.configure_notify_callback(w,NULL);
+#endif
     }
 }

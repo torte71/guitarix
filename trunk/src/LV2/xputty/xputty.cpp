@@ -27,7 +27,11 @@
 
 
 void main_init(Xputty *main) {
+#ifdef _WIN32
+    main->dpy = 0;
+#else
     main->dpy = XOpenDisplay(0);
+#endif
     assert(main->dpy);
     main->childlist = (Childlist_t*)malloc(sizeof(Childlist_t));
     assert(main->childlist);

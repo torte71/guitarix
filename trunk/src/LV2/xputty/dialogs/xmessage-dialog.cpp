@@ -50,8 +50,13 @@ static void draw_message_window(void *w_, void* user_data) {
     cairo_fill (w->crb);
 
     widget_set_scale(w);
+#ifdef _WIN32
+    int width = cairo_image_surface_get_width(w->image);
+    int height = cairo_image_surface_get_height(w->image);
+#else
     int width = cairo_xlib_surface_get_width(w->image);
     int height = cairo_xlib_surface_get_height(w->image);
+#endif
     double x = 64.0/(double)(width);
     double y = 64.0/(double)height;
     double x1 = (double)height/64.0;
@@ -69,11 +74,13 @@ static void draw_message_window(void *w_, void* user_data) {
 static void draw_entry(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
     if (!w) return;
-    XWindowAttributes attrs;
-    XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
-    int width = attrs.width;
-    int height = attrs.height;
-    if (attrs.map_state != IsViewable) return;
+    Metrics_t m;
+    int width, height;
+
+    os_get_window_metrics(w, &m);
+    if (!m.visible) return;
+    width = m.width;
+    height = m.height;
 
     use_base_color_scheme(w, NORMAL_);
     cairo_rectangle(w->cr,0,0,width,height);

@@ -135,7 +135,9 @@ void _set_listbox_viewpoint(void *w_, void* user_data) {
     int v = (int)adj_get_value(w->adj);
 
     os_get_window_metrics((Widget_t*)w->childlist->childs[0], &m);
+#ifndef _WIN32
     XMoveWindow(w->app->dpy,w->widget,0, -m.height*v);
+#endif
 }
 
 void _listbox_entry_released(void *w_, void* button_, void* user_data) {

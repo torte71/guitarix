@@ -59,8 +59,13 @@ void _create_playhead_image(Widget_t *w, int width, int height) {
 void _draw_playhead(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
 
+#ifdef _WIN32
+    int width = cairo_image_surface_get_width(w->image);
+    int height = cairo_image_surface_get_height(w->image);
+#else
     int width = cairo_xlib_surface_get_width(w->image);
     int height = cairo_xlib_surface_get_height(w->image);
+#endif
     double state = adj_get_state(w->adj);
     double clip = adj_get_state(w->adj_x);
     double cut = adj_get_state(w->adj_y);

@@ -114,16 +114,9 @@ extern "C" {
 
 typedef unsigned long int XID;
 typedef unsigned long int Atom;
-typedef unsigned long int VisualID;
-typedef unsigned long int Time;
+typedef XID *Display;
 typedef XID Window;
-typedef XID Font;
 typedef XID Pixmap;
-typedef unsigned char KeyCode;
-typedef XID Drawable;
-typedef XID Cursor;
-typedef XID Colormap;
-typedef XID GContext;
 typedef XID KeySym;
 typedef void *XIC;
 typedef void *XIM;
@@ -144,41 +137,17 @@ typedef struct {
   int x;
   int y;
 } XButtonEvent;
-//typedef struct {
-//  void *widget;
-//} Window;
-typedef struct {
-  int width;
-  int height;
-  int map_state;
-} XWindowAttributes;
-typedef XID *Display;
-typedef XID *Status;
-//typedef void *Display;
-//typedef void *Pixmap;
-//typedef void *Atom;
-//typedef int Status;
-//typedef int KeySym;
-//typedef void *XButtonEvent;
-#define XGetWindowAttributes(a,b,c) 0
-#define IsViewable 1
+
 #define Button1 1
 #define Button2 2
 #define Button3 3
 #define Button4 4
 #define Button5 5
-#define XCreatePixmap(a,b,c,d,e) 0
-#define XResizeWindow(a,b,c,d) 0
-#define XOpenDisplay(a) 0
-#define XMoveWindow(a,b,c,d) 0
-#define cairo_xlib_surface_get_width(a) 0
-#define cairo_xlib_surface_set_size(a,b,c) 0
-#define cairo_xlib_surface_get_height(a) 0
 
-#define XLookupKeysym(a,b) 0
 #define ShiftMask	(1<<0)
 #define Button1Mask (1<<8)
 
+// xmidi_keyboard.cpp
 #define XK_space	VK_SPACE
 #define XK_0	'0'
 #define XK_2	'2'
@@ -223,7 +192,7 @@ typedef XID *Status;
 #define XK_dead_circumflex	'^'
 // ??
 #define XK_dead_diaeresis	'ü'
-
+/*
 #define XK_Tab		VK_TAB
 #define XK_Up		VK_UP
 #define XK_Right	VK_RIGHT
@@ -244,8 +213,7 @@ typedef XID *Status;
 #define XK_KP_End	VK_END
 #define XK_KP_Enter	VK_RETURN
 #define XK_Return	VK_RETURN
-
-
+*/
 #endif
 
 
