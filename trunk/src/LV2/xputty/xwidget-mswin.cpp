@@ -87,6 +87,10 @@ void os_quit_widget(Widget_t *w) {
   // STUB
 }
 
+void os_register_wm_delete_window(Widget_t * wid) {
+  // STUB
+}
+
 // os specific
 
 int key_mapping(Display *dpy, XKeyEvent *xkey) {

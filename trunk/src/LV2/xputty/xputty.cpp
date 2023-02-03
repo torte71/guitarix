@@ -46,9 +46,7 @@ void main_init(Xputty *main) {
 void main_run(Xputty *main) {
 #ifndef _WIN32
     Widget_t * wid = main->childlist->childs[0]; 
-    Atom WM_DELETE_WINDOW;
-    WM_DELETE_WINDOW = XInternAtom(wid->app->dpy, "WM_DELETE_WINDOW", True);
-    XSetWMProtocols(wid->app->dpy, wid->widget, &WM_DELETE_WINDOW, 1);
+    os_register_wm_delete_window(wid);
 
     XEvent xev;
     int ew;

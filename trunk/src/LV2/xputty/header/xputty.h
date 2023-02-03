@@ -148,9 +148,9 @@ typedef struct {
 //  void *widget;
 //} Window;
 typedef struct {
-  int width=0;
-  int height=0;
-  int map_state=0;
+  int width;
+  int height;
+  int map_state;
 } XWindowAttributes;
 typedef XID *Display;
 typedef XID *Status;

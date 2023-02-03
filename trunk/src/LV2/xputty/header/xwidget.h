@@ -612,6 +612,7 @@ void os_send_systray_message(Widget_t *w);
 void os_quit(Widget_t *w);
 void os_quit_widget(Widget_t *w);
 
+void os_register_wm_delete_window(Widget_t * wid);
 
 #ifdef __cplusplus
 }
