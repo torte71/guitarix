@@ -104,7 +104,6 @@ void _draw_viewslider(void *w_, void* user_data) {
     width = m.width;
     height = m.height;
 
-    XWindowAttributes attrs;
     float sliderstate = adj_get_state(w->adj);
     use_bg_color_scheme(w, NORMAL_);
     cairo_rectangle(w->crb, width-5,0,5,height);
