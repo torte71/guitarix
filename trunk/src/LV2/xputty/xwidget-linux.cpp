@@ -395,10 +395,11 @@ void os_quit_widget(Widget_t *w) {
     XSendEvent(w->app->dpy, w->widget, 0, 0, (XEvent *)&xevent);
 }
 
-void os_register_wm_delete_window(Widget_t * wid) {
+Atom os_register_wm_delete_window(Widget_t * wid) {
     Atom WM_DELETE_WINDOW;
     WM_DELETE_WINDOW = XInternAtom(wid->app->dpy, "WM_DELETE_WINDOW", True);
     XSetWMProtocols(wid->app->dpy, wid->widget, &WM_DELETE_WINDOW, 1);
+    return WM_DELETE_WINDOW;
 }
 
 // TODO

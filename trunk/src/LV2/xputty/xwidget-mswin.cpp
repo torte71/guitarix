@@ -87,8 +87,8 @@ void os_quit_widget(Widget_t *w) {
   // STUB
 }
 
-void os_register_wm_delete_window(Widget_t * wid) {
-  // STUB
+Atom os_register_wm_delete_window(Widget_t * wid) {
+  return 0; // STUB
 }
 
 // os specific

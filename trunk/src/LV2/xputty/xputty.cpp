@@ -46,7 +46,7 @@ void main_init(Xputty *main) {
 void main_run(Xputty *main) {
 #ifndef _WIN32
     Widget_t * wid = main->childlist->childs[0]; 
-    os_register_wm_delete_window(wid);
+    Atom WM_DELETE_WINDOW = os_register_wm_delete_window(wid);
 
     XEvent xev;
     int ew;

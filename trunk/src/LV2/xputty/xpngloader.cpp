@@ -101,6 +101,7 @@ void widget_set_icon_from_surface(Widget_t *w, Pixmap *icon_, cairo_surface_t *i
     int height = 0;
     Pixmap icon = NULL;
     cairo_surface_t *surface = NULL;
+    return; // TODO
 #else
     int width = cairo_xlib_surface_get_width(image);
     int height = cairo_xlib_surface_get_height(image);
@@ -137,6 +138,7 @@ void widget_set_icon_from_png(Widget_t *w, Pixmap *icon_, const unsigned char* n
     int height = 0;
     Pixmap icon = NULL;
     cairo_surface_t *surface = NULL;
+    return; // TODO
 #else
     int width = cairo_image_surface_get_width(image);
     int height = cairo_image_surface_get_height(image);
