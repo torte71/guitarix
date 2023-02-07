@@ -20,6 +20,10 @@ printf("000\n");
 printf("000-2\n");
 Widget_t *w = create_window(&app, 0, //DefaultRootWindow(app.dpy)
 	0, 0, 300, 900);
+set_dark_theme(&app);
+use_fg_color_scheme(w, NORMAL_);
+use_text_color_scheme(w, NORMAL_);
+//use_text_color_scheme(w, PRELIGHT_);
 #else
     Widget_t *w = create_window(&app, DefaultRootWindow(app.dpy), 0, 0, 300, 900);
     /** acces Xlib function */
@@ -46,7 +50,7 @@ y += height + 4; height =     64; width = height ; Widget_t* label              
 //y += height + 4; height =     64; width = height ; Widget_t* switch_image_button = add_switch_image_button(w, "switch_image_buttonlabel", x, y, width, height);
 // widget->data: requires portindex binding
 //y += height + 4; height =     64; width = height ; Widget_t* image_knob          = add_image_knob(w, "label", x, y, width, height);
-#if 0
+#if 0 // CRASH
 y += height + 4; height =  1* 64; width = height ; Widget_t* combobox            = add_combobox(w, "comboboxlabel", x, y, width, height);
 y += height + 4; height =     64; width = height ; Widget_t* combobox_entry      = combobox_add_entry(combobox, "combobox_entrylabel");
 y += height + 4; height =     64; width = height ; Widget_t* combobox_entry2     = combobox_add_entry(combobox, "combobox_entry2label");
@@ -61,7 +65,7 @@ y += height + 4; height =     64; width = height ; Widget_t* vslider            
 y += height + 4; height =     64; width = height ; Widget_t* hslider             = add_hslider(w, "hsliderlabel", x, y, width, height);
 y += height + 4; height =     64; width = height ; Widget_t* tuner               = add_tuner(w, "tunerlabel", x, y, width, height);
 y += height + 4; height =     64; width = height ; Widget_t* valuedisplay        = add_valuedisplay(w, "valuedisplaylabel", x, y, width, height);
-#if 0
+#if 0 // CRASH
 y += height + 4; height =  1* 64; width = height ; Widget_t* listbox             = add_listbox(w, "listboxlabel", x, y, width, height);
 y += height + 4; height =     64; width = height ; Widget_t* listbox_entry       = listbox_add_entry(listbox, "listbox_entrylabel");
 y += height + 4; height =  1* 64; width = height ; Widget_t* listview            = add_listview(w, "listviewlabel", x, y, width, height);

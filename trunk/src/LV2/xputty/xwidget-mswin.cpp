@@ -46,7 +46,16 @@ void os_destroy_window(Widget_t *w) {
 }
 
 void os_get_window_metrics(Widget_t *w_, Metrics_t *metrics) {
-  // STUB
+  RECT Rect = {0};
+  if (GetWindowRect(w_->widget, &Rect)) {
+	  metrics->x = Rect.left;
+	  metrics->y = Rect.top;
+	  metrics->width = Rect.right - Rect.left;
+	  metrics->height = Rect.bottom - Rect.top;
+  }
+  metrics->visible = IsWindowVisible(w_->widget);
+  printf("os_get_window_metrics:x=%d:y=%d:w=%d:h=%d:vis=%d\n",
+	  metrics->x, metrics->y, metrics->width, metrics->height, metrics->visible);
 }
 
 void os_create_main_window_and_surface(Widget_t *w, Xputty *app, Window win,
@@ -70,7 +79,7 @@ printf("os_create_main_window_and_surface:x=%d:y=%d:w=%d:h=%d\n",x,y,width,heigh
 	w->widget = CreateWindowEx(WS_EX_TOPMOST, // dwExStyle
 							szClassName, // lpClassName
 							TEXT("Draw Surface"), // lpWindowName
-WS_OVERLAPPEDWINDOW|WS_VISIBLE,//							(WS_CHILD | WS_VISIBLE), // dwStyle
+							(WS_CHILD | WS_VISIBLE), // dwStyle
 							CW_USEDEFAULT, CW_USEDEFAULT, // X, Y
 							width, height, // nWidth, nHeight
 //diff:parent=win
@@ -106,7 +115,6 @@ printf("os_create_main_window_and_surface:x=%d:y=%d:w=%d:h=%d\n",x,y,width,heigh
 	wndclass.hInstance	   = hInstance;
 	wndclass.hCursor	   = LoadCursor(NULL, IDC_ARROW);
 	wndclass.hbrBackground =(HBRUSH)COLOR_WINDOW;
-wndclass.hbrBackground =(HBRUSH)COLOR_HIGHLIGHT;
 	wndclass.lpszClassName = szClassName;
 	wndclass.cbWndExtra    = sizeof(w); // reserve space for SetWindowLongPtr
 	RegisterClass(&wndclass);
@@ -114,8 +122,7 @@ wndclass.hbrBackground =(HBRUSH)COLOR_HIGHLIGHT;
 	w->widget = CreateWindowEx(WS_EX_TOPMOST, // dwExStyle
 							szClassName, // lpClassName
 							TEXT("Draw Surface"), // lpWindowName
-WS_BORDER|WS_CHILD|WS_VISIBLE,							
-//WS_OVERLAPPEDWINDOW|WS_VISIBLE,//							(WS_CHILD | WS_VISIBLE), // dwStyle
+							(WS_CHILD | WS_VISIBLE), // dwStyle
 							x, y, // X, Y
 							width, height, // nWidth, nHeight
 //diff:parent=parent->widget
@@ -153,6 +160,7 @@ void os_show_tooltip(Widget_t *wid, Widget_t *w) {
 
 void os_expose_widget(Widget_t *w) {
   // STUP
+RedrawWindow(w->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_UPDATENOW);
 }
 
 void os_widget_event_loop(void *w_, void* event, Xputty *main, void* user_data) {
@@ -198,7 +206,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	// be aware: "ui" can be NULL during window creation (esp. if there is a debugger attached)
 	//gx_AxisFaceUI *ui = (gx_AxisFaceUI *)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 	Widget_t *ui = (Widget_t *)GetWindowLongPtr(hwnd, GWLP_USERDATA);
-//printf("HWND:%p msg=%8.8x w=%p l=%p\n",hwnd,msg,wParam,lParam);
+printf("HWND:%p msg=%8.8x w=%p l=%p ui=%p\n",hwnd,msg,(void*)wParam,(void*)lParam,ui);
 
 	switch (msg) {
 		// MSWin only: React to close requests
@@ -212,6 +220,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		// X11:ConfigureNotify
 		case WM_SIZE:
 			if (!ui) return DefWindowProc(hwnd, msg, wParam, lParam);
+ui->func.configure_callback(ui, NULL);
 //			resize_event(ui); // configure event, we only check for resize events here
 			return 0;
 		// X11:Expose
