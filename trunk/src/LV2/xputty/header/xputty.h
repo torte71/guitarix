@@ -115,7 +115,8 @@ extern "C" {
 typedef unsigned long int XID;
 typedef unsigned long int Atom;
 typedef XID *Display;
-typedef XID Window;
+//typedef XID Window;
+#define Window HWND
 typedef XID Pixmap;
 typedef XID KeySym;
 typedef void *XIC;
