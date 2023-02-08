@@ -103,7 +103,6 @@ void main_run(Xputty *main) {
 
 void run_embedded(Xputty *main) {
 #ifndef _WIN32
-
     XEvent xev;
     int ew = -1;
 

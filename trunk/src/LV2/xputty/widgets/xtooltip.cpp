@@ -45,17 +45,22 @@ void add_tooltip(Widget_t *w, const char* label) {
 }
 
 Widget_t* create_tooltip(Widget_t *parent, int width, int height) {
-#ifndef _WIN32
 
     int x1, y1;
     Window child;
+#ifndef _WIN32
     XTranslateCoordinates( parent->app->dpy, parent->widget, DefaultRootWindow(parent->app->dpy), 0, 0, &x1, &y1, &child );
     Widget_t *wid = create_window(parent->app, DefaultRootWindow(parent->app->dpy), x1+10, y1+10, width, height);
+#else
+    Widget_t *wid = create_window(parent->app, HWND_DESKTOP, x1+10, y1+10, width, height);
+#endif
+#ifndef _WIN32
     Atom window_type = XInternAtom(wid->app->dpy, "_NET_WM_WINDOW_TYPE", False);
     long vale = XInternAtom(wid->app->dpy, "_NET_WM_WINDOW_TYPE_TOOLTIP", False);
     XChangeProperty(wid->app->dpy, wid->widget, window_type,
         XA_ATOM, 32, PropModeReplace, (unsigned char *) &vale,1 );
     XSetTransientForHint(parent->app->dpy,wid->widget,parent->widget);
+#endif
     wid->flags &= ~USE_TRANSPARENCY;
     wid->func.expose_callback = _draw_tooltip;
     wid->flags |= IS_TOOLTIP;
@@ -63,5 +68,4 @@ Widget_t* create_tooltip(Widget_t *parent, int width, int height) {
     wid->scale.gravity = NONE;
     childlist_add_child(parent->childlist, wid);
     return wid;
-#endif
 }

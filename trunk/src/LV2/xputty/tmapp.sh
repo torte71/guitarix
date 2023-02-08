@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CMD="g++ -Iheader -Iresources -Iheader/widgets -L../../../build/src/LV2/xputty \
+CMD="g++ -g -Iheader -Iresources -Iheader/widgets -L../../../build/src/LV2/xputty \
   -o tmapp.exe tmapp.c \
   -static \
   -lxcairo \

@@ -47,9 +47,15 @@ void os_destroy_window(Widget_t *w) {
 
 void os_get_window_metrics(Widget_t *w_, Metrics_t *metrics) {
   RECT Rect = {0};
+  POINT Point = {0};
+  Widget_t *parent = (Widget_t *)w_->parent;
+
   if (GetWindowRect(w_->widget, &Rect)) {
-	  metrics->x = Rect.left;
-	  metrics->y = Rect.top;
+	  Point.x = Rect.left;
+	  Point.y = Rect.top;
+	  ScreenToClient(parent->widget, &Point);
+	  metrics->x = Point.x;
+	  metrics->y = Point.y;
 	  metrics->width = Rect.right - Rect.left;
 	  metrics->height = Rect.bottom - Rect.top;
   }
@@ -71,13 +77,12 @@ void os_set_widget_surface_size(Widget_t *w, int width, int height) {
 
 void os_move_window(Display *dpy, Widget_t *w, int x, int y) {
 	SetWindowPos(w->widget, NULL, //hWnd, hWndInsertAfter
-	  x, y, 0, 0, SWP_NOSIZE); //X, Y, width, height, uFlags
-////SWP_NOREDRAW
+	  x, y, 0, 0, SWP_NOSIZE|SWP_NOZORDER); //X, Y, width, height, uFlags
 }
 
 void os_resize_window(Display *dpy, Widget_t *w, int x, int y) {
 	SetWindowPos(w->widget, NULL, //hWnd, hWndInsertAfter
-	  0, 0, x, y, SWP_NOMOVE); //X, Y, width, height, uFlags
+	  0, 0, x, y, SWP_NOMOVE|SWP_NOZORDER); //X, Y, width, height, uFlags
 }
 
 void os_create_main_window_and_surface(Widget_t *w, Xputty *app, Window win,
@@ -101,6 +106,7 @@ printf("os_create_main_window_and_surface:x=%d:y=%d:w=%d:h=%d\n",x,y,width,heigh
 	w->widget = CreateWindowEx(WS_EX_TOPMOST, // dwExStyle
 							szClassName, // lpClassName
 							TEXT("Draw Surface"), // lpWindowName
+//							(WS_OVERLAPPED| WS_VISIBLE), // dwStyle
 							(WS_CHILD | WS_VISIBLE), // dwStyle
 							CW_USEDEFAULT, CW_USEDEFAULT, // X, Y
 							width, height, // nWidth, nHeight
@@ -109,10 +115,11 @@ printf("os_create_main_window_and_surface:x=%d:y=%d:w=%d:h=%d\n",x,y,width,heigh
 							NULL, hInstance, NULL); // hMenu, hInstance, lpParam
 													//
 	// attach a pointer to "w" to this window (so w is available in WndProc)
+//w->parent = win;
 	SetWindowLongPtr(w->widget, GWLP_USERDATA, (LONG_PTR)w);
-//	SetParent(w->widget, win); // embed into parentWindow
-//	ShowWindow(w->widget, SW_SHOW);
-ShowWindow(w->widget, SW_SHOWNORMAL);
+	SetParent(w->widget, win); // embed into parentWindow
+	ShowWindow(w->widget, SW_SHOW);
+//ShowWindow(w->widget, SW_SHOWNORMAL);
 	SetClientSize(w->widget, width, height);
 	SetMouseTracking(w->widget, true); // for receiving WM_MOUSELEAVE
 //diff:SizeHints?
@@ -191,6 +198,9 @@ void os_widget_event_loop(void *w_, void* event, Xputty *main, void* user_data) 
 }
 void os_send_configure_event(Widget_t *w,int x, int y, int width, int height) {
   // STUB
+printf("os_send_configure_event:x=%d:y=%d:w=%d:h=%d\n",x,y,width,height);
+//SetClientSize(w->widget, width, height);
+//RedrawWindow(w->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_UPDATENOW);
 }
 void os_send_button_press_event(Widget_t *w) {
   // STUB

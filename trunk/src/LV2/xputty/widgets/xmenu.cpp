@@ -53,14 +53,18 @@ Widget_t* create_viewport(Widget_t *parent, int width, int height) {
 }
 
 Widget_t* create_menu(Widget_t *parent, int height) {
-#ifndef _WIN32
 
     int x1, y1;
     Window child;
+#ifndef _WIN32
     XTranslateCoordinates( parent->app->dpy, parent->widget, DefaultRootWindow(parent->app->dpy), 0, 0, &x1, &y1, &child );
     Widget_t *wid = create_window(parent->app, DefaultRootWindow(parent->app->dpy), x1, y1, 10, height);
+#else
+    Widget_t *wid = create_window(parent->app, HWND_DESKTOP, x1, y1, 10, height);
+#endif
     create_viewport(wid, 10, 5*height);
 
+#ifndef _WIN32
     XSetWindowAttributes attributes;
     attributes.override_redirect = True;
     XChangeWindowAttributes(parent->app->dpy, wid->widget, CWOverrideRedirect, &attributes);
@@ -76,12 +80,12 @@ Widget_t* create_menu(Widget_t *parent, int height) {
         XA_ATOM, 32, PropModeReplace, (unsigned char *) &window_state_modal, 1);
 
     XSetTransientForHint(parent->app->dpy,wid->widget,parent->widget);
+#endif
     wid->func.expose_callback = _draw_menu;
     wid->flags |= IS_POPUP;
     wid->scale.gravity = NONE;
     childlist_add_child(parent->childlist, wid);
     return wid;
-#endif
 }
 
 Widget_t* menu_add_item(Widget_t *menu,const char * label) {

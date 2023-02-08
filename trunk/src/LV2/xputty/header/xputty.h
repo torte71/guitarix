@@ -35,7 +35,6 @@
 #include <cairo.h>
 #ifdef _WIN32
 #include <windows.h>
-//#include <windowsx.h>
 #include <cairo-win32.h>
 #elif __linux__
 #include <cairo-xlib.h>
