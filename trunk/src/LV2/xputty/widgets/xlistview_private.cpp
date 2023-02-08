@@ -206,9 +206,7 @@ void _configure_listview(void *w_, void* user_data) {
     os_get_window_metrics(listview, &m);
     if (!m.visible) return;
     width = m.width;
-#ifndef _WIN32
-    XResizeWindow (w->app->dpy, w->widget, width, 25*(max(1,filelist->list_size)));
-#endif
+    os_resize_window(w->app->dpy, w, width, 25*(max(1,filelist->list_size)));
 }
 
 void _draw_listview_viewslider(void *w_, void* user_data) {
@@ -240,8 +238,6 @@ void _draw_listview_viewslider(void *w_, void* user_data) {
 void _set_listview_viewpoint(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
     int v = (int)max(0,adj_get_value(w->adj));
-#ifndef _WIN32
-    XMoveWindow(w->app->dpy,w->widget,0, -25*v);
-#endif
+    os_move_window(w->app->dpy,w,0, -25*v);
 }
 

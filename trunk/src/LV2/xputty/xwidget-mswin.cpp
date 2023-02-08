@@ -69,6 +69,17 @@ void os_set_widget_surface_size(Widget_t *w, int width, int height) {
     w->cr = cairo_create(w->surface);
 }
 
+void os_move_window(Display *dpy, Widget_t *w, int x, int y) {
+	SetWindowPos(w->widget, NULL, //hWnd, hWndInsertAfter
+	  x, y, 0, 0, SWP_NOSIZE); //X, Y, width, height, uFlags
+////SWP_NOREDRAW
+}
+
+void os_resize_window(Display *dpy, Widget_t *w, int x, int y) {
+	SetWindowPos(w->widget, NULL, //hWnd, hWndInsertAfter
+	  0, 0, x, y, SWP_NOMOVE); //X, Y, width, height, uFlags
+}
+
 void os_create_main_window_and_surface(Widget_t *w, Xputty *app, Window win,
                           int x, int y, int width, int height) {
 	// prepare window class
@@ -125,7 +136,8 @@ printf("os_create_main_window_and_surface:x=%d:y=%d:w=%d:h=%d\n",x,y,width,heigh
 	wndclass.lpfnWndProc   = WndProc;
 	wndclass.hInstance	   = hInstance;
 	wndclass.hCursor	   = LoadCursor(NULL, IDC_ARROW);
-	wndclass.hbrBackground =(HBRUSH)COLOR_WINDOW;
+//	wndclass.hbrBackground =(HBRUSH)COLOR_WINDOW;
+wndclass.hbrBackground = NULL;
 	wndclass.lpszClassName = szClassName;
 	wndclass.cbWndExtra    = sizeof(w); // reserve space for SetWindowLongPtr
 	RegisterClass(&wndclass);
@@ -232,6 +244,7 @@ printf("HWND:%p msg=%8.8x w=%p l=%p ui=%p\n",hwnd,msg,(void*)wParam,(void*)lPara
 		case WM_SIZE:
 			if (!ui) return DefWindowProc(hwnd, msg, wParam, lParam);
 ui->func.configure_callback(ui, NULL);
+RedrawWindow(ui->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_UPDATENOW);
 //			resize_event(ui); // configure event, we only check for resize events here
 			return 0;
 		// X11:Expose
