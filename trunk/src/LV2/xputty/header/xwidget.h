@@ -595,6 +595,8 @@ typedef struct {
 int key_mapping(Display *dpy, XKeyEvent *xkey);
 void os_destroy_window(Widget_t *w);
 void os_get_window_metrics(Widget_t *w_, Metrics_t *metrics);
+void os_get_surface_size(cairo_surface_t *surface, int *width, int *height);
+void os_set_widget_surface_size(Widget_t *w, int width, int height);
 void os_create_main_window_and_surface(Widget_t *w, Xputty *app, Window win,
                           int x, int y, int width, int height);
 void os_create_widget_window_and_surface(Widget_t *w, Xputty *app, Widget_t *parent,

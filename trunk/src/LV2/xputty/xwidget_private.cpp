@@ -255,9 +255,7 @@ void _dummy_callback(void *w_, void* user_data) {
 void _resize_surface(Widget_t *wid, int width, int height) {
     wid->width = width;
     wid->height = height;
-#ifndef _WIN32
-    cairo_xlib_surface_set_size( wid->surface, wid->width, wid->height);
-#endif
+    os_set_widget_surface_size(wid, wid->width, wid->height);
     cairo_font_face_t *ff = cairo_get_font_face(wid->crb);
     cairo_destroy(wid->crb);
     cairo_surface_destroy(wid->buffer);

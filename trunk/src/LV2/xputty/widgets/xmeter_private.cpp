@@ -257,13 +257,8 @@ void _create_horizontal_meter_image(Widget_t *w, int width, int height) {
 void _draw_v_meter(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
 
-#ifdef _WIN32
-    int width = cairo_image_surface_get_width(w->image);
-    int height = cairo_image_surface_get_height(w->image);
-#else
-    int width = cairo_xlib_surface_get_width(w->image);
-    int height = cairo_xlib_surface_get_height(w->image);
-#endif
+    int width, height;
+    os_get_surface_size(w->image, &width, &height);
     double meterstate = _log_meter(adj_get_value(w->adj_y));
     double oldstate = _log_meter(w->adj_y->start_value);
     widget_set_scale(w);
@@ -282,13 +277,8 @@ void _draw_v_meter(void *w_, void* user_data) {
 void _draw_h_meter(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
 
-#ifdef _WIN32
-    int width = cairo_image_surface_get_width(w->image);
-    int height = cairo_image_surface_get_height(w->image);
-#else
-    int width = cairo_xlib_surface_get_width(w->image);
-    int height = cairo_xlib_surface_get_height(w->image);
-#endif
+    int width, height;
+    os_get_surface_size(w->image, &width, &height);
     double meterstate = _log_meter(adj_get_value(w->adj_x));
     double oldstate = _log_meter(w->adj_x->start_value);
     widget_set_scale(w);

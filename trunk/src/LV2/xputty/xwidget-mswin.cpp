@@ -1,5 +1,5 @@
-// vim:ts=4:sw=4:noet:
-/*
+/* vim:ts=4:sw=4:noet:
+ *
  *                           0BSD 
  * 
  *                    BSD Zero Clause License
@@ -54,8 +54,19 @@ void os_get_window_metrics(Widget_t *w_, Metrics_t *metrics) {
 	  metrics->height = Rect.bottom - Rect.top;
   }
   metrics->visible = IsWindowVisible(w_->widget);
-  printf("os_get_window_metrics:x=%d:y=%d:w=%d:h=%d:vis=%d\n",
-	  metrics->x, metrics->y, metrics->width, metrics->height, metrics->visible);
+}
+
+void os_get_surface_size(cairo_surface_t *surface, int *width, int *height) {
+    *width = cairo_image_surface_get_width(surface);
+    *height = cairo_image_surface_get_height(surface);
+}
+
+void os_set_widget_surface_size(Widget_t *w, int width, int height) {
+    // image_surface cant be resized (only xlib_surface can)
+    cairo_destroy(w->cr);
+    cairo_surface_destroy(w->surface);
+    w->surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
+    w->cr = cairo_create(w->surface);
 }
 
 void os_create_main_window_and_surface(Widget_t *w, Xputty *app, Window win,
