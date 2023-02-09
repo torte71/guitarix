@@ -66,8 +66,14 @@ extern "C" {
  * the -DDEBUG flag
  */
 
+#ifdef _WIN32
+#define debug_print(...) \
+            { char xxdeb[1024]; snprintf(xxdeb, 1024, __VA_ARGS__); OutputDebugString(xxdeb); }
+#else
 #define debug_print(...) \
             ((void)((DEBUG) ? fprintf(stderr, __VA_ARGS__) : 0))
+#endif
+
 
 /*---------------------------------------------------------------------
 -----------------------------------------------------------------------	
@@ -131,11 +137,13 @@ typedef struct {
   int x;
   int y;
   unsigned int state;	/* key or button mask */
+  Window window;
 } XMotionEvent;
 typedef struct {
   int button;
   int x;
   int y;
+  Window window;
 } XButtonEvent;
 
 #define Button1 1

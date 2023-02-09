@@ -85,9 +85,7 @@ void _button_press(Widget_t * wid, XButtonEvent *xbutton, void* user_data) {
     switch(xbutton->button) {
         case Button1:
             wid->state = 2;
-#ifndef _WIN32
             _has_pointer(wid, xbutton);
-#endif
             wid->pos_x = xbutton->x;
             wid->pos_y = xbutton->y;
             _toggle_event(wid);
@@ -122,14 +120,12 @@ void _check_grab(Widget_t * wid, XButtonEvent *xbutton, Xputty *main) {
             int i = view_port->childlist->elem-1;
             for(;i>-1;i--) {
                 Widget_t *w = view_port->childlist->childs[i];
-#ifndef _WIN32
                 if (xbutton->window == w->widget) {
                     const char *l = view_port->childlist->childs[i]->label;
                     main->hold_grab->func.button_release_callback
                         (main->hold_grab, &i, &l);
                     break;
                 }
-#endif
             }
             widget_hide(main->hold_grab);
             main->hold_grab = NULL;
@@ -215,18 +211,16 @@ void _hide_all_tooltips(Widget_t *wid) {
     }
 }
 
-void t_has_pointer(Widget_t *w, XButtonEvent *button) {
-#ifndef _WIN32
-    XWindowAttributes attrs;
-    XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
+void _has_pointer(Widget_t *w, XButtonEvent *button) {
+    Metrics_t metrics;
+    os_get_window_metrics(w, &metrics);
     
-    if ((button->x<attrs.width && button->y<attrs.height) &&
+    if ((button->x<metrics.width && button->y<metrics.height) &&
                                 (button->x>0 && button->y>0)){
         w->flags |= HAS_POINTER;
     } else {
         w->flags &= ~HAS_POINTER;
     }
-#endif
 }
 
 void _set_adj_value(void *w_, bool x, int direction) {

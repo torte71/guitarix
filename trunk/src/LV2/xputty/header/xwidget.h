@@ -352,6 +352,8 @@ struct Widget_t {
     int height;
 /** struct used to resize child widgets */
     Resize_t scale;
+/** _WIN32 helper for EnterNotify */
+    bool mouse_inside;
 };
 
 

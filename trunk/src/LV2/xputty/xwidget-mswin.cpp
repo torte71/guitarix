@@ -25,6 +25,8 @@
 extern "C" {
 #endif
 
+#include "windowsx.h"
+
 #include "xwidget.h"
 #include "xwidget_private.h"
 
@@ -238,15 +240,24 @@ int key_mapping(Display *dpy, XKeyEvent *xkey) {
 /*------------- the event loop ---------------*/
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+
 {
-	static double start_value = 0.0;
-	static bool blocked = false;
 	POINT pt;
+	XButtonEvent xbutton;
+	XMotionEvent xmotion;
+	void *user_data = NULL;
 
 	// be aware: "ui" can be NULL during window creation (esp. if there is a debugger attached)
 	//gx_AxisFaceUI *ui = (gx_AxisFaceUI *)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 	Widget_t *ui = (Widget_t *)GetWindowLongPtr(hwnd, GWLP_USERDATA);
-printf("HWND:%p msg=%8.8x w=%p l=%p ui=%p\n",hwnd,msg,(void*)wParam,(void*)lParam,ui);
+//debug_print("HWND:%p msg=%8.8x w=%p l=%p ui=%p state=%d\n",hwnd,msg,(void*)wParam,(void*)lParam,ui,(ui ? ui->state : 0));
+
+	xbutton.window = hwnd;
+	xbutton.x = GET_X_LPARAM(lParam);
+	xbutton.y = GET_Y_LPARAM(lParam);
+	xmotion.window = hwnd;
+	xmotion.x = GET_X_LPARAM(lParam);
+	xmotion.y = GET_Y_LPARAM(lParam);
 
 	switch (msg) {
 		// MSWin only: React to close requests
@@ -260,7 +271,7 @@ printf("HWND:%p msg=%8.8x w=%p l=%p ui=%p\n",hwnd,msg,(void*)wParam,(void*)lPara
 		// X11:ConfigureNotify
 		case WM_SIZE:
 			if (!ui) return DefWindowProc(hwnd, msg, wParam, lParam);
-ui->func.configure_callback(ui, NULL);
+ui->func.configure_callback(ui, user_data);
 RedrawWindow(ui->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_UPDATENOW);
 //			resize_event(ui); // configure event, we only check for resize events here
 			return 0;
@@ -280,26 +291,51 @@ RedrawWindow(ui->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_UPDATENO
 		// X11:ButtonPress
 		case WM_LBUTTONDOWN:
 			if (!ui) return DefWindowProc(hwnd, msg, wParam, lParam);
-//			ui->pos_x = GET_X_LPARAM(lParam);
-//			ui->pos_y = GET_Y_LPARAM(lParam);
-//			blocked = true;
-//			button1_event(ui, &start_value); // left mouse button click
+			SetCapture(hwnd); // also receive WM_MOUSEMOVE from outside this window
+            if (ui->state == 4) break;
+            if (ui->flags & HAS_TOOLTIP) hide_tooltip(ui);
+			xbutton.button = Button1;
+            _button_press(ui, &xbutton, user_data);
+            debug_print("Widget_t  ButtonPress %i\n", xbutton.button);
+			return 0;
+		case WM_RBUTTONDOWN:
+			if (!ui) return DefWindowProc(hwnd, msg, wParam, lParam);
+            if (ui->state == 4) break;
+			xbutton.button = Button3;
+            _button_press(ui, &xbutton, user_data);
 			return 0;
 		case WM_MOUSEWHEEL:
 			if (!ui) return DefWindowProc(hwnd, msg, wParam, lParam);
 			// opposed to X11, WM_MOUSEWHEEL doesnt contain mouse coordinates
-//			if (GetCursorPos(&pt) && ScreenToClient(hwnd, &pt)) {
-//				ui->pos_x = pt.x;
-//				ui->pos_y = pt.y;
-//			}
-//			if (GET_WHEEL_DELTA_WPARAM(wParam) <= 0)
-//				scroll_event(ui, -1); // mouse wheel scroll down
-//			else
-//				scroll_event(ui, 1); // mouse wheel scroll up
+			if (GetCursorPos(&pt) && ScreenToClient(hwnd, &pt)) {
+				ui->pos_x = pt.x;
+				ui->pos_y = pt.y;
+			}
+			if (GET_WHEEL_DELTA_WPARAM(wParam) <= 0) {
+				xbutton.button = Button5;
+				_button_press(ui, &xbutton, user_data);
+			} else {
+				xbutton.button = Button4;
+				_button_press(ui, &xbutton, user_data);
+			}
 			return 0;
 		// X11:ButtonRelease
 		case WM_LBUTTONUP:
-			blocked = false;
+			ReleaseCapture();
+			xbutton.button = Button1;
+            _check_grab(ui, &xbutton, ui->app);
+            if (ui->state == 4) break;
+            _has_pointer(ui, &xbutton);
+            if(ui->flags & HAS_POINTER) ui->state = 1;
+            else ui->state = 0;
+            _check_enum(ui, &xbutton);
+            ui->func.button_release_callback((void*)ui, &xbutton, user_data);
+            debug_print("Widget_t  ButtonRelease %i\n", xbutton.button);
+			return 0;
+		case WM_RBUTTONUP:
+            if (ui->state == 4) break;
+			xbutton.button = Button3;
+            ui->func.button_release_callback((void*)ui, &xbutton, user_data);
 			return 0;
 
 		// X11:KeyPress
@@ -328,23 +364,51 @@ RedrawWindow(ui->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_UPDATENO
 		// X11:LeaveNotify (X11:EnterNotify: see WM_MOUSEMOVE)
 		case WM_MOUSELEAVE:
 			if (!ui) return DefWindowProc(hwnd, msg, wParam, lParam);
-//			ui->mouse_inside = false;
-//			if (!blocked) get_last_active_controller(ui, false);
+			ui->mouse_inside = false;
+
+            ui->flags &= ~HAS_FOCUS;
+            if (ui->state == 4) break;
+            //if(!(xev->xcrossing.state & Button1Mask)) {
+			if (!(wParam & MK_LBUTTON)) {
+                ui->state = 0;
+                ui->func.leave_callback((void*)ui, user_data);
+if (!(ui->flags & IS_WINDOW))
+	RedrawWindow(hwnd, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_UPDATENOW);
+            }
+            if (ui->flags & HAS_TOOLTIP) hide_tooltip(ui);
+            debug_print("Widget_t LeaveNotify:hwnd=%p",hwnd);
+
 			return 0;
 
 		// X11:MotionNotify
 		case WM_MOUSEMOVE:
 			if (!ui) return DefWindowProc(hwnd, msg, wParam, lParam);
-//			if (!ui->mouse_inside) {
-//				// emulate X11:EnterNotify
-//				ui->mouse_inside = true;
-//				if (!blocked) get_last_active_controller(ui, true);
-//				SetMouseTracking(ui->win, true); // for receiving (next) WM_MOUSELEAVE
-//			}
+			if (!ui->mouse_inside) {
+				// emulate X11:EnterNotify
+				ui->mouse_inside = true;
+
+				ui->flags |= HAS_FOCUS;
+				if (ui->state == 4) break;
+				//if(!(xev->xcrossing.state & Button1Mask)) {
+				if (!(wParam & MK_LBUTTON)) {
+					ui->state = 1;
+					ui->func.enter_callback((void*)ui, user_data);
+if (!(ui->flags & IS_WINDOW))
+	RedrawWindow(hwnd, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_UPDATENOW);
+					if (ui->flags & HAS_TOOLTIP) show_tooltip(ui);
+					else _hide_all_tooltips(ui);
+				}
+				debug_print("Widget_t EnterNotify:hwnd=%p",hwnd);
+
+				SetMouseTracking(hwnd, true); // for receiving (next) WM_MOUSELEAVE
+			}
 //			// mouse move while button1 is pressed
-//			if (wParam & MK_LBUTTON) {
-//				motion_event(ui, start_value, GET_Y_LPARAM(lParam));
-//			}
+			if (wParam & MK_LBUTTON) {
+				if (ui->state == 4) return 0;
+				adj_set_motion_state(ui, xmotion.x, xmotion.y);
+				ui->func.motion_callback((void*)ui, &xmotion, user_data);
+				debug_print("Widget_t MotionNotify x = %li Y = %li \n",pt.x,pt.y );
+			}
 			return 0;
 
 		// X11:ClientMessage: not implemented (could be done with WM_USER / RegisterWindowMessage())
@@ -352,6 +416,7 @@ RedrawWindow(ui->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_UPDATENO
 		default:
 			return DefWindowProc(hwnd, msg, wParam, lParam);
 	}
+	return 0;
 }
 
 LRESULT onPaint( HWND hwnd, WPARAM wParam, LPARAM lParam ) {
