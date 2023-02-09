@@ -15,9 +15,8 @@ if [ ! -e .tmpatched ] ; then
 fi
 
 ./waf configure -j 7 	\
-    --check-cxx-compiler="g++" \
+  --check-cxx-compiler="g++" \
   --no-standalone	\
-  \
   --no-faust		\
   --includeconvolver	\
   --includeresampler	\
@@ -30,12 +29,6 @@ fi
   --cxxflags="-Wall -DGSEAL_ENABLE -fpermissive -D_USE_MATH_DEFINES" \
   \
   && ./waf build \
-  && ./waf install --destdir=$(pwd)/_bin
-
-#  --ldflags="-shared -static -Ld:/c/audio/guitarix-gui/guitarix/trunk/build/src/LV2/xputty $(pkg-config --static --libs cairo) -lfftw3f -liconv "	\
-#  --ldflags="-shared -static -Ld:/c/audio/guitarix-gui/guitarix/trunk/build/src/LV2/xputty $(pkg-config --static --libs cairo) -lfftw3f -liconv -lxcairo"	\
-#  --no-lv2-gui		\
-
-# ./waf build -v | tee build.log
-# ./waf install --destdir=$(pwd)/_bin
+  && ./waf install --destdir=$(pwd)/_bin \
+  && find ./_bin/ -name *.ttl|xargs sed -i "s/X11UI/WindowsUI/"
 
