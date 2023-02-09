@@ -199,7 +199,7 @@ void os_widget_event_loop(void *w_, void* event, Xputty *main, void* user_data) 
 void os_send_configure_event(Widget_t *w,int x, int y, int width, int height) {
   // STUB
 printf("os_send_configure_event:x=%d:y=%d:w=%d:h=%d\n",x,y,width,height);
-//SetClientSize(w->widget, width, height);
+//SetClientSize(w->widget, width, height); // makes no difference
 //RedrawWindow(w->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_UPDATENOW);
 }
 void os_send_button_press_event(Widget_t *w) {
@@ -211,6 +211,13 @@ void os_send_button_release_event(Widget_t *w) {
 void os_send_systray_message(Widget_t *w) {
   // STUB
 }
+
+void os_adjustment_callback(void *w_, void *user_data) {
+  Widget_t *w = (Widget_t *)w_;
+  transparent_draw(w, user_data);
+  RedrawWindow(w->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_UPDATENOW);
+}
+
 void os_quit(Widget_t *w) {
   // STUB
 }

@@ -389,6 +389,11 @@ void os_send_systray_message(Widget_t *w) {
     XSendEvent(w->app->dpy, tray, False, NoEventMask, &event);
 }
 
+void os_adjustment_callback(void *w_, void *user_data) {
+  Widget_t *w = (Widget_t *)w_;
+  transparent_draw(w, user_data);
+}
+
 void os_quit(Widget_t *w) {
     Atom WM_DELETE_WINDOW = XInternAtom(w->app->dpy, "WM_DELETE_WINDOW", True);
     XClientMessageEvent xevent;
