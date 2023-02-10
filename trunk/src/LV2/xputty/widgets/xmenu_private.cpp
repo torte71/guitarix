@@ -153,8 +153,14 @@ void _configure_menu(Widget_t *parent, Widget_t *menu, int elem, bool above) {
 
     int x1, y1;
     int posy = (above) ? parent->height : 0;
+#ifdef _WIN32
+    POINT Point = {0, posy};
+    ClientToScreen(parent->widget, &Point);
+    x1 = Point.x;
+    y1 = Point.y;
+debug_print("_configure_menu:oldX:%d:oldY:%d:newX=%d:newY=%d",0,posy,x1,y1);
+#else
     Window child;
-#ifndef _WIN32
     XTranslateCoordinates( parent->app->dpy, parent->widget, DefaultRootWindow(parent->app->dpy), 0, posy, &x1, &y1, &child );
 #endif
     int item_width = 1.0;

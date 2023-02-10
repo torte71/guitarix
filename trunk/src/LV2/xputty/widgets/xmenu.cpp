@@ -24,7 +24,6 @@
 
 
 void pop_menu_show(Widget_t *parent, Widget_t *menu, int elem, bool above) {
-debug_print("pop_menu_show");
     if (!childlist_has_child(menu->childlist)) return;
     Widget_t* view_port =  menu->childlist->childs[0];
     if (!view_port->childlist->elem) return;
@@ -56,13 +55,17 @@ Widget_t* create_viewport(Widget_t *parent, int width, int height) {
 Widget_t* create_menu(Widget_t *parent, int height) {
 
     int x1, y1;
+#ifdef _WIN32
+    POINT Point = {0, 0};
+    ClientToScreen(parent->widget, &Point);
+    x1 = Point.x;
+    y1 = Point.y;
+
+    Widget_t *wid = create_window(parent->app, HWND_DESKTOP, x1, y1, 10, height);
+#else
     Window child;
-debug_print("create_menu:x1=%d:y1=%d:h=%d",x1,y1,height);
-#ifndef _WIN32
     XTranslateCoordinates( parent->app->dpy, parent->widget, DefaultRootWindow(parent->app->dpy), 0, 0, &x1, &y1, &child );
     Widget_t *wid = create_window(parent->app, DefaultRootWindow(parent->app->dpy), x1, y1, 10, height);
-#else
-    Widget_t *wid = create_window(parent->app, HWND_DESKTOP, x1, y1, 10, height);
 #endif
     create_viewport(wid, 10, 5*height);
 

@@ -104,24 +104,31 @@ printf("os_create_main_window_and_surface:x=%d:y=%d:w=%d:h=%d\n",x,y,width,heigh
 	wndclass.lpszClassName = szClassName;
 	wndclass.cbWndExtra    = sizeof(w); // reserve space for SetWindowLongPtr
 	RegisterClass(&wndclass);
+	// TODO: pass window style (mainwindow,childwidget,popup,...) to create_window()
+	// _WIN32 doesnt allow changing the style afterwards, as it is done in xmenu.cpp
+	// (this also removes duplicate code for window/widget creation).
+	// For the current situation it is sufficient to set popup style if parent is HWND_DESKTOP.
+	DWORD dwStyle;
+	if (win == HWND_DESKTOP) {
+		dwStyle = WS_POPUP ;
+		//dwStyle = WS_POPUP | WS_VISIBLE;
+	} else {
+		dwStyle = WS_CHILD ;
+		//dwStyle = WS_CHILD | WS_VISIBLE;
+	}
 	// create the window
 	w->widget = CreateWindowEx(WS_EX_TOPMOST, // dwExStyle
 							szClassName, // lpClassName
 							TEXT("Draw Surface"), // lpWindowName
-//							(WS_OVERLAPPED| WS_VISIBLE), // dwStyle
-							(WS_CHILD | WS_VISIBLE), // dwStyle
+							dwStyle, // dwStyle
 							CW_USEDEFAULT, CW_USEDEFAULT, // X, Y
 							width, height, // nWidth, nHeight
 //diff:parent=win
 							win, // hWndParent (no embeddeding takes place yet)
 							NULL, hInstance, NULL); // hMenu, hInstance, lpParam
-													//
 	// attach a pointer to "w" to this window (so w is available in WndProc)
-//w->parent = win;
 	SetWindowLongPtr(w->widget, GWLP_USERDATA, (LONG_PTR)w);
 	SetParent(w->widget, win); // embed into parentWindow
-	ShowWindow(w->widget, SW_SHOW);
-//ShowWindow(w->widget, SW_SHOWNORMAL);
 	SetClientSize(w->widget, width, height);
 	SetMouseTracking(w->widget, true); // for receiving WM_MOUSELEAVE
 //diff:SizeHints?
@@ -139,14 +146,14 @@ void os_create_widget_window_and_surface(Widget_t *w, Xputty *app, Widget_t *par
 	static TCHAR szClassName[] = TEXT("xputtyWidgetUIClass");
 	WNDCLASS wndclass = {0};
 	HINSTANCE hInstance = NULL;
-printf("os_create_main_window_and_surface:x=%d:y=%d:w=%d:h=%d\n",x,y,width,height);
+printf("os_create_widget_window_and_surface:x=%d:y=%d:w=%d:h=%d\n",x,y,width,height);
 
 //	wndclass.style		   = CS_HREDRAW | CS_VREDRAW; // clear on resize
 	wndclass.lpfnWndProc   = WndProc;
 	wndclass.hInstance	   = hInstance;
 	wndclass.hCursor	   = LoadCursor(NULL, IDC_ARROW);
-//	wndclass.hbrBackground =(HBRUSH)COLOR_WINDOW;
-wndclass.hbrBackground = NULL;
+	wndclass.hbrBackground =(HBRUSH)COLOR_WINDOW;
+//wndclass.hbrBackground = NULL;
 	wndclass.lpszClassName = szClassName;
 	wndclass.cbWndExtra    = sizeof(w); // reserve space for SetWindowLongPtr
 	RegisterClass(&wndclass);
@@ -154,7 +161,7 @@ wndclass.hbrBackground = NULL;
 	w->widget = CreateWindowEx(WS_EX_TOPMOST, // dwExStyle
 							szClassName, // lpClassName
 							TEXT("Draw Surface"), // lpWindowName
-							(WS_CHILD | WS_VISIBLE), // dwStyle
+							WS_CHILD, // dwStyle
 							x, y, // X, Y
 							width, height, // nWidth, nHeight
 //diff:parent=parent->widget
@@ -164,8 +171,6 @@ wndclass.hbrBackground = NULL;
 	// attach a pointer to "w" to this window (so w is available in WndProc)
 	SetWindowLongPtr(w->widget, GWLP_USERDATA, (LONG_PTR)w);
 	SetParent(w->widget, parent->widget); // embed into parentWindow
-//	ShowWindow(w->widget, SW_SHOW);
-ShowWindow(w->widget, SW_SHOWNORMAL);
 	SetClientSize(w->widget, width, height);
 	SetMouseTracking(w->widget, true); // for receiving WM_MOUSELEAVE
 //diff:no SizeHints
@@ -175,66 +180,83 @@ ShowWindow(w->widget, SW_SHOWNORMAL);
 }
 
 void os_set_title(Widget_t *w, const char *title) {
-  // STUP
+	debug_print("STUB:os_set_title");
+	// STUB
 }
 
 void os_widget_show(Widget_t *w) {
-  // STUP
+	debug_print("STUB:os_widget_show");
+	// STUB
+	ShowWindow(w->widget, SW_SHOW);
+//RedrawWindow(w->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_UPDATENOW);
 }
 
 void os_widget_hide(Widget_t *w) {
-  // STUP
+	debug_print("STUB:os_widget_hide");
+	ShowWindow(w->widget, SW_HIDE);
+	// STUB
 }
 
 void os_show_tooltip(Widget_t *wid, Widget_t *w) {
-  // STUP
+	debug_print("STUB:os_show_tooltip");
+	// STUB
 }
 
 void os_expose_widget(Widget_t *w) {
-  // STUP
+	debug_print("STUB:os_expose_widget:w=%p",w);
+	// STUB
 RedrawWindow(w->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_UPDATENOW);
 }
 
 void os_widget_event_loop(void *w_, void* event, Xputty *main, void* user_data) {
-  // STUB
+	debug_print("STUB:os_widget_event_loop");
+	// STUB
 }
 void os_send_configure_event(Widget_t *w,int x, int y, int width, int height) {
-  // STUB
-printf("os_send_configure_event:x=%d:y=%d:w=%d:h=%d\n",x,y,width,height);
+	debug_print("STUB:os_send_configure_event:x=%d:y=%d:w=%d:h=%d\n",x,y,width,height);
+	// STUB
 //SetClientSize(w->widget, width, height); // makes no difference
 //RedrawWindow(w->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_UPDATENOW);
 }
 void os_send_button_press_event(Widget_t *w) {
-  // STUB
+	debug_print("STUB:os_send_button_press_event");
+	// STUB
 }
 void os_send_button_release_event(Widget_t *w) {
-  // STUB
+	debug_print("STUB:os_send_button_release_event");
+	// STUB
 }
 void os_send_systray_message(Widget_t *w) {
-  // STUB
+	debug_print("STUB:os_send_systray_message");
+	// STUB
 }
 
 void os_adjustment_callback(void *w_, void *user_data) {
   Widget_t *w = (Widget_t *)w_;
   transparent_draw(w, user_data);
-  RedrawWindow(w->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_UPDATENOW);
+//  RedrawWindow(w->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_UPDATENOW);
+  RedrawWindow(w->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_UPDATENOW | RDW_ALLCHILDREN);
 }
 
 void os_quit(Widget_t *w) {
-  // STUB
+	debug_print("STUB:os_quit");
+	// STUB
 }
 void os_quit_widget(Widget_t *w) {
-  // STUB
+	debug_print("STUB:os_quit_widget");
+	// STUB
 }
 
 Atom os_register_wm_delete_window(Widget_t * wid) {
-  return 0; // STUB
+	debug_print("STUB:os_register_wm_delete_window");
+	return 0; // STUB
 }
 
 // os specific
 
 int key_mapping(Display *dpy, XKeyEvent *xkey) {
-  return 0; // STUB
+	debug_print("STUB:key_mapping");
+	return 0; // STUB
 }
 
 /*------------- the event loop ---------------*/

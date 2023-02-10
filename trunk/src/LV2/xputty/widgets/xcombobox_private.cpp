@@ -24,16 +24,13 @@
 
 
 void _draw_combobox_button(void *w_, void* user_data) {
-debug_print("_draw_combobox_button:1");
     Widget_t *w = (Widget_t*)w_;
     if (!w) return;
-debug_print("_draw_combobox_button:2");
     Metrics_t m;
     int width, height;
 
     os_get_window_metrics(w, &m);
     if (!m.visible) return;
-debug_print("_draw_combobox_button:3");
     width = m.width-2;
     height = m.height-4;
 
@@ -42,7 +39,6 @@ debug_print("_draw_combobox_button:3");
 
     cairo_rectangle(w->crb,2.0, 4.0, width, height);
 
-debug_print("_draw_combobox_button:state=%d",w->state);
     if(w->state==0) {
         cairo_set_line_width(w->crb, 1.0);
         _pattern_out(w, NORMAL_, height);
@@ -105,22 +101,18 @@ debug_print("_draw_combobox_button:state=%d",w->state);
 }
 
 void _draw_combobox(void *w_, void* user_data) {
-debug_print("_draw_combobox:1");
     Widget_t *w = (Widget_t*)w_;
     if (!w) return;
-debug_print("_draw_combobox:2");
     Metrics_t m;
     int width, height;
 
     os_get_window_metrics(w, &m);
     if (!m.visible) return;
-debug_print("_draw_combobox:3");
     width = m.width-2;
     height = m.height-2;
 
     cairo_rectangle(w->crb,2.0, 2.0, width, height);
 
-debug_print("_draw_combobox:state=%d",w->state);
     if(w->state==0) {
         cairo_set_line_width(w->crb, 1.0);
         use_shadow_color_scheme(w, NORMAL_);
@@ -173,7 +165,6 @@ debug_print("_draw_combobox:state=%d",w->state);
 }
 
 void _combobox_button_released(void *w_, void* button_, void* user_data) {
-debug_print("_combobox_button_released:1");
     Widget_t *w = (Widget_t*)w_;
     if (w->flags & HAS_POINTER){
         XButtonEvent *xbutton = (XButtonEvent*)button_;
@@ -185,7 +176,6 @@ debug_print("_combobox_button_released:1");
 }
 
 void _button_combobox_released(void *w_, void* button_, void* user_data) {
-debug_print("_button_combobox_released:1");
     Widget_t *w = (Widget_t*)w_;
     XButtonEvent *xbutton = (XButtonEvent*)button_;
     if (w->flags & HAS_POINTER && xbutton->button == Button1) {
@@ -197,7 +187,6 @@ debug_print("_button_combobox_released:1");
 }
 
 void _entry_released(void *w_, void* item_, void* user_data) {
-debug_print("_entry_released:1");
     Widget_t *w = (Widget_t*)w_;
     Widget_t * combo = NULL;
     int i = w->app->childlist->elem-1;
@@ -212,7 +201,6 @@ debug_print("_entry_released:1");
 }
 
 void _set_entry(void *w_, void* user_data) {
-debug_print("_set_entry:1");
     Widget_t *w = (Widget_t*)w_;
     int v = (int)adj_get_value(w->adj);
     Widget_t * menu = w->childlist->childs[1];
@@ -221,5 +209,8 @@ debug_print("_set_entry:1");
     if(v>=0) {
         w->label = view_port->childlist->childs[v]->label;
         transparent_draw(w, user_data);
+#ifdef _WIN32
+	os_expose_widget(w);
+#endif
     }
 }

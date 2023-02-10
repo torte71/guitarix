@@ -23,7 +23,6 @@
 
 
 void combobox_set_active_entry(Widget_t *w, int active) {
-debug_print("combobox_set_active_entry");
     float value = (float)active;
     if (value>w->adj->max_value) value = w->adj->max_value;
     else if (value<w->adj->min_value) value = w->adj->min_value;
