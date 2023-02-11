@@ -47,14 +47,16 @@ void add_tooltip(Widget_t *w, const char* label) {
 Widget_t* create_tooltip(Widget_t *parent, int width, int height) {
 
     int x1, y1;
+#ifdef _WIN32
+    POINT Point = {0, 0};
+    ClientToScreen(parent->widget, &Point);
+    x1 = Point.x;
+    y1 = Point.y;
+    Widget_t *wid = create_window(parent->app, HWND_DESKTOP, x1+10, y1+10, width, height);
+#else
     Window child;
-#ifndef _WIN32
     XTranslateCoordinates( parent->app->dpy, parent->widget, DefaultRootWindow(parent->app->dpy), 0, 0, &x1, &y1, &child );
     Widget_t *wid = create_window(parent->app, DefaultRootWindow(parent->app->dpy), x1+10, y1+10, width, height);
-#else
-    Widget_t *wid = create_window(parent->app, HWND_DESKTOP, x1+10, y1+10, width, height);
-#endif
-#ifndef _WIN32
     Atom window_type = XInternAtom(wid->app->dpy, "_NET_WM_WINDOW_TYPE", False);
     long vale = XInternAtom(wid->app->dpy, "_NET_WM_WINDOW_TYPE_TOOLTIP", False);
     XChangeProperty(wid->app->dpy, wid->widget, window_type,
