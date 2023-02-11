@@ -21,6 +21,7 @@ printf("000-2\n");
 Widget_t *w = create_window(&app, 0, //DefaultRootWindow(app.dpy)
 	0, 0, 300, 900);
 set_dark_theme(&app);
+set_light_theme(&app);
 use_fg_color_scheme(w, NORMAL_);
 use_text_color_scheme(w, NORMAL_);
 //use_text_color_scheme(w, PRELIGHT_);
@@ -37,20 +38,21 @@ printf("002\n");
 int x=0,y=0,width=0,height=0;
 height = 64; 
 
+#if 0
 y += height + 4; height =     64; width = height ; Widget_t* button              = add_button(w, "buttonlabel", x, y, width, height);
 y += height + 4; height =     64; width = height ; Widget_t* on_off_button       = add_on_off_button(w, "on_off_buttonlabel", x, y, width, height);
 y += height + 4; height =     64; width = height ; Widget_t* toggle_button       = add_toggle_button(w, "toggle_buttonlabel", x, y, width, height);
 y += height + 4; height =     64; width = height ; Widget_t* image_toggle_button = add_image_toggle_button(w, "image_toggle_buttonlabel", x, y, width, height);
 y += height + 4; height =     64; width = height ; Widget_t* check_button        = add_check_button(w, "check_buttonlabel", x, y, width, height);
 //wrong width
-//y += height + 4; height =     64; width = height ; Widget_t* check_box           = add_check_box(w, "check_boxlabel", x, y, width, height);
+y += height + 4; height =     64; width = height ; Widget_t* check_box           = add_check_box(w, "check_boxlabel", x, y, width, height);
 y += height + 4; height =     64; width = height ; Widget_t* knob                = add_knob(w, "knoblabel", x, y, width, height);
 y += height + 4; height =     64; width = height ; Widget_t* label               = add_label(w, "label", x, y, width, height);
 // widget->data: requires portindex binding
 //y += height + 4; height =     64; width = height ; Widget_t* switch_image_button = add_switch_image_button(w, "switch_image_buttonlabel", x, y, width, height);
 // widget->data: requires portindex binding
 //y += height + 4; height =     64; width = height ; Widget_t* image_knob          = add_image_knob(w, "label", x, y, width, height);
-#if 0 // CRASH
+#if 1 // CRASH
 y += height + 4; height =  1* 64; width = height ; Widget_t* combobox            = add_combobox(w, "comboboxlabel", x, y, width, height);
 y += height + 4; height =     64; width = height ; Widget_t* combobox_entry      = combobox_add_entry(combobox, "combobox_entrylabel");
 y += height + 4; height =     64; width = height ; Widget_t* combobox_entry2     = combobox_add_entry(combobox, "combobox_entry2label");
@@ -58,25 +60,27 @@ y += height + 4; height =     64; width = height ; Widget_t* combobox_entry2    
 
 y = 0; x = 128;
 // 2 nebeneinander
-//y += height + 4; height =     64; width = height ; Widget_t* vmeter              = add_vmeter(w, "vmeterlabel", true, x, y, width, height);
+y += height + 4; height =     64; width = height ; Widget_t* vmeter              = add_vmeter(w, "vmeterlabel", true, x, y, width, height);
 // 2 untereinander
-//y += height + 4; height =     64; width = height ; Widget_t* hmeter              = add_hmeter(w, "hmeterlabel", true, x, y, width, height);
+y += height + 4; height =     64; width = height ; Widget_t* hmeter              = add_hmeter(w, "hmeterlabel", true, x, y, width, height);
 y += height + 4; height =     64; width = height ; Widget_t* vslider             = add_vslider(w, "vsliderlabel", x, y, width, height);
 y += height + 4; height =     64; width = height ; Widget_t* hslider             = add_hslider(w, "hsliderlabel", x, y, width, height);
 y += height + 4; height =     64; width = height ; Widget_t* tuner               = add_tuner(w, "tunerlabel", x, y, width, height);
 y += height + 4; height =     64; width = height ; Widget_t* valuedisplay        = add_valuedisplay(w, "valuedisplaylabel", x, y, width, height);
-#if 0 // CRASH
+#if 1 // CRASH
 y += height + 4; height =  1* 64; width = height ; Widget_t* listbox             = add_listbox(w, "listboxlabel", x, y, width, height);
 y += height + 4; height =     64; width = height ; Widget_t* listbox_entry       = listbox_add_entry(listbox, "listbox_entrylabel");
 y += height + 4; height =  1* 64; width = height ; Widget_t* listview            = add_listview(w, "listviewlabel", x, y, width, height);
 #endif
-//y += height + 4; height =     64; width = height ; Widget_t* playhead            = add_playhead(w, "playheadlabel", Adjustment_t *clip, Adjustment_t *cut, x, y, width, height);
-
+#endif
+Adjustment_t clip = {0};
+Adjustment_t cut = {0};
+y += height + 4; height =     64; width = height ; Widget_t* playhead            = add_playhead(w, "playheadlabel", &clip, &cut, x, y, width, height);
 // not seen working on linux
-//Widget_t* menu = create_menu(w, 25);
-//Widget_t* menu_item           = menu_add_item(menu, "menu_itemlabel");
-//Widget_t* menu_check_item     = menu_add_check_item(menu, "menu_check_itemlabel");
-//Widget_t* menu_radio_item     = menu_add_radio_item(menu, "menu_radio_itemlabel");
+Widget_t* menu = create_menu(w, 25);
+Widget_t* menu_item           = menu_add_item(menu, "menu_itemlabel");
+Widget_t* menu_check_item     = menu_add_check_item(menu, "menu_check_itemlabel");
+Widget_t* menu_radio_item     = menu_add_radio_item(menu, "menu_radio_itemlabel");
 
 printf("003\n");
 #if 0

@@ -44,7 +44,8 @@ LRESULT onPaint( HWND hwnd, WPARAM wParam, LPARAM lParam );
 
 
 void os_destroy_window(Widget_t *w) {
-  // STUB
+	debug_print("STUB:os_destroy_window:w=%p",w);
+	// STUB
 }
 
 void os_get_window_metrics(Widget_t *w_, Metrics_t *metrics) {
@@ -180,75 +181,74 @@ printf("os_create_widget_window_and_surface:x=%d:y=%d:w=%d:h=%d\n",x,y,width,hei
 }
 
 void os_set_title(Widget_t *w, const char *title) {
-	debug_print("STUB:os_set_title");
+	debug_print("STUB:os_set_title:w=%p",w);
 	// STUB
 }
 
 void os_widget_show(Widget_t *w) {
-	debug_print("STUB:os_widget_show");
-	// STUB
+	debug_print("os_widget_show:w=%p",w);
 	ShowWindow(w->widget, SW_SHOW);
-//RedrawWindow(w->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_UPDATENOW);
 }
 
 void os_widget_hide(Widget_t *w) {
-	debug_print("STUB:os_widget_hide");
+	debug_print("os_widget_hide:w=%p",w);
 	ShowWindow(w->widget, SW_HIDE);
-	// STUB
 }
 
 void os_show_tooltip(Widget_t *wid, Widget_t *w) {
-	debug_print("STUB:os_show_tooltip");
-	// STUB
+	POINT pt;
+	debug_print("os_show_tooltip:wid=%p:w=%p",wid,w);
+	if (GetCursorPos(&pt)) {
+		SetWindowPos(w->widget, NULL, //hWnd, hWndInsertAfter
+		  pt.x+10, pt.y-10, 0, 0, SWP_NOSIZE|SWP_NOZORDER); //X, Y, width, height, uFlags
+	}
 }
 
 void os_expose_widget(Widget_t *w) {
-	debug_print("STUB:os_expose_widget:w=%p",w);
-	// STUB
-RedrawWindow(w->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_UPDATENOW);
+	debug_print("os_expose_widget:w=%p",w);
+	RedrawWindow(w->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_UPDATENOW);
 }
 
 void os_widget_event_loop(void *w_, void* event, Xputty *main, void* user_data) {
-	debug_print("STUB:os_widget_event_loop");
+	debug_print("STUB:os_widget_event_loop:w=%p",w_);
 	// STUB
 }
 void os_send_configure_event(Widget_t *w,int x, int y, int width, int height) {
-	debug_print("STUB:os_send_configure_event:x=%d:y=%d:w=%d:h=%d\n",x,y,width,height);
+	debug_print("STUB:os_send_configure_event:x=%d:y=%d:width=%d:height=%d:w=%p\n",x,y,width,height,w);
 	// STUB
 //SetClientSize(w->widget, width, height); // makes no difference
 //RedrawWindow(w->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_UPDATENOW);
 }
 void os_send_button_press_event(Widget_t *w) {
-	debug_print("STUB:os_send_button_press_event");
+	debug_print("STUB:os_send_button_press_event:w=%p",w);
 	// STUB
 }
 void os_send_button_release_event(Widget_t *w) {
-	debug_print("STUB:os_send_button_release_event");
+	debug_print("STUB:os_send_button_release_event:w=%p",w);
 	// STUB
 }
 void os_send_systray_message(Widget_t *w) {
-	debug_print("STUB:os_send_systray_message");
+	debug_print("STUB:os_send_systray_message:w=%p",w);
 	// STUB
 }
 
 void os_adjustment_callback(void *w_, void *user_data) {
   Widget_t *w = (Widget_t *)w_;
   transparent_draw(w, user_data);
-//  RedrawWindow(w->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_UPDATENOW);
   RedrawWindow(w->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_UPDATENOW | RDW_ALLCHILDREN);
 }
 
 void os_quit(Widget_t *w) {
-	debug_print("STUB:os_quit");
+	debug_print("STUB:os_quit:w=%p",w);
 	// STUB
 }
 void os_quit_widget(Widget_t *w) {
-	debug_print("STUB:os_quit_widget");
+	debug_print("STUB:os_quit_widget:w=%p",w);
 	// STUB
 }
 
 Atom os_register_wm_delete_window(Widget_t * wid) {
-	debug_print("STUB:os_register_wm_delete_window");
+	debug_print("STUB:os_register_wm_delete_window:w=%p",wid);
 	return 0; // STUB
 }
 
@@ -293,9 +293,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		// X11:ConfigureNotify
 		case WM_SIZE:
 			if (!ui) return DefWindowProc(hwnd, msg, wParam, lParam);
-ui->func.configure_callback(ui, user_data);
+			ui->func.configure_callback(ui, user_data);
 RedrawWindow(ui->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_UPDATENOW);
-//			resize_event(ui); // configure event, we only check for resize events here
 			return 0;
 		// X11:Expose
 		case WM_PAINT:
@@ -318,7 +317,7 @@ RedrawWindow(ui->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_UPDATENO
             if (ui->flags & HAS_TOOLTIP) hide_tooltip(ui);
 			xbutton.button = Button1;
             _button_press(ui, &xbutton, user_data);
-            debug_print("Widget_t  ButtonPress %i\n", xbutton.button);
+            debug_print("Widget_t  ButtonPress %i hwnd=%p\n", xbutton.button,hwnd);
 			return 0;
 		case WM_RBUTTONDOWN:
 			if (!ui) return DefWindowProc(hwnd, msg, wParam, lParam);
@@ -352,7 +351,7 @@ RedrawWindow(ui->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_UPDATENO
             else ui->state = 0;
             _check_enum(ui, &xbutton);
             ui->func.button_release_callback((void*)ui, &xbutton, user_data);
-            debug_print("Widget_t  ButtonRelease %i\n", xbutton.button);
+            debug_print("Widget_t  ButtonRelease %i hwnd=%p\n", xbutton.button,hwnd);
 			return 0;
 		case WM_RBUTTONUP:
             if (ui->state == 4) break;
@@ -429,7 +428,7 @@ if (!(ui->flags & IS_WINDOW))
 				if (ui->state == 4) return 0;
 				adj_set_motion_state(ui, xmotion.x, xmotion.y);
 				ui->func.motion_callback((void*)ui, &xmotion, user_data);
-				debug_print("Widget_t MotionNotify x = %li Y = %li \n",pt.x,pt.y );
+				debug_print("Widget_t MotionNotify x = %li Y = %li hwnd=%p\n",pt.x,pt.y,hwnd );
 			}
 			return 0;
 
@@ -454,8 +453,7 @@ LRESULT onPaint( HWND hwnd, WPARAM wParam, LPARAM lParam ) {
 	// and is copied to a win32_surface in the onPaint() event (see WM_PAINT).
 
 	// draw onto the image surface first
-transparent_draw(w, NULL);
-//	_expose(w);
+	transparent_draw(w, NULL);
 
 	// prepare to update window
 	HDC hdc = BeginPaint(hwnd, &ps );
