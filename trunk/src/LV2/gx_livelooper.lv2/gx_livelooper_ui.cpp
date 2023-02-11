@@ -588,6 +588,7 @@ static LV2UI_Handle instantiate(const LV2UI_Descriptor * descriptor,
     ui->win->func.expose_callback = draw_window;
 
     // set min size equal to base size
+#ifndef _WIN32
     XSizeHints* win_size_hints;
     win_size_hints = XAllocSizeHints();
     win_size_hints->flags =  PMinSize|PBaseSize|PWinGravity;
@@ -598,6 +599,7 @@ static LV2UI_Handle instantiate(const LV2UI_Descriptor * descriptor,
     win_size_hints->win_gravity = CenterGravity;
     XSetWMNormalHints(ui->main.dpy, ui->win->widget, win_size_hints);
     XFree(win_size_hints);
+#endif
     
     ui->tool = add_check_box(ui->win, "Show tooltips", 40, 10, 80, 15);
     ui->tool->parent_struct = ui;
