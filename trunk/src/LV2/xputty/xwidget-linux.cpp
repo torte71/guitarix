@@ -395,7 +395,8 @@ void os_adjustment_callback(void *w_, void *user_data) {
 }
 
 void os_quit(Widget_t *w) {
-    Atom WM_DELETE_WINDOW = XInternAtom(w->app->dpy, "WM_DELETE_WINDOW", True);
+    //Atom WM_DELETE_WINDOW = XInternAtom(w->app->dpy, "WM_DELETE_WINDOW", True);
+    Atom WM_DELETE_WINDOW = os_register_wm_delete_window(w);
     XClientMessageEvent xevent;
     xevent.type = ClientMessage;
     xevent.message_type = WM_DELETE_WINDOW;
@@ -407,7 +408,7 @@ void os_quit(Widget_t *w) {
 }
 
 void os_quit_widget(Widget_t *w) {
-    Atom QUIT_WIDGET = XInternAtom(w->app->dpy, "WIDGET_DESTROY", False);
+    Atom QUIT_WIDGET = os_register_widget_destroy(w);
     XClientMessageEvent xevent;
     xevent.type = ClientMessage;
     xevent.message_type = QUIT_WIDGET;
@@ -423,6 +424,10 @@ Atom os_register_wm_delete_window(Widget_t * wid) {
     WM_DELETE_WINDOW = XInternAtom(wid->app->dpy, "WM_DELETE_WINDOW", True);
     XSetWMProtocols(wid->app->dpy, wid->widget, &WM_DELETE_WINDOW, 1);
     return WM_DELETE_WINDOW;
+}
+
+Atom os_register_widget_destroy(Widget_t * wid) {
+	return XInternAtom(w->app->dpy, "WIDGET_DESTROY", False);
 }
 
 // TODO

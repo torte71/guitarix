@@ -44,7 +44,12 @@ LRESULT onPaint( HWND hwnd, WPARAM wParam, LPARAM lParam );
 
 
 void os_destroy_window(Widget_t *w) {
-	debug_print("STUB:os_destroy_window:w=%p",w);
+	debug_print("STUB:os_destroy_window:w=%p:hwnd=%8.8x",w,(w)?w->widget:NULL);
+
+	//CloseWindow(w->widget); // crash
+
+	//UnregisterClass(TEXT("xputtyMainUIClass"), NULL);
+	//UnregisterClass(TEXT("xputtyWidgetUIClass"), NULL);
 	// STUB
 }
 
@@ -127,6 +132,7 @@ printf("os_create_main_window_and_surface:x=%d:y=%d:w=%d:h=%d\n",x,y,width,heigh
 //diff:parent=win
 							win, // hWndParent (no embeddeding takes place yet)
 							NULL, hInstance, NULL); // hMenu, hInstance, lpParam
+debug_print("os_create_main_window_and_surface:hwnd=%8.8x",w->widget);
 	// attach a pointer to "w" to this window (so w is available in WndProc)
 	SetWindowLongPtr(w->widget, GWLP_USERDATA, (LONG_PTR)w);
 	SetParent(w->widget, win); // embed into parentWindow
@@ -168,6 +174,7 @@ printf("os_create_widget_window_and_surface:x=%d:y=%d:w=%d:h=%d\n",x,y,width,hei
 //diff:parent=parent->widget
 							parent->widget, // hWndParent (no embeddeding takes place yet)
 							NULL, hInstance, NULL); // hMenu, hInstance, lpParam
+debug_print("os_create_widget_window_and_surface:hwnd=%8.8x",w->widget);
 													//
 	// attach a pointer to "w" to this window (so w is available in WndProc)
 	SetWindowLongPtr(w->widget, GWLP_USERDATA, (LONG_PTR)w);
@@ -233,23 +240,40 @@ void os_send_systray_message(Widget_t *w) {
 }
 
 void os_adjustment_callback(void *w_, void *user_data) {
-  Widget_t *w = (Widget_t *)w_;
-  transparent_draw(w, user_data);
-  RedrawWindow(w->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_UPDATENOW | RDW_ALLCHILDREN);
+	Widget_t *w = (Widget_t *)w_;
+	transparent_draw(w, user_data);
+	RedrawWindow(w->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_UPDATENOW | RDW_ALLCHILDREN);
 }
 
 void os_quit(Widget_t *w) {
-	debug_print("STUB:os_quit:w=%p",w);
+	debug_print("STUB:os_quit:w=%p:hwnd=%8.8x",w,(w)?w->widget:NULL);
+	WPARAM wParam = (WPARAM)get_toplevel_widget(w->app)->widget;
+	SendMessage(w->widget, WM_USER + 00, wParam, 0); // WM_DELETE_WINDOW
+	//CloseWindow(w->widget);
+	//UnregisterClass(TEXT("xputtyMainUIClass"), NULL);
 	// STUB
 }
 void os_quit_widget(Widget_t *w) {
-	debug_print("STUB:os_quit_widget:w=%p",w);
+	debug_print("STUB:os_quit_widget:w=%p:hwnd=%8.8x",w,(w)?w->widget:NULL);
+	WPARAM wParam = (WPARAM)w->widget;
+	SendMessage(w->widget, WM_USER + 01, wParam, 0); // WIDGET_DESTROY
+	//CloseWindow(w->widget);
+	//UnregisterClass(TEXT("xputtyWidgetUIClass"), NULL);
 	// STUB
 }
 
 Atom os_register_wm_delete_window(Widget_t * wid) {
 	debug_print("STUB:os_register_wm_delete_window:w=%p",wid);
-	return 0; // STUB
+	return WM_USER + 00;
+	//return RegisterWindowMessage("XPUTTY_WM_DELETE_WINDOW");
+	//return 0; // STUB
+}
+
+Atom os_register_widget_destroy(Widget_t * wid) {
+	debug_print("STUB:os_register_widget_destroy:w=%p",wid);
+	return WM_USER + 01 ;
+	//return RegisterWindowMessage("XPUTTY_WIDGET_DESTROY");
+	//return 0; // STUB
 }
 
 // os specific
@@ -261,6 +285,7 @@ int key_mapping(Display *dpy, XKeyEvent *xkey) {
 
 /*------------- the event loop ---------------*/
 
+//#include "winutil.c"
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 {
@@ -273,6 +298,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	//gx_AxisFaceUI *ui = (gx_AxisFaceUI *)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 	Widget_t *ui = (Widget_t *)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 //debug_print("HWND:%p msg=%8.8x w=%p l=%p ui=%p state=%d\n",hwnd,msg,(void*)wParam,(void*)lParam,ui,(ui ? ui->state : 0));
+//debug_wm(hwnd, msg, wParam, lParam, ui);
 
 	xbutton.window = hwnd;
 	xbutton.x = GET_X_LPARAM(lParam);
@@ -284,9 +310,24 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	switch (msg) {
 		// MSWin only: React to close requests
 		case WM_CLOSE:
+			debug_print("WM:WM_CLOSE:hwnd=%p:ui=%p",hwnd,ui);
 			DestroyWindow(hwnd);
 			return 0;
 		case WM_DESTROY:
+			debug_print("WM:WM_DESTROY:hwnd=%p:ui=%p",hwnd,ui);
+			if (ui) {
+				int ch = childlist_has_child(ui->childlist);
+				if (ch) {
+					int i = ch;
+					for(;i>0;i--) {
+						quit_widget(ui->childlist->childs[i-1]);
+					}
+					quit_widget(ui);
+				} else {
+					destroy_widget(ui,ui->app);
+				}
+				return 0;
+			}
 			PostQuitMessage(0);
 			return 0;
 
@@ -432,7 +473,37 @@ if (!(ui->flags & IS_WINDOW))
 			}
 			return 0;
 
-		// X11:ClientMessage: not implemented (could be done with WM_USER / RegisterWindowMessage())
+#if 0
+		case WM_USER: // WM_DELETE_WINDOW
+			debug_print("WM:WM_DELETE_WINDOW:hwnd=%p:ui=%p",hwnd,ui);
+			if (ui) {
+				//int i = childlist_find_widget(main->childlist, xev.xclient.window);
+				int i = childlist_find_widget(ui->app->childlist, (Window)wParam);
+				if(i<1) return 0;
+				//Widget_t *w = main->childlist->childs[i];
+				Widget_t *w = ui->app->childlist->childs[i];
+				if(w->flags & HIDE_ON_DELETE) widget_hide(w);
+				//else destroy_widget(w, main);
+				else destroy_widget(w, ui->app);
+				return 0;
+			}
+		// X11:ClientMessage:WIDGET_DESTROY
+		case WM_USER + 01: // WIDGET_DESTROY
+			debug_print("WM:WIDGET_DESTROY:hwnd=%p:ui=%p",hwnd,ui);
+			if (ui) {
+				int ch = childlist_has_child(ui->childlist);
+				if (ch) {
+					int i = ch;
+					for(;i>0;i--) {
+						quit_widget(ui->childlist->childs[i-1]);
+					}
+					quit_widget(ui);
+				} else {
+					//destroy_widget(ui,ui->app);
+				}
+				return 0;
+			}
+#endif
 
 		default:
 			return DefWindowProc(hwnd, msg, wParam, lParam);

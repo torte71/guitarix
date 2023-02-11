@@ -619,6 +619,7 @@ void os_adjustment_callback(void *w_, void *user_data);
 void os_quit(Widget_t *w);
 void os_quit_widget(Widget_t *w);
 
+Atom os_register_widget_destroy(Widget_t * wid);
 // xputty.cpp xchildlist.cpp
 Atom os_register_wm_delete_window(Widget_t * wid);
 
