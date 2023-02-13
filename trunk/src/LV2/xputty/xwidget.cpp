@@ -23,6 +23,9 @@
 #include "xwidget_private.h"
 
 void destroy_widget(Widget_t * w, Xputty *main) {
+#ifdef _WIN32
+debug_print("destroy_widget:main=%p:w=%p:hwnd=%p",main,w,w?w->widget:0);
+#endif
     int count = childlist_find_child(main->childlist, w);
     if (count == 0 && main->run == true) {
         quit(w);

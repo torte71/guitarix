@@ -110,6 +110,9 @@ void _button_press(Widget_t * wid, XButtonEvent *xbutton, void* user_data) {
 }
 
 void _check_grab(Widget_t * wid, XButtonEvent *xbutton, Xputty *main) {
+#ifdef _WIN32
+debug_print("_check_grab:hold=%p",main->hold_grab);
+#endif
     if(main->hold_grab != NULL) {
         Widget_t *view_port = main->hold_grab->childlist->childs[0];
         if(xbutton->button == Button1) {

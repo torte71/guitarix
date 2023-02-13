@@ -8,37 +8,32 @@ static void draw_window(void *w_, void* user_data) {
     cairo_paint (w->crb);
 }
 
+static void button_pressed(void *w_, void* button_, void* user_data) {
+    Widget_t *w = (Widget_t*)w_;
+    Widget_t *main = w->app->childlist->childs[0];
+    DestroyWindow(main->widget);
+}
+
 int main (int argc, char ** argv)
 {
-printf("000\n");
     /** acces the main struct */
     Xputty app;
     /** init the main struct */
     main_init(&app);
     /** create a Window on default root window */
 #ifdef _WIN32
-printf("000-2\n");
-Widget_t *w = create_window(&app, 0, //DefaultRootWindow(app.dpy)
-	0, 0, 300, 900);
-set_dark_theme(&app);
-set_light_theme(&app);
-use_fg_color_scheme(w, NORMAL_);
-use_text_color_scheme(w, NORMAL_);
-//use_text_color_scheme(w, PRELIGHT_);
+    Widget_t *w = create_window(&app, HWND_DESKTOP, 0, 0, 300, 900);
+    set_light_theme(&app);
 #else
     Widget_t *w = create_window(&app, DefaultRootWindow(app.dpy), 0, 0, 300, 900);
     /** acces Xlib function */
     XStoreName(app.dpy, w->widget, "Hello world");
 #endif
     /** overwrite event handler with your own */
-printf("001\n");
     w->func.expose_callback = draw_window;
-printf("002\n");
 
 int x=0,y=0,width=0,height=0;
-height = 64; 
-
-#if 0
+height = 64;
 y += height + 4; height =     64; width = height ; Widget_t* button              = add_button(w, "buttonlabel", x, y, width, height);
 y += height + 4; height =     64; width = height ; Widget_t* on_off_button       = add_on_off_button(w, "on_off_buttonlabel", x, y, width, height);
 y += height + 4; height =     64; width = height ; Widget_t* toggle_button       = add_toggle_button(w, "toggle_buttonlabel", x, y, width, height);
@@ -72,36 +67,33 @@ y += height + 4; height =  1* 64; width = height ; Widget_t* listbox            
 y += height + 4; height =     64; width = height ; Widget_t* listbox_entry       = listbox_add_entry(listbox, "listbox_entrylabel");
 y += height + 4; height =  1* 64; width = height ; Widget_t* listview            = add_listview(w, "listviewlabel", x, y, width, height);
 #endif
-#endif
+
 Adjustment_t clip = {0};
 Adjustment_t cut = {0};
 y += height + 4; height =     64; width = height ; Widget_t* playhead            = add_playhead(w, "playheadlabel", &clip, &cut, x, y, width, height);
 // not seen working on linux
-Widget_t* menu = create_menu(w, 25);
+Widget_t* menu = create_menu(w, 3*25);
 Widget_t* menu_item           = menu_add_item(menu, "menu_itemlabel");
 Widget_t* menu_check_item     = menu_add_check_item(menu, "menu_check_itemlabel");
 Widget_t* menu_radio_item     = menu_add_radio_item(menu, "menu_radio_itemlabel");
 
-printf("003\n");
-#if 0
 add_tooltip(w, "tooltiplabel");
-#endif
+
+// close window button
+button->func.button_press_callback = button_pressed;
 
     /** map the Window to display */
-printf("004\n");
     widget_show_all(w);
     /** run the event loop */
-printf("005\n");
     main_run(&app);
-MSG msg;    
-printf("100\n");
+MSG msg;
 while(GetMessage(&msg, NULL, 0, 0))
 {
     TranslateMessage(&msg);
     DispatchMessage(&msg);
 }
-printf("101\n");
-    
+printf("loop exit\n");
+
     /** clean up after the event loop is finished */
     main_quit(&app);
     return 0;

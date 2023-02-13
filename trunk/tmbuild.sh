@@ -26,7 +26,7 @@ fi
   --no-desktop-update	\
   --static-lib		\
   --ldflags="-shared -static $(pkg-config --static --libs cairo) -lfftw3f -liconv"	\
-  --cxxflags="-Wall -DGSEAL_ENABLE -fpermissive -D_USE_MATH_DEFINES" \
+  --cxxflags="-g -Wall -DGSEAL_ENABLE -fpermissive -D_USE_MATH_DEFINES" \
   \
   && ./waf build \
   && ./waf install --destdir=$(pwd)/_bin \

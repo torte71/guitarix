@@ -40,6 +40,26 @@ void childlist_destroy(Childlist_t *childlist) {
 }
 
 void childlist_add_child(Childlist_t *childlist, Widget_t *child) {
+#ifdef _WIN32
+debug_print("childlist_add_child:list=%p:child=%p--hwnd=%p %s %s %s %s %s %s %s %s %s %s %s %s %s %s",
+    childlist,
+    child,
+    child->widget,
+    0 != (child->flags & IS_WIDGET        )?"WID":"",
+    0 != (child->flags & IS_WINDOW        )?"WIN":"",
+    0 != (child->flags & IS_POPUP         )?"POP":"",
+    0 != (child->flags & IS_RADIO         )?"RAD":"",
+    0 != (child->flags & IS_TOOLTIP       )?"TIP":"",
+    0 != (child->flags & USE_TRANSPARENCY )?"TRN":"",
+    0 != (child->flags & HAS_FOCUS        )?"FOC":"",
+    0 != (child->flags & HAS_POINTER      )?"PTR":"",
+    0 != (child->flags & HAS_TOOLTIP      )?"HTT":"",
+    0 != (child->flags & HAS_MEM          )?"MEM":"",
+    0 != (child->flags & NO_AUTOREPEAT    )?"REP":"",
+    0 != (child->flags & FAST_REDRAW      )?"FST":"",
+    0 != (child->flags & HIDE_ON_DELETE   )?"HID":"",
+    0 != (child->flags & REUSE_IMAGE      )?"IMG":"");
+#endif
     if(!childlist) childlist_init(childlist);
     if (childlist->cap < childlist->elem+2) {
          _childlist_add_elem(childlist);
