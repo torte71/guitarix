@@ -363,6 +363,8 @@ RedrawWindow(ui->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_UPDATENO
 			xbutton.button = Button1;
             _button_press(ui, &xbutton, user_data);
             debug_print("Widget_t  ButtonPress %i hwnd=%p\n", xbutton.button,hwnd);
+
+
 			return 0;
 		case WM_RBUTTONDOWN:
 			if (!ui) return DefWindowProc(hwnd, msg, wParam, lParam);
@@ -388,6 +390,14 @@ RedrawWindow(ui->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_UPDATENO
 			} else {
 				xbutton.button = Button4;
 				_button_press(ui, &xbutton, user_data);
+			}
+			// forward WM_MOUSEWHEEL from menuitem to viewport (with slider)
+			// (viewport lies below menuitem, so doesnt receive WM_MOUSEWHEEL)
+			if(ui->app->hold_grab) {
+				Widget_t *view_port = ui->app->hold_grab->childlist->childs[0];
+				if (hwnd != view_port->widget)
+					SendMessage(view_port->widget, msg, wParam, lParam);
+RedrawWindow(view_port->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_UPDATENOW);
 			}
 			return 0;
 		// X11:ButtonRelease
@@ -435,6 +445,45 @@ RedrawWindow(ui->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_UPDATENO
 		// X11:LeaveNotify (X11:EnterNotify: see WM_MOUSEMOVE)
 		case WM_MOUSELEAVE:
 			if (!ui) return DefWindowProc(hwnd, msg, wParam, lParam);
+			// close popup menu if cursor moves out of widget
+            if(ui->app->hold_grab != NULL) {
+				GetCursorPos(&pt);
+				Window win_cur = WindowFromPoint(pt);
+                bool is_item = false;
+				// still inside viewport? (finds menu entries in popup window)
+                Widget_t *view_port = ui->app->hold_grab->childlist->childs[0];
+                int i = view_port->childlist->elem-1;
+                for(;i>-1;i--) {
+                    Widget_t *w = view_port->childlist->childs[i];
+                    if (win_cur == w->widget) {
+                        is_item = true;
+                        break;
+                    }
+                }
+				// still inside combobox? (finds combobox-button)
+                Widget_t *cbx = (Widget_t *)ui->app->hold_grab->parent_struct;
+                i = cbx->childlist->elem-1;
+                for(;i>-1;i--) {
+                    Widget_t *w = cbx->childlist->childs[i];
+                    if (win_cur == w->widget) {
+                        is_item = true;
+                        break;
+                    }
+                }
+                if (win_cur == view_port->widget) is_item = true; // inside slider area?
+                if (win_cur == cbx->widget) is_item = true; // inside combobox textarea?
+                if (!is_item) {
+#ifdef _WIN32
+					ReleaseCapture();
+#else
+                    XUngrabPointer(ui->dpy,CurrentTime);
+#endif
+                    widget_hide(ui->app->hold_grab);
+                    ui->app->hold_grab = NULL;
+                }
+            }
+
+			// for emulating X11:EnterNotify
 			ui->mouse_inside = false;
 
             ui->flags &= ~HAS_FOCUS;

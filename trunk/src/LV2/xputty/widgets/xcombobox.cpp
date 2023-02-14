@@ -32,6 +32,9 @@ void combobox_set_active_entry(Widget_t *w, int active) {
 Widget_t* add_combobox(Widget_t *parent, const char  * label, int x, int y, int width, int height) {
 
     Widget_t *wid = create_widget(parent->app, parent, x, y, width, height);
+#ifdef _WIN32
+debug_print("add_combobox:wid=%p:win=%p",wid,wid->widget);
+#endif
     wid->label = label;
     wid->scale.gravity = CENTER;
     wid->adj_y = add_adjustment(wid,0.0, 0.0, 0.0, -1.0,1.0, CL_ENUM);
@@ -47,6 +50,10 @@ Widget_t* add_combobox(Widget_t *parent, const char  * label, int x, int y, int 
     button->func.button_release_callback = _button_combobox_released;
 
     Widget_t* menu = create_menu(wid, 25);
+#ifdef _WIN32
+menu->parent_struct = wid; // menu->parent is Window/HWND
+debug_print("cbx:add_combobox:menu:menu=%p:win=%p",menu,wid->widget);
+#endif
     menu->func.button_release_callback = _entry_released;
 
 
