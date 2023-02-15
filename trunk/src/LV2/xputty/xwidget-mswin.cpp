@@ -298,7 +298,7 @@ int key_mapping(Display *dpy, XKeyEvent *xkey) {
 
 /*------------- the event loop ---------------*/
 
-#define _debugwm
+//#define _debugwm
 #ifdef _debugwm
 #include "winutil.c"
 #endif

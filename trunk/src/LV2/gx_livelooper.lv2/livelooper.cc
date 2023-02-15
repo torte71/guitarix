@@ -322,9 +322,6 @@ void LiveLooper::mem_free()
 
 inline int LiveLooper::load_from_wave(std::string fname, float *tape)
 {
-#ifdef _WIN32
-  return 0;
-#else
     SF_INFO sfinfo;
     int n,f,c;
     int fSize = 0;
@@ -338,7 +335,6 @@ inline int LiveLooper::load_from_wave(std::string fname, float *tape)
     }
     sf_close(sf);
     return fSize;
-#endif
 }
 
 inline void LiveLooper::load_array(std::string name)
@@ -362,7 +358,6 @@ inline void LiveLooper::load_array(std::string name)
 
 inline void LiveLooper::save_to_wave(std::string fname, float *tape, float fSize)
 {
-#ifndef _WIN32
     SF_INFO sfinfo ;
     sfinfo.channels = 1;
     sfinfo.samplerate = fSamplingFreq;
@@ -375,7 +370,6 @@ inline void LiveLooper::save_to_wave(std::string fname, float *tape, float fSize
         sf_write_sync(sf);
     }
     sf_close(sf);
-#endif
 }
 
 inline void LiveLooper::save_array(std::string name)
