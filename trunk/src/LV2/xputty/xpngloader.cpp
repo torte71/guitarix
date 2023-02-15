@@ -131,8 +131,8 @@ void widget_set_icon_from_surface(Widget_t *w, Pixmap *icon_, cairo_surface_t *i
 
 void widget_set_icon_from_png(Widget_t *w, Pixmap *icon_, const unsigned char* name) {
     cairo_surface_t *image = cairo_image_surface_create_from_stream (name);
-    int width, height;
-    os_get_surface_size(w->image, &width, &height);
+    int width = cairo_image_surface_get_width(image);
+    int height = cairo_image_surface_get_height(image);
 #ifdef _WIN32
     Pixmap icon = NULL;
     cairo_surface_t *surface = NULL;
