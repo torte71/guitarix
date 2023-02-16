@@ -814,7 +814,7 @@ Widget_t *open_midi_keyboard(Widget_t *w) {
                     |EnterWindowMask|LeaveWindowMask|ButtonReleaseMask|KeyReleaseMask
                     |ButtonPressMask|Button1MotionMask|PointerMotionMask);
 #else
-    Widget_t *wid = 0;
+    Widget_t *wid = create_window(w->app, HWND_DESKTOP, 0, 0, 700, 200);
 #endif
     MidiKeyboard *keys = (MidiKeyboard*)malloc(sizeof(MidiKeyboard));
     wid->parent_struct = keys;

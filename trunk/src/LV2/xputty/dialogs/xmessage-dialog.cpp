@@ -344,7 +344,7 @@ Widget_t *open_message_dialog(Widget_t *w, int style, const char *title,
     check_for_choices(mb, choices);
     check_for_style(mb, style);
 #ifdef _WIN32
-    Widget_t *wid = NULL;
+    Widget_t *wid = create_window(w->app, HWND_DESKTOP, 0, 0, mb->width, mb->height);
 #else
     Widget_t *wid = create_window(w->app, DefaultRootWindow(w->app->dpy), 0, 0, mb->width, mb->height);
 #endif
