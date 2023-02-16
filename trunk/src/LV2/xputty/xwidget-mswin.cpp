@@ -123,6 +123,7 @@ debug_print("os_create_main_window_and_surface:x=%d:y=%d:w=%d:h=%d:w=%p:app=%p:w
 	DWORD dwStyle;
 	if (win == HWND_DESKTOP) {
 		dwStyle = WS_POPUP ;
+		//dwStyle = WS_OVERLAPPEDWINDOW ;
 	} else {
 		dwStyle = WS_CHILD ;
 	}
@@ -298,7 +299,7 @@ int key_mapping(Display *dpy, XKeyEvent *xkey) {
 
 /*------------- the event loop ---------------*/
 
-//#define _debugwm
+#define _debugwm
 #ifdef _debugwm
 #include "winutil.c"
 #endif
@@ -338,6 +339,7 @@ debug_wm(hwnd, msg, wParam, lParam, ui);
 		// X11:ConfigureNotify
 		case WM_SIZE:
 			if (!ui) return DefWindowProc(hwnd, msg, wParam, lParam);
+if (!ui->func.configure_callback) return 0;
 			ui->func.configure_callback(ui, user_data);
 RedrawWindow(ui->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_UPDATENOW);
 			return 0;
@@ -451,6 +453,7 @@ RedrawWindow(view_port->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_U
 				Window win_cur = WindowFromPoint(pt);
                 bool is_item = false;
 				// still inside viewport? (finds menu entries in popup window)
+// crashes for message_dialog?
                 Widget_t *view_port = ui->app->hold_grab->childlist->childs[0];
                 int i = view_port->childlist->elem-1;
                 for(;i>-1;i--) {
@@ -461,7 +464,12 @@ RedrawWindow(view_port->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_U
                     }
                 }
 				// still inside combobox? (finds combobox-button)
-                Widget_t *cbx = (Widget_t *)ui->app->hold_grab->parent_struct;
+                Widget_t *cbx = NULL;
+				if (ui->app->hold_grab->parent_struct) // combobox->parent is Window, not Widget_t!
+					cbx = (Widget_t *)ui->app->hold_grab->parent_struct;
+				else
+					cbx = (Widget_t *)ui->app->hold_grab->parent;
+                //Widget_t *cbx = (Widget_t *)ui->app->hold_grab->parent_struct;
                 i = cbx->childlist->elem-1;
                 for(;i>-1;i--) {
                     Widget_t *w = cbx->childlist->childs[i];
