@@ -101,6 +101,10 @@ Widget_t *create_window(Xputty *app, Window win,
 
     Widget_t *w = (Widget_t*)malloc(sizeof(Widget_t));
     assert(w != NULL);
+#ifdef _WIN32
+    // set callbacks to zero to avoid calling unitialized pointers
+    memset(w, 0, sizeof(Widget_t));
+#endif
     debug_print("assert(w)\n");
 os_create_main_window_and_surface(w, app, win, x, y, width, height);
     assert(cairo_surface_status(w->surface) == CAIRO_STATUS_SUCCESS);
