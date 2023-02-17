@@ -52,7 +52,7 @@ debug_print("add_combobox:wid=%p:win=%p",wid,wid->widget);
 
     Widget_t* menu = create_menu(wid, 25);
 #ifdef _WIN32
-menu->parent_widget = wid; // menu->parent is Window/HWND
+menu->parent_struct = wid;
 debug_print("cbx:add_combobox:menu:menu=%p:win=%p",menu,wid->widget);
 #endif
     menu->func.button_release_callback = _entry_released;

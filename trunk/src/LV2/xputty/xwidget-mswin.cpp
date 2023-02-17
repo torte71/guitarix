@@ -460,7 +460,6 @@ RedrawWindow(view_port->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_U
 				Window win_cur = WindowFromPoint(pt);
                 bool is_item = false;
 				// still inside viewport? (finds menu entries in popup window)
-// crashes for message_dialog?
                 Widget_t *view_port = ui->app->hold_grab->childlist->childs[0];
                 int i = view_port->childlist->elem-1;
                 for(;i>-1;i--) {
@@ -471,21 +470,18 @@ RedrawWindow(view_port->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_U
                     }
                 }
 				// still inside combobox? (finds combobox-button)
-                Widget_t *cbx = NULL;
-				if (ui->app->hold_grab->parent_widget) // combobox->parent is Window, not Widget_t!
-					cbx = (Widget_t *)ui->app->hold_grab->parent_widget;
-				else
-					cbx = (Widget_t *)ui->app->hold_grab->parent;
-                i = cbx->childlist->elem-1;
+                Widget_t *menu = NULL;
+				menu = (Widget_t *)ui->app->hold_grab->parent_struct;
+                i = menu->childlist->elem-1;
                 for(;i>-1;i--) {
-                    Widget_t *w = cbx->childlist->childs[i];
+                    Widget_t *w = menu->childlist->childs[i];
                     if (win_cur == w->widget) {
                         is_item = true;
                         break;
                     }
                 }
                 if (win_cur == view_port->widget) is_item = true; // inside slider area?
-                if (win_cur == cbx->widget) is_item = true; // inside combobox textarea?
+                if (win_cur == menu->widget) is_item = true; // inside combobox textarea?
                 if (!is_item) {
 #ifdef _WIN32
 					ReleaseCapture();
