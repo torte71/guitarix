@@ -141,6 +141,47 @@ typedef enum {
     KEY_RELEASE,
 } EventType;
 
+typedef enum {
+  WT_NONE			,
+  WT_WINDOW			,
+  WT_WIDGET			,
+  WT_BUTTON			,
+  WT_ON_OFF_BUTTON		,
+  WT_TOGGLE_BUTTON		,
+  WT_IMAGE_TOGGLE_BUTTON	,
+  WT_SWITCH_IMAGE_TOGGLE_BUTTON ,
+  WT_CHECK_BUTTON		,
+  WT_CHECK_BOX			,
+  WT_COMBOBOX			,
+WT_FILE_DIALOG		,
+  WT_KNOB			,
+  WT_IMAGE_KNOB			,
+  WT_LABEL			,
+  WT_LISTBOX_VIEWPORT		,
+  WT_LISTBOX			,
+  WT_LISTBOX_ENTRY		,
+  WT_LISTVIEW_VIEWPORT		,
+  WT_LISTVIEW			,
+WT_MENU			,
+  WT_MENU_VIEWPORT		,
+  WT_MENU_ITEM			,
+  WT_MENU_CHECK_ITEM		,
+  WT_MENU_RADIO_ITEM		,
+WT_MESSAGE_DIALOG	,
+  WT_VMETER			,
+  WT_VMETER_SCALE		,
+  WT_HMETER			,
+  WT_HMETER_SCALE		,
+WT_MIDI_KEYBOARD	,
+  WT_PLAYHEAD			,
+  WT_VSLIDER			,
+  WT_HSLIDER			,
+WT_TOOLTIP			,
+  WT_TUNER			,
+  WT_VALUEDISPLAY		,
+  WT_TEXT_ENTRY			,
+} WidgetType;
+
 /**
  * 
  * @brief Gravity              - enum to indicate how to resize a widget
@@ -303,6 +344,8 @@ struct Widget_t {
 /** pointer to the Parent struct */
     void *parent_struct;
 void *parent_widget;
+WidgetType widget_type;
+
 /** the main XEvent callback */
     vfunc event_callback;
 /** struct holding the event callbacks */
@@ -594,6 +637,8 @@ typedef struct {
   bool visible;
 } Metrics_t;
 
+
+char *widget_type_name(Widget_t *w);
 
 int key_mapping(Display *dpy, XKeyEvent *xkey);
 void os_destroy_window(Widget_t *w);

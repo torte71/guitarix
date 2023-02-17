@@ -32,6 +32,7 @@ void combobox_set_active_entry(Widget_t *w, int active) {
 Widget_t* add_combobox(Widget_t *parent, const char  * label, int x, int y, int width, int height) {
 
     Widget_t *wid = create_widget(parent->app, parent, x, y, width, height);
+wid->widget_type = WT_COMBOBOX;
 #ifdef _WIN32
 debug_print("add_combobox:wid=%p:win=%p",wid,wid->widget);
 #endif

@@ -44,6 +44,7 @@ void pop_menu_show(Widget_t *parent, Widget_t *menu, int elem, bool above) {
 
 Widget_t* create_viewport(Widget_t *parent, int width, int height) {
     Widget_t *wid = create_widget(parent->app, parent, 0, 0, width, height);
+wid->widget_type = WT_MENU_VIEWPORT;
 #ifdef _WIN32
   debug_print("cbx:create_viewport:parent=%p:wid=%p:win=%p",parent,wid,wid->widget);
 #endif
@@ -66,11 +67,13 @@ Widget_t* create_menu(Widget_t *parent, int height) {
     y1 = Point.y;
 
     Widget_t *wid = create_window(parent->app, HWND_DESKTOP, x1, y1, 10, height);
+wid->widget_type = WT_MENU;
 debug_print("cbx:create_menu:parent=%p:wid=%p:win=%p",parent,wid,wid->widget);
 #else
     Window child;
     XTranslateCoordinates( parent->app->dpy, parent->widget, DefaultRootWindow(parent->app->dpy), 0, 0, &x1, &y1, &child );
     Widget_t *wid = create_window(parent->app, DefaultRootWindow(parent->app->dpy), x1, y1, 10, height);
+wid->widget_type = WT_MENU;
 #endif
     create_viewport(wid, 10, 5*height);
 
@@ -109,6 +112,7 @@ Widget_t* menu_add_item(Widget_t *menu,const char * label) {
 
     int si = childlist_has_child(view_port->childlist);
     Widget_t *wid = create_widget(menu->app, view_port, 0, height*si, width, height);
+wid->widget_type = WT_MENU_ITEM;
 #ifdef _WIN32
   debug_print("cbx:menu_add_item:menu=%p:view_port=%p:childlist=%p:si=%d:label='%s'",menu,view_port,view_port->childlist,si,label);
 #endif
@@ -125,6 +129,7 @@ Widget_t* menu_add_item(Widget_t *menu,const char * label) {
 
 Widget_t* menu_add_check_item(Widget_t *menu, const char * label) {
     Widget_t *wid = menu_add_item(menu, label);
+wid->widget_type = WT_MENU_CHECK_ITEM;
     wid->adj_y = add_adjustment(wid,0.0, 0.0, 0.0, 1.0,1.0, CL_TOGGLE);
     wid->adj = wid->adj_y;
     wid->func.expose_callback = _draw_check_item;
@@ -146,6 +151,7 @@ void radio_item_set_active(Widget_t *w) {
 
 Widget_t* menu_add_radio_item(Widget_t *menu, const char * label) {
     Widget_t *wid = menu_add_check_item(menu, label);
+wid->widget_type = WT_MENU_RADIO_ITEM;
     wid->flags |= IS_RADIO;
     wid->func.expose_callback = _draw_check_item;
     wid->func.button_press_callback = _radio_item_button_pressed;

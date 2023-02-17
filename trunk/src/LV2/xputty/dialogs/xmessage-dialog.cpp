@@ -258,6 +258,7 @@ static void create_entry_box(Widget_t *w) {
     xxMessageBox *mb = (xxMessageBox *)w->parent_struct;
 
     mb->text_entry = create_widget(w->app, w, 20, mb->height-90, mb->width-40, 40);
+mb->text_entry->widget_type = WT_TEXT_ENTRY;
     memset(mb->text_entry->input_label, 0, 32 * (sizeof mb->text_entry->input_label[0]) );
     mb->text_entry->func.expose_callback = entry_add_text;
     mb->text_entry->func.key_press_callback = entry_get_text;
@@ -348,6 +349,7 @@ Widget_t *open_message_dialog(Widget_t *w, int style, const char *title,
 #else
     Widget_t *wid = create_window(w->app, DefaultRootWindow(w->app->dpy), 0, 0, mb->width, mb->height);
 #endif
+wid->widget_type = WT_MESSAGE_DIALOG;
     wid->label = message;
     wid->flags |= HAS_MEM;
     wid->scale.gravity = CENTER;
