@@ -258,7 +258,9 @@ Widget_t *open_file_dialog(Widget_t *w, const char *path, const char *filter) {
     file_dialog->send_clear_func = true;
     file_dialog->icon = NULL;
 
-#ifndef _WIN32
+#ifdef _WIN32
+    file_dialog->w = create_window(w->app, (HWND)-1, 0, 0, 660, 420);
+#else
     file_dialog->w = create_window(w->app, DefaultRootWindow(w->app->dpy), 0, 0, 660, 420);
 #endif
     file_dialog->w->flags |= HAS_MEM;
