@@ -121,6 +121,10 @@ debug_print("os_create_main_window_and_surface:x=%d:y=%d:w=%d:h=%d:w=%p:app=%p:w
 	// (this also removes duplicate code for window/widget creation).
 	// For the current situation it is sufficient to set popup style if parent is HWND_DESKTOP.
 	DWORD dwStyle;
+	if (win == (HWND)-1) {
+		dwStyle = WS_OVERLAPPEDWINDOW ;
+		win = HWND_DESKTOP;
+	} else
 	if (win == HWND_DESKTOP) {
 		dwStyle = WS_POPUP ;
 		//dwStyle = WS_OVERLAPPEDWINDOW ;
@@ -465,11 +469,10 @@ RedrawWindow(view_port->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_U
                 }
 				// still inside combobox? (finds combobox-button)
                 Widget_t *cbx = NULL;
-				if (ui->app->hold_grab->parent_struct) // combobox->parent is Window, not Widget_t!
-					cbx = (Widget_t *)ui->app->hold_grab->parent_struct;
+				if (ui->app->hold_grab->parent_widget) // combobox->parent is Window, not Widget_t!
+					cbx = (Widget_t *)ui->app->hold_grab->parent_widget;
 				else
 					cbx = (Widget_t *)ui->app->hold_grab->parent;
-                //Widget_t *cbx = (Widget_t *)ui->app->hold_grab->parent_struct;
                 i = cbx->childlist->elem-1;
                 for(;i>-1;i--) {
                     Widget_t *w = cbx->childlist->childs[i];

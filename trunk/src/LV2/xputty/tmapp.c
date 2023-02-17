@@ -22,10 +22,13 @@ static void quit_button_pressed(void *w_, void* button_, void* user_data) {
 Widget_t *message_dialog;
 static void msg_button_pressed(void *w_, void* button_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
-    //INFO_BOX, WARNING_BOX, ERROR_BOX, QUESTION_BOX, SELECTION_BOX, ENTRY_BOX,
-    //choices (SELECTION_BOX) "choice1|choice2|choice3"
     //dialog_callback
-    message_dialog = open_message_dialog(w, INFO_BOX, "message_dialog_title", "message_dialog_message|line2|line3", NULL); //const char *choices);
+    message_dialog = open_message_dialog(w, INFO_BOX, "message_dialog_title", "message_dialog_message|line2|line3", NULL);
+    //message_dialog = open_message_dialog(w, WARNING_BOX, "message_dialog_title", "message_dialog_message|line2|line3", NULL);
+    //message_dialog = open_message_dialog(w, ERROR_BOX, "message_dialog_title", "message_dialog_message|line2|line3", NULL);
+    //message_dialog = open_message_dialog(w, QUESTION_BOX, "message_dialog_title", "message_dialog_message|line2|line3", NULL); // no user defined choices
+    //message_dialog = open_message_dialog(w, SELECTION_BOX, "message_dialog_title", "message_dialog_message|line2|line3", "choice1|choice2|choice3");
+    //message_dialog = open_message_dialog(w, ENTRY_BOX, "message_dialog_title", "message_dialog_message|line2|line3", NULL); // no user defined choices
 }
 Widget_t *midi_keyboard;
 static void midi_button_pressed(void *w_, void* button_, void* user_data) {
@@ -48,7 +51,8 @@ int main (int argc, char ** argv)
     main_init(&app);
     /** create a Window on default root window */
 #ifdef _WIN32
-    mainwin = create_window(&app, HWND_DESKTOP, 0, 0, 300, 900);
+    //mainwin = create_window(&app, HWND_DESKTOP, 0, 0, 300, 900);
+    mainwin = create_window(&app, (HWND)-1, 0, 0, 300, 900);
     set_light_theme(&app);
 #else
     Widget_t *mainwin = create_window(&app, DefaultRootWindow(app.dpy), 0, 0, 300, 900);
@@ -64,7 +68,7 @@ y += height + 4; height =     64; width = height ; Widget_t* button             
 y += height + 4; height =     64; width = height ; Widget_t* on_off_button       = add_on_off_button(mainwin, "on_off_buttonlabel", x, y, width, height);
 y += height + 4; height =     64; width = height ; Widget_t* toggle_button       = add_toggle_button(mainwin, "toggle_buttonlabel", x, y, width, height);
 y += height + 4; height =     64; width = height ; Widget_t* image_toggle_button = add_image_toggle_button(mainwin, "image_toggle_buttonlabel", x, y, width, height);
-#if 0
+
 y += height + 4; height =     64; width = height ; Widget_t* check_button        = add_check_button(mainwin, "check_buttonlabel", x, y, width, height);
 //wrong width
 y += height + 4; height =     64; width = height ; Widget_t* check_box           = add_check_box(mainwin, "check_boxlabel", x, y, width, height);
@@ -87,11 +91,13 @@ y += height + 4; height =     64; width = height ; Widget_t* vmeter             
 y += height + 4; height =     64; width = height ; Widget_t* hmeter              = add_hmeter(mainwin, "hmeterlabel", true, x, y, width, height);
 y += height + 4; height =     64; width = height ; Widget_t* vslider             = add_vslider(mainwin, "vsliderlabel", x, y, width, height);
 y += height + 4; height =     64; width = height ; Widget_t* hslider             = add_hslider(mainwin, "hsliderlabel", x, y, width, height);
-#if 0 // crash WS_OVERLAPPEDWINDOW
+#if 0
+// crash if WS_OVERLAPPEDWINDOW
 y += height + 4; height =     64; width = height ; Widget_t* tuner               = add_tuner(mainwin, "tunerlabel", x, y, width, height);
 #endif
 y += height + 4; height =     64; width = height ; Widget_t* valuedisplay        = add_valuedisplay(mainwin, "valuedisplaylabel", x, y, width, height);
-#if 1 // CRASH
+#if 0
+// crash after close
 y += height + 4; height =  1* 64; width = height ; Widget_t* listbox             = add_listbox(mainwin, "listboxlabel", x, y, width, height);
 y += height + 4; height =     64; width = height ; Widget_t* listbox_entry       = listbox_add_entry(listbox, "listbox_entrylabel");
 y += height + 4; height =  1* 64; width = height ; Widget_t* listview            = add_listview(mainwin, "listviewlabel", x, y, width, height);
@@ -100,10 +106,7 @@ y += height + 4; height =  1* 64; width = height ; Widget_t* listview           
 Adjustment_t clip = {0};
 Adjustment_t cut = {0};
 y += height + 4; height =     64; width = height ; Widget_t* playhead            = add_playhead(mainwin, "playheadlabel", &clip, &cut, x, y, width, height);
-#endif
-// not seen working on linux
-#if 1
-//Widget_t* menu = create_menu(mainwin, 3*25);
+
 //menu = create_menu(mainwin, 3*25);
 menu = create_menu(image_toggle_button, 3*25);
 Widget_t* menu_item           = menu_add_item(menu, "menu_itemlabel");
@@ -112,7 +115,6 @@ Widget_t* menu_radio_item     = menu_add_radio_item(menu, "menu_radio_itemlabel"
 image_toggle_button->func.button_press_callback = menu_button_pressed;
 //pop_menu_show(mainwin, menu, 3, true); //void pop_menu_show(Widget_t *parent, Widget_t *menu, int elem, bool above);
 
-#endif
 
 //add_tooltip(mainwin, "tooltiplabel");
 
@@ -120,12 +122,10 @@ image_toggle_button->func.button_press_callback = menu_button_pressed;
 //y += height + 4; height =     64; width = height ; Widget_t* file_button         = add_file_button(mainwin, "file_buttonlabel", x, y, width, height, "C:/", "");
 
 
-#if 1
 // close window button
 button->func.button_press_callback = quit_button_pressed;
 on_off_button->func.button_press_callback = msg_button_pressed;
 toggle_button->func.button_press_callback = midi_button_pressed;
-#endif
 
     /** map the Window to display */
     widget_show_all(mainwin);
