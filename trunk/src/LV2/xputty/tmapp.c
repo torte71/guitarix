@@ -19,14 +19,17 @@ static void quit_button_pressed(void *w_, void* button_, void* user_data) {
     DestroyWindow(main->widget);
 }
 
+void msg_button_dialog_callback(void * widget, void* user_data) {
+  printf("msg_button_dialog_callback:w=%p:u=%p:%s\n",widget,user_data,widget_type_name((Widget_t*)widget));
+}
 Widget_t *message_dialog;
 static void msg_button_pressed(void *w_, void* button_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
     //dialog_callback
-    message_dialog = open_message_dialog(w, INFO_BOX, "message_dialog_title", "message_dialog_message|line2|line3", NULL);
+    //message_dialog = open_message_dialog(w, INFO_BOX, "message_dialog_title", "message_dialog_message|line2|line3", NULL);
     //message_dialog = open_message_dialog(w, WARNING_BOX, "message_dialog_title", "message_dialog_message|line2|line3", NULL);
     //message_dialog = open_message_dialog(w, ERROR_BOX, "message_dialog_title", "message_dialog_message|line2|line3", NULL);
-    //message_dialog = open_message_dialog(w, QUESTION_BOX, "message_dialog_title", "message_dialog_message|line2|line3", NULL); // no user defined choices
+    message_dialog = open_message_dialog(w, QUESTION_BOX, "message_dialog_title", "message_dialog_message|line2|line3", NULL); // no user defined choices
     //message_dialog = open_message_dialog(w, SELECTION_BOX, "message_dialog_title", "message_dialog_message|line2|line3", "choice1|choice2|choice3");
     //message_dialog = open_message_dialog(w, ENTRY_BOX, "message_dialog_title", "message_dialog_message|line2|line3", NULL); // no user defined choices
 }
@@ -126,6 +129,9 @@ image_toggle_button->func.button_press_callback = menu_button_pressed;
 button->func.button_press_callback = quit_button_pressed;
 on_off_button->func.button_press_callback = msg_button_pressed;
 toggle_button->func.button_press_callback = midi_button_pressed;
+
+//on_off_button->func.dialog_callback = msg_button_dialog_callback;
+on_off_button->func.dialog_callback = msg_button_dialog_callback;
 
     /** map the Window to display */
     widget_show_all(mainwin);
