@@ -1,4 +1,4 @@
-void debug_wm(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, void *ui) {
+void debug_wm(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, void *ui, char *widget_type) {
     const char *msgstr;
 //    if (debug_verbosity < 2)
 //        return;
@@ -1068,5 +1068,5 @@ void debug_wm(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, void *ui) {
                      /* global variables }}}1 */
         default: msgstr = "UNKNOWN";
     }
-    debug_print("MSG:hwnd=%p msg=%8.8x w=%16.16llx l=%16.16llx ui=%p %s\n", hwnd, msg, wParam, lParam, ui, msgstr);
+    debug_print("MSG:hwnd=%p msg=%8.8x w=%16.16llx l=%16.16llx ui=%p %s %s\n", hwnd, msg, wParam, lParam, ui, widget_type, msgstr);
 }

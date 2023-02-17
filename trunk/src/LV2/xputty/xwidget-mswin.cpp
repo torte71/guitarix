@@ -43,16 +43,19 @@ LRESULT onPaint( HWND hwnd, WPARAM wParam, LPARAM lParam );
 ----------------------------------------------------------------------*/
 
 void os_destroy_window(Widget_t *w) {
-	debug_print("STUB:os_destroy_window:w=%p:hwnd=%p",w,(w)?w->widget:NULL);
+	debug_print("STUB:os_destroy_window:w=%p:hwnd=%p:%s",w,(w)?w->widget:NULL,widget_type_name(w));
 
 	// mswin automatically sends WM_DESTROY to all child windows
 	// floating windows need to be handled manually
-	if ((w) && (w->flags & IS_POPUP)) {
+	//if ((w) && (w->flags & IS_WINDOW)) {
+	if ((w) && ( (w->flags & WT_MENU)
+			  || (w->flags & WT_TOOLTIP)
+			  || (w->flags & WT_FILE_DIALOG)
+			  || (w->flags & WT_MESSAGE_DIALOG)
+			  || (w->flags & WT_MIDI_KEYBOARD))) {
 		debug_print("STUB:os_destroy_window:DestroyWindow:hwnd=%p",(w)?w->widget:NULL);
 		DestroyWindow(w->widget);
 	}
-	//CloseWindow(w->widget); // crash
-
 	//UnregisterClass(TEXT("xputtyMainUIClass"), NULL);
 	//UnregisterClass(TEXT("xputtyWidgetUIClass"), NULL);
 	// STUB
@@ -319,7 +322,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	Widget_t *ui = (Widget_t *)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 //debug_print("HWND:%p msg=%8.8x w=%p l=%p ui=%p state=%d\n",hwnd,msg,(void*)wParam,(void*)lParam,ui,(ui ? ui->state : 0));
 #ifdef _debugwm
-debug_wm(hwnd, msg, wParam, lParam, ui);
+debug_wm(hwnd, msg, wParam, lParam, ui, widget_type_name(ui));
 #endif
 
 	xbutton.window = hwnd;

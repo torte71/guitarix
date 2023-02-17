@@ -41,10 +41,11 @@ void childlist_destroy(Childlist_t *childlist) {
 
 void childlist_add_child(Childlist_t *childlist, Widget_t *child) {
 #ifdef _WIN32
-debug_print("childlist_add_child:list=%p:child=%p--hwnd=%p %s %s %s %s %s %s %s %s %s %s %s %s %s %s",
+debug_print("childlist_add_child:list=%p:child=%p--hwnd=%p %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s",
     childlist,
     child,
     child->widget,
+widget_type_name(child),
     0 != (child->flags & IS_WIDGET        )?"WID":"",
     0 != (child->flags & IS_WINDOW        )?"WIN":"",
     0 != (child->flags & IS_POPUP         )?"POP":"",
