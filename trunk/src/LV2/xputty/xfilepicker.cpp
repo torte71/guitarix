@@ -130,7 +130,6 @@ static inline int fp_prefill_dirbuffer(FilePicker *filepicker, char *path) {
 
 int fp_get_files(FilePicker *filepicker, char *path, int get_dirs) {
     int ret = 0;
-#ifndef _WIN32
     fp_clear_filebuffer(filepicker);
 
     DIR *dirp;
@@ -148,7 +147,11 @@ int fp_get_files(FilePicker *filepicker, char *path, int get_dirs) {
 
     while ((dp = readdir(dirp)) != NULL) {
 
+#ifndef _WIN32
         if(dp-> d_type != DT_DIR && strlen(dp->d_name)!=0 && dp->d_type != DT_UNKNOWN
+#else
+        if(((dirp->dd_dta.attrib & _A_SUBDIR)==0) && strlen(dp->d_name)!=0
+#endif
           && strcmp(dp->d_name,"..")!=0 && fp_show_hidden_files(filepicker, dp->d_name) &&
           fp_show_filter_files(filepicker, dp->d_name)) {
 
@@ -158,7 +161,11 @@ int fp_get_files(FilePicker *filepicker, char *path, int get_dirs) {
             asprintf(&filepicker->file_names[filepicker->file_counter++],"%s",dp->d_name);
             assert(&filepicker->file_names[filepicker->file_counter] != NULL);
 
+#ifndef _WIN32
         } else if(get_dirs && dp -> d_type == DT_DIR && strlen(dp->d_name)!=0
+#else
+        } else if(get_dirs && ((dirp->dd_dta.attrib & _A_SUBDIR) != 0) && strlen(dp->d_name)!=0
+#endif
           && strcmp(dp->d_name,"..")!=0 && fp_show_hidden_files(filepicker, dp->d_name)) {
 
             filepicker->dir_names = (char **)realloc(filepicker->dir_names,
@@ -171,7 +178,6 @@ int fp_get_files(FilePicker *filepicker, char *path, int get_dirs) {
     }
     closedir(dirp);
     fp_sort_buffers(filepicker, get_dirs);
-#endif
     return ret;
 }
 
