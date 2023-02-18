@@ -115,7 +115,8 @@ debug_print("os_create_main_window_and_surface:x=%d:y=%d:w=%d:h=%d:w=%p:app=%p:w
 	wndclass.lpfnWndProc   = WndProc;
 	wndclass.hInstance	   = hInstance;
 	wndclass.hCursor	   = LoadCursor(NULL, IDC_ARROW);
-	wndclass.hbrBackground =(HBRUSH)COLOR_WINDOW;
+	//wndclass.hbrBackground =(HBRUSH)COLOR_WINDOW;
+	wndclass.hbrBackground =NULL;
 	wndclass.lpszClassName = szClassName;
 	wndclass.cbWndExtra    = sizeof(w); // reserve space for SetWindowLongPtr
 	RegisterClass(&wndclass);
@@ -171,8 +172,8 @@ printf("os_create_widget_window_and_surface:x=%d:y=%d:w=%d:h=%d:w=%p:app=%p:pare
 	wndclass.lpfnWndProc   = WndProc;
 	wndclass.hInstance	   = hInstance;
 	wndclass.hCursor	   = LoadCursor(NULL, IDC_ARROW);
-	wndclass.hbrBackground =(HBRUSH)COLOR_WINDOW;
-//wndclass.hbrBackground = NULL;
+	//wndclass.hbrBackground =(HBRUSH)COLOR_WINDOW;
+	wndclass.hbrBackground = NULL;
 	wndclass.lpszClassName = szClassName;
 	wndclass.cbWndExtra    = sizeof(w); // reserve space for SetWindowLongPtr
 	RegisterClass(&wndclass);
@@ -538,7 +539,8 @@ if (!(ui->flags & IS_WINDOW))
 			}
 			// hovering, etc.
 			if (ui->state == 4) return 0;
-			adj_set_motion_state(ui, xmotion.x, xmotion.y);
+			if (wParam & MK_LBUTTON) // TODO: why is this if() required here, but not on linux?
+				adj_set_motion_state(ui, xmotion.x, xmotion.y);
 			ui->func.motion_callback((void*)ui, &xmotion, user_data);
 			debug_print("Widget_t MotionNotify x = %li Y = %li hwnd=%p\n",pt.x,pt.y,hwnd );
 			return 0;
