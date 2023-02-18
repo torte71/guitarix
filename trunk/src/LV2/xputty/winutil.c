@@ -1068,5 +1068,5 @@ void debug_wm(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, void *ui, char 
                      /* global variables }}}1 */
         default: msgstr = "UNKNOWN";
     }
-    debug_print("MSG:hwnd=%p msg=%8.8x w=%16.16llx l=%16.16llx ui=%p %s %s\n", hwnd, msg, wParam, lParam, ui, widget_type, msgstr);
+    debug_print("MSG:hwnd=%p msg=%8.8x w=%16.16llx l=%16.16llx ui=%p %-20s %s\n", hwnd, msg, wParam, lParam, ui, widget_type, msgstr);
 }
