@@ -1,6 +1,6 @@
 #include "xputty.h"
 #include "xwidgets.h"
-//#include "dialogs/xfile-dialog.h" // missing xdgmime.h
+#include "dialogs/xfile-dialog.h"
 #include "dialogs/xmessage-dialog.h"
 #include "dialogs/xmidi_keyboard.h"
 
@@ -16,7 +16,17 @@ static void draw_window(void *w_, void* user_data) {
 static void quit_button_pressed(void *w_, void* button_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
     Widget_t *main = w->app->childlist->childs[0];
+    //quit_widget(main);
+    //destroy_widget(main, main->app);
     DestroyWindow(main->widget);
+}
+static void destroy_button_pressed(void *w_, void* button_, void* user_data) {
+    Widget_t *w = (Widget_t*)w_;
+    Widget_t *main = w->app->childlist->childs[0];
+debug_print("destroy_button_pressed:w=%p:%s:u=%p:btn=%p:%s:main=%p:%s\n",w, widget_type_name((Widget_t*)w), user_data,
+    button_, widget_type_name((Widget_t*)button_),
+    main, widget_type_name(main) );
+    destroy_widget(w, w->app);
 }
 
 void msg_button_dialog_callback(void * widget, void* user_data) {
@@ -46,6 +56,14 @@ static void menu_button_pressed(void *w_, void* button_, void* user_data) {
     pop_menu_show(w, menu, 3, true); //void pop_menu_show(Widget_t *parent, Widget_t *menu, int elem, bool above);
 }
 
+Widget_t *file_dialog;
+static void file_button_pressed(void *w_, void* button_, void* user_data) {
+    Widget_t *w = (Widget_t*)w_;
+    file_dialog = open_file_dialog(w, "\\c\\audio", "*");
+    //file_dialog = open_file_dialog(w, "\\c", "*");
+}
+
+
 int main (int argc, char ** argv)
 {
     /** acces the main struct */
@@ -68,11 +86,14 @@ int main (int argc, char ** argv)
 int x=0,y=0,width=0,height=0;
 height = 64;
 y += height + 4; height =     64; width = height ; Widget_t* button              = add_button(mainwin, "buttonlabel", x, y, width, height);
+#if 1 //small
 y += height + 4; height =     64; width = height ; Widget_t* on_off_button       = add_on_off_button(mainwin, "on_off_buttonlabel", x, y, width, height);
 y += height + 4; height =     64; width = height ; Widget_t* toggle_button       = add_toggle_button(mainwin, "toggle_buttonlabel", x, y, width, height);
+#endif
 y += height + 4; height =     64; width = height ; Widget_t* image_toggle_button = add_image_toggle_button(mainwin, "image_toggle_buttonlabel", x, y, width, height);
 
 y += height + 4; height =     64; width = height ; Widget_t* check_button        = add_check_button(mainwin, "check_buttonlabel", x, y, width, height);
+#if 1 //small
 //wrong width
 y += height + 4; height =     64; width = height ; Widget_t* check_box           = add_check_box(mainwin, "check_boxlabel", x, y, width, height);
 y += height + 4; height =     64; width = height ; Widget_t* knob                = add_knob(mainwin, "knoblabel", x, y, width, height);
@@ -99,7 +120,7 @@ y += height + 4; height =     64; width = height ; Widget_t* hslider            
 y += height + 4; height =     64; width = height ; Widget_t* tuner               = add_tuner(mainwin, "tunerlabel", x, y, width, height);
 #endif
 y += height + 4; height =     64; width = height ; Widget_t* valuedisplay        = add_valuedisplay(mainwin, "valuedisplaylabel", x, y, width, height);
-#if 0
+#if 1
 // crash after close
 y += height + 4; height =  1* 64; width = height ; Widget_t* listbox             = add_listbox(mainwin, "listboxlabel", x, y, width, height);
 y += height + 4; height =     64; width = height ; Widget_t* listbox_entry       = listbox_add_entry(listbox, "listbox_entrylabel");
@@ -124,19 +145,24 @@ image_toggle_button->func.button_press_callback = menu_button_pressed;
 //unused; missing xdgmime.h
 //y += height + 4; height =     64; width = height ; Widget_t* file_button         = add_file_button(mainwin, "file_buttonlabel", x, y, width, height, "C:/", "");
 
+#endif
 
 // close window button
 button->func.button_press_callback = quit_button_pressed;
+#if 1 //small
 on_off_button->func.button_press_callback = msg_button_pressed;
 toggle_button->func.button_press_callback = midi_button_pressed;
-
+check_button->func.button_press_callback = destroy_button_pressed;
 //on_off_button->func.dialog_callback = msg_button_dialog_callback;
 on_off_button->func.dialog_callback = msg_button_dialog_callback;
+#endif
+image_toggle_button->func.button_press_callback = file_button_pressed;
 
     /** map the Window to display */
     widget_show_all(mainwin);
     /** run the event loop */
     main_run(&app);
+
 MSG msg;
 while(GetMessage(&msg, NULL, 0, 0))
 {
