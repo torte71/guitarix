@@ -340,7 +340,10 @@ debug_wm(hwnd, msg, wParam, lParam, ui, widget_type_name(ui));
 			return 0;
 		case WM_DESTROY:
 			debug_print("WM:WM_DESTROY:hwnd=%p:ui=%p",hwnd,ui);
-			PostQuitMessage(0);
+			if (!ui) return DefWindowProc(hwnd, msg, wParam, lParam);
+			// terminate app/messageloop if main window is destroyed
+			if (ui->app->childlist->elem && ui->app->childlist->childs[0] == ui)
+				PostQuitMessage(0);
 			return 0;
 
 		// X11:ConfigureNotify
@@ -532,13 +535,11 @@ if (!(ui->flags & IS_WINDOW))
 
 				SetMouseTracking(hwnd, true); // for receiving (next) WM_MOUSELEAVE
 			}
-//			// mouse move while button1 is pressed
-			if (wParam & MK_LBUTTON) {
-				if (ui->state == 4) return 0;
-				adj_set_motion_state(ui, xmotion.x, xmotion.y);
-				ui->func.motion_callback((void*)ui, &xmotion, user_data);
-				debug_print("Widget_t MotionNotify x = %li Y = %li hwnd=%p\n",pt.x,pt.y,hwnd );
-			}
+			// hovering, etc.
+			if (ui->state == 4) return 0;
+			adj_set_motion_state(ui, xmotion.x, xmotion.y);
+			ui->func.motion_callback((void*)ui, &xmotion, user_data);
+			debug_print("Widget_t MotionNotify x = %li Y = %li hwnd=%p\n",pt.x,pt.y,hwnd );
 			return 0;
 
 		case WM_USER + 01: // WM_DELETE_WINDOW
