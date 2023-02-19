@@ -124,25 +124,35 @@ debug_print("os_create_main_window_and_surface:x=%d:y=%d:w=%d:h=%d:w=%p:app=%p:w
 	// _WIN32 doesnt allow changing the style afterwards, as it is done in xmenu.cpp
 	// (this also removes duplicate code for window/widget creation).
 	// For the current situation it is sufficient to set popup style if parent is HWND_DESKTOP.
-	DWORD dwStyle;
+	DWORD dwStyle = 0;
+	DWORD dwExStyle = 0;
+	// dwExStyle:
+	//   WS_EX_APPWINDOW - force(!) taskbar icon
+	//   WS_EX_CONTROLPARENT - contains children, uses tab+cursor nav.
+	//   WS_EX_NOPARENTNOTIFY - no PARENTNOTIFY on create/destroy
+	//   WS_EX_TOOLWINDOW - no taskbar icon
+	//   WS_EX_TOPMOST - above all others
 	if (win == (HWND)-1) {
-		dwStyle = WS_OVERLAPPEDWINDOW ;
+		// Dialogs with border
+		dwStyle = WS_OVERLAPPEDWINDOW;
+		dwExStyle = WS_EX_CONTROLPARENT | WS_EX_TOPMOST;
 		win = HWND_DESKTOP;
 	} else
 	if (win == HWND_DESKTOP) {
-		dwStyle = WS_POPUP ;
-		//dwStyle = WS_OVERLAPPEDWINDOW ;
+		// Floating without border (popup, tooltip)
+		dwStyle = WS_POPUP;
+		dwExStyle = WS_EX_CONTROLPARENT | WS_EX_TOPMOST | WS_EX_TOOLWINDOW;
 	} else {
-		dwStyle = WS_CHILD ;
+		// Embedded widget
+		dwStyle = WS_CHILD;
+		dwExStyle = WS_EX_CONTROLPARENT | WS_EX_TOOLWINDOW;
 	}
 	// create the window
-	w->widget = CreateWindowEx(WS_EX_TOPMOST, // dwExStyle
-							szClassName, // lpClassName
+	w->widget = CreateWindowEx(dwExStyle, szClassName,
 							TEXT("Draw Surface"), // lpWindowName
 							dwStyle, // dwStyle
 							CW_USEDEFAULT, CW_USEDEFAULT, // X, Y
 							width, height, // nWidth, nHeight
-//diff:parent=win
 							win, // hWndParent (no embeddeding takes place yet)
 							NULL, hInstance, NULL); // hMenu, hInstance, lpParam
 debug_print("os_create_main_window_and_surface:w=%p:hwnd=%p",w,w->widget);
@@ -178,13 +188,12 @@ printf("os_create_widget_window_and_surface:x=%d:y=%d:w=%d:h=%d:w=%p:app=%p:pare
 	wndclass.cbWndExtra    = sizeof(w); // reserve space for SetWindowLongPtr
 	RegisterClass(&wndclass);
 	// create the window
-	w->widget = CreateWindowEx(WS_EX_TOPMOST, // dwExStyle
-							szClassName, // lpClassName
+	DWORD dwExStyle = WS_EX_CONTROLPARENT;
+	w->widget = CreateWindowEx(dwExStyle, szClassName,
 							TEXT("Draw Surface"), // lpWindowName
 							WS_CHILD, // dwStyle
 							x, y, // X, Y
 							width, height, // nWidth, nHeight
-//diff:parent=parent->widget
 							parent->widget, // hWndParent (no embeddeding takes place yet)
 							NULL, hInstance, NULL); // hMenu, hInstance, lpParam
 debug_print("os_create_widget_window_and_surface:w=%p:hwnd=%p",w,w->widget);
