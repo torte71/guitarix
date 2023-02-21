@@ -58,7 +58,7 @@ wid->widget_type = WT_VMETER;
     wid->func.expose_callback = _draw_v_meter;
     if (show_scale) {
         Widget_t *wid2 = create_widget(parent->app, parent, x+width, y, width, height);
-wid->widget_type = WT_VMETER_SCALE;
+wid2->widget_type = WT_VMETER_SCALE;
         wid2->scale.gravity = ASPECT;
         wid2->func.expose_callback =_draw_vmeter_scale;
     }
@@ -79,7 +79,7 @@ wid->widget_type = WT_HMETER;
     wid->func.expose_callback = _draw_h_meter;
     if (show_scale) {
         Widget_t *wid2 = create_widget(parent->app, parent, x, y+height, width, height);
-wid->widget_type = WT_HMETER_SCALE;
+wid2->widget_type = WT_HMETER_SCALE;
         wid2->scale.gravity = ASPECT;
         wid2->func.expose_callback =_draw_hmeter_scale;
     }
