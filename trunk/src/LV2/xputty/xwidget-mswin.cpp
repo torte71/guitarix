@@ -475,27 +475,31 @@ RedrawWindow(view_port->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_U
                 bool is_item = false;
 				// still inside viewport? (finds menu entries in popup window)
                 Widget_t *view_port = ui->app->hold_grab->childlist->childs[0];
-                int i = view_port->childlist->elem-1;
-                for(;i>-1;i--) {
-                    Widget_t *w = view_port->childlist->childs[i];
-                    if (win_cur == w->widget) {
-                        is_item = true;
-                        break;
-                    }
-                }
+				if (view_port) { // should never be NULL, but who knows :)
+					int i = view_port->childlist->elem-1;
+					for(;i>-1;i--) {
+						Widget_t *w = view_port->childlist->childs[i];
+						if (win_cur == w->widget) {
+							is_item = true;
+							break;
+						}
+					}
+					if (view_port && win_cur == view_port->widget) is_item = true; // inside slider area?
+				}
 				// still inside combobox? (finds combobox-button)
                 Widget_t *menu = NULL;
 				menu = (Widget_t *)ui->app->hold_grab->parent_struct;
-                i = menu->childlist->elem-1;
-                for(;i>-1;i--) {
-                    Widget_t *w = menu->childlist->childs[i];
-                    if (win_cur == w->widget) {
-                        is_item = true;
-                        break;
-                    }
-                }
-                if (win_cur == view_port->widget) is_item = true; // inside slider area?
-                if (win_cur == menu->widget) is_item = true; // inside combobox textarea?
+				if (menu) { // can be NULL if not contained in combobox
+					int i = menu->childlist->elem-1;
+					for(;i>-1;i--) {
+						Widget_t *w = menu->childlist->childs[i];
+						if (win_cur == w->widget) {
+							is_item = true;
+							break;
+						}
+					}
+					if (menu && win_cur == menu->widget) is_item = true; // inside combobox textarea?
+				}
                 if (!is_item) {
 #ifdef _WIN32
 					ReleaseCapture();
