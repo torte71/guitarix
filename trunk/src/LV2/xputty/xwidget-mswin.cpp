@@ -62,18 +62,20 @@ void os_destroy_window(Widget_t *w) {
 }
 
 void os_get_window_metrics(Widget_t *w_, Metrics_t *metrics) {
-	RECT Rect = {0};
-	POINT Point = {0};
+	RECT WindowRect;
+	RECT ClientRect;
+	POINT Point;
 	Widget_t *parent = (Widget_t *)w_->parent;
 
-	if (GetWindowRect(w_->widget, &Rect)) {
-		Point.x = Rect.left;
-		Point.y = Rect.top;
+	if (GetWindowRect(w_->widget, &WindowRect) \
+	 && GetClientRect(w_->widget, &ClientRect)) {
+		Point.x = WindowRect.left; // WindowRect has correct coords, but wrong width/height
+		Point.y = WindowRect.top;  // ClientRect has correct width/height, but top/left == 0
 		ScreenToClient(parent->widget, &Point);
 		metrics->x = Point.x;
 		metrics->y = Point.y;
-		metrics->width = Rect.right - Rect.left;
-		metrics->height = Rect.bottom - Rect.top;
+		metrics->width = ClientRect.right - ClientRect.left;
+		metrics->height = ClientRect.bottom - ClientRect.top;
 	}
 	metrics->visible = IsWindowVisible(w_->widget);
 }
@@ -137,6 +139,15 @@ debug_print("os_create_main_window_and_surface:x=%d:y=%d:w=%d:h=%d:w=%p:app=%p:w
 		dwStyle = WS_OVERLAPPEDWINDOW;
 		dwExStyle = WS_EX_CONTROLPARENT | WS_EX_TOPMOST;
 		win = HWND_DESKTOP;
+		// include border widths
+		RECT Rect;
+		BOOL bMenu = false;
+		Rect.right = width;
+		Rect.bottom = height;
+		if (AdjustWindowRectEx(&Rect, dwStyle, bMenu, dwExStyle)) {
+			width = Rect.right;
+			height = Rect.bottom;
+		}
 	} else
 	if (win == HWND_DESKTOP) {
 		// Floating without border (popup, tooltip)
