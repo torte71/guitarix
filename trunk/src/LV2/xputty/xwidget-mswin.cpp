@@ -41,18 +41,26 @@ LRESULT onPaint( HWND hwnd, WPARAM wParam, LPARAM lParam );
 			common functions (required)
 -----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
+void debug_lasterror(char *prefix) {
+	LPSTR msg = nullptr;
+	DWORD err = GetLastError();
+	size_t size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+								 NULL, err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&msg, 0, NULL);
+	LocalFree(msg);
+	debug_print("%s:ERR=%8.8x (%ld): %s",prefix?prefix:"",err,err,msg);
+}
 
 void os_destroy_window(Widget_t *w) {
 	debug_print("STUB:os_destroy_window:w=%p:hwnd=%p:%s",w,(w)?w->widget:NULL,widget_type_name(w));
 
 	// mswin automatically sends WM_DESTROY to all child windows
 	// floating windows need to be handled manually
-	//if ((w) && (w->flags & IS_WINDOW)) {
-	if ((w) && ( (w->flags & WT_MENU)
-			  || (w->flags & WT_TOOLTIP)
-			  || (w->flags & WT_FILE_DIALOG)
-			  || (w->flags & WT_MESSAGE_DIALOG)
-			  || (w->flags & WT_MIDI_KEYBOARD))) {
+	//if ((w) && ( (w->flags & WT_MENU)
+	//		  || (w->flags & WT_TOOLTIP)
+	//		  || (w->flags & WT_FILE_DIALOG)
+	//		  || (w->flags & WT_MESSAGE_DIALOG)
+	//		  || (w->flags & WT_MIDI_KEYBOARD))) {
+	if ((w) && (w->flags & IS_WINDOW)) {
 		debug_print("STUB:os_destroy_window:DestroyWindow:hwnd=%p",(w)?w->widget:NULL);
 		DestroyWindow(w->widget);
 	}
@@ -286,6 +294,18 @@ void os_quit(Widget_t *w) {
 	//CloseWindow(w->widget);
 	//UnregisterClass(TEXT("xputtyMainUIClass"), NULL);
 	// STUB
+
+	// UnregisterClass silently fails, if there are still more windows of this class
+	if (UnregisterClass(TEXT("xputtyMainUIClass"), NULL)) {
+		debug_print("UnregisterClass:xputtyMainUIClass:OK");
+	} else
+		debug_lasterror("UnregisterClass:xputtyMainUIClass");
+
+	if (UnregisterClass(TEXT("xputtyWidgetUIClass"), NULL)) {
+		debug_print("UnregisterClass:xputtyWidgetUIClass:OK");
+	} else
+		debug_lasterror("UnregisterClass:xputtyWidgetUIClass");
+
 }
 void os_quit_widget(Widget_t *w) {
 	WPARAM wParam = (WPARAM)w->widget;
