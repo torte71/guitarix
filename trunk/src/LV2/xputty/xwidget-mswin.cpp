@@ -46,8 +46,8 @@ void debug_lasterror(char *prefix) {
 	DWORD err = GetLastError();
 	size_t size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
 								 NULL, err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&msg, 0, NULL);
-	LocalFree(msg);
 	debug_print("%s:ERR=%8.8x (%ld): %s",prefix?prefix:"",err,err,msg);
+	LocalFree(msg);
 }
 
 void os_destroy_window(Widget_t *w) {
