@@ -55,12 +55,12 @@ void os_destroy_window(Widget_t *w) {
 
 	// mswin automatically sends WM_DESTROY to all child windows
 	// floating windows need to be handled manually
-	//if ((w) && ( (w->flags & WT_MENU)
-	//		  || (w->flags & WT_TOOLTIP)
-	//		  || (w->flags & WT_FILE_DIALOG)
-	//		  || (w->flags & WT_MESSAGE_DIALOG)
-	//		  || (w->flags & WT_MIDI_KEYBOARD))) {
-	if ((w) && (w->flags & IS_WINDOW)) {
+	if ((w) && ( (w->flags & IS_WINDOW)
+			  || (w->flags & WT_MENU)
+			  || (w->flags & WT_TOOLTIP)
+			  || (w->flags & WT_FILE_DIALOG)
+			  || (w->flags & WT_MESSAGE_DIALOG)
+			  || (w->flags & WT_MIDI_KEYBOARD) )) {
 		debug_print("STUB:os_destroy_window:DestroyWindow:hwnd=%p",(w)?w->widget:NULL);
 		DestroyWindow(w->widget);
 	}
