@@ -94,6 +94,7 @@ int main (int argc, char ** argv)
 int x=0,y=0,width=0,height=0;
 height = 64;
 y += height + 4; height =     64; width = height ; Widget_t* button              = add_button(mainwin, "buttonlabel", x, y, width, height);
+#if 0 // msg
 #if 1 //small
 y += height + 4; height =     64; width = height ; Widget_t* on_off_button       = add_on_off_button(mainwin, "on_off_buttonlabel", x, y, width, height);
 y += height + 4; height =     64; width = height ; Widget_t* toggle_button       = add_toggle_button(mainwin, "toggle_buttonlabel", x, y, width, height);
@@ -159,6 +160,8 @@ image_toggle_button->func.button_release_callback = menu_button_released;
 
 // close window button
 button->func.button_release_callback = quit_button_released;
+#endif //xxx
+button->func.button_release_callback = file_button_released;
 
     /** map the Window to display */
     widget_show_all(mainwin);

@@ -79,7 +79,7 @@ void os_get_window_metrics(Widget_t *w_, Metrics_t *metrics) {
 	 && GetClientRect(w_->widget, &ClientRect)) {
 		Point.x = WindowRect.left; // WindowRect has correct coords, but wrong width/height
 		Point.y = WindowRect.top;  // ClientRect has correct width/height, but top/left == 0
-		ScreenToClient(parent->widget, &Point);
+		ScreenToClient(parent->widget, &Point); // "parent" is intentional (coords are relative to owner widget)
 		metrics->x = Point.x;
 		metrics->y = Point.y;
 		metrics->width = ClientRect.right - ClientRect.left;
@@ -148,13 +148,13 @@ debug_print("os_create_main_window_and_surface:x=%d:y=%d:w=%d:h=%d:w=%p:app=%p:w
 		dwExStyle = WS_EX_CONTROLPARENT | WS_EX_TOPMOST;
 		win = HWND_DESKTOP;
 		// include border widths
-		RECT Rect;
+		RECT Rect = {0};
 		BOOL bMenu = false;
 		Rect.right = width;
 		Rect.bottom = height;
 		if (AdjustWindowRectEx(&Rect, dwStyle, bMenu, dwExStyle)) {
-			width = Rect.right;
-			height = Rect.bottom;
+			width = Rect.right - Rect.left;
+			height = Rect.bottom - Rect.top;
 		}
 	} else
 	if (win == HWND_DESKTOP) {
@@ -178,7 +178,6 @@ debug_print("os_create_main_window_and_surface:w=%p:hwnd=%p",w,w->widget);
 	// attach a pointer to "w" to this window (so w is available in WndProc)
 	SetWindowLongPtr(w->widget, GWLP_USERDATA, (LONG_PTR)w);
 	SetParent(w->widget, win); // embed into parentWindow
-	SetClientSize(w->widget, width, height);
 	SetMouseTracking(w->widget, true); // for receiving WM_MOUSELEAVE
 //diff:SizeHints?
 //    win_size_hints = XAllocSizeHints();
@@ -220,7 +219,6 @@ debug_print("os_create_widget_window_and_surface:w=%p:hwnd=%p",w,w->widget);
 	// attach a pointer to "w" to this window (so w is available in WndProc)
 	SetWindowLongPtr(w->widget, GWLP_USERDATA, (LONG_PTR)w);
 	SetParent(w->widget, parent->widget); // embed into parentWindow
-	SetClientSize(w->widget, width, height);
 	SetMouseTracking(w->widget, true); // for receiving WM_MOUSELEAVE
 //diff:no SizeHints
 
