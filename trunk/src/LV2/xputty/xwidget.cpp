@@ -212,7 +212,15 @@ w->widget_type = WT_WINDOW;
     debug_print("size of Func_t = %lu\n", sizeof(w->func)/sizeof(void*));
 
     debug_print("assert(w)\n");
-os_create_main_window_and_surface(w, app, win, x, y, width, height);
+    os_create_main_window_and_surface(w, app, win, x, y, width, height);
+    os_create_cairo_context_and_buffer(w);
+
+    return w;
+}
+
+void create_cairo_context_and_buffer(Widget_t *w) {
+    int width = w->scale.init_width;
+    int height = w->scale.init_height;
     assert(cairo_surface_status(w->surface) == CAIRO_STATUS_SUCCESS);
     w->cr = cairo_create(w->surface);
     cairo_select_font_face (w->cr, "Roboto", CAIRO_FONT_SLANT_NORMAL,
@@ -224,8 +232,6 @@ os_create_main_window_and_surface(w, app, win, x, y, width, height);
     w->crb = cairo_create (w->buffer);
     cairo_select_font_face (w->crb, "Roboto", CAIRO_FONT_SLANT_NORMAL,
                                CAIRO_FONT_WEIGHT_NORMAL);
-
-    return w;
 }
 
 Widget_t *create_widget(Xputty *app, Widget_t *parent,
@@ -295,18 +301,8 @@ w->widget_type = WT_WIDGET;
     debug_print("size of Widget_t = %ld\n", sizeof(struct Widget_t));
 
     debug_print("assert(w)\n");
-os_create_widget_window_and_surface(w, app, parent, x, y, width, height);
-    assert(cairo_surface_status(w->surface) == CAIRO_STATUS_SUCCESS);
-    w->cr = cairo_create(w->surface);
-    cairo_select_font_face (w->cr, "Roboto", CAIRO_FONT_SLANT_NORMAL,
-                               CAIRO_FONT_WEIGHT_NORMAL);
-
-    w->buffer = cairo_surface_create_similar (w->surface, 
-                        CAIRO_CONTENT_COLOR_ALPHA, width, height);
-    assert(cairo_surface_status(w->buffer) == CAIRO_STATUS_SUCCESS);
-    w->crb = cairo_create (w->buffer);
-    cairo_select_font_face (w->crb, "Roboto", CAIRO_FONT_SLANT_NORMAL,
-                               CAIRO_FONT_WEIGHT_NORMAL);
+    os_create_widget_window_and_surface(w, app, parent, x, y, width, height);
+    os_create_cairo_context_and_buffer(w);
 
     return w;
 }
