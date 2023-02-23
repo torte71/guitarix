@@ -148,7 +148,7 @@ debug_print("os_create_main_window_and_surface:x=%d:y=%d:w=%d:h=%d:w=%p:app=%p:w
 	if (win == (HWND)-1) {
 		// Dialogs with border
 		dwStyle = WS_OVERLAPPEDWINDOW;
-		dwExStyle = WS_EX_CONTROLPARENT | WS_EX_TOPMOST;
+		dwExStyle = WS_EX_CONTROLPARENT;
 		win = HWND_DESKTOP;
 		// include border widths
 		RECT Rect = {0};
@@ -163,7 +163,7 @@ debug_print("os_create_main_window_and_surface:x=%d:y=%d:w=%d:h=%d:w=%p:app=%p:w
 	if (win == HWND_DESKTOP) {
 		// Floating without border (popup, tooltip)
 		dwStyle = WS_POPUP;
-		dwExStyle = WS_EX_CONTROLPARENT | WS_EX_TOPMOST | WS_EX_TOOLWINDOW;
+		dwExStyle = WS_EX_CONTROLPARENT | WS_EX_TOOLWINDOW;
 	} else {
 		// Embedded widget
 		dwStyle = WS_CHILD;
