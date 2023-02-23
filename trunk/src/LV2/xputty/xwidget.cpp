@@ -151,24 +151,6 @@ Widget_t *create_window(Xputty *app, Window win,
 
     Widget_t *w = (Widget_t*)malloc(sizeof(Widget_t));
     assert(w != NULL);
-#ifdef _WIN32
-    // set callbacks to zero to avoid calling unitialized pointers
-    memset(w, 0, sizeof(Widget_t));
-#endif
-    debug_print("assert(w)\n");
-os_create_main_window_and_surface(w, app, win, x, y, width, height);
-    assert(cairo_surface_status(w->surface) == CAIRO_STATUS_SUCCESS);
-    w->cr = cairo_create(w->surface);
-    cairo_select_font_face (w->cr, "Roboto", CAIRO_FONT_SLANT_NORMAL,
-                               CAIRO_FONT_WEIGHT_NORMAL);
-
-    w->buffer = cairo_surface_create_similar (w->surface, 
-                        CAIRO_CONTENT_COLOR_ALPHA, width, height);
-    assert(cairo_surface_status(w->buffer) == CAIRO_STATUS_SUCCESS);
-    w->crb = cairo_create (w->buffer);
-    cairo_select_font_face (w->crb, "Roboto", CAIRO_FONT_SLANT_NORMAL,
-                               CAIRO_FONT_WEIGHT_NORMAL);
-
     w->image = NULL;
 
     w->flags = IS_WINDOW;
@@ -228,16 +210,9 @@ w->widget_type = WT_WINDOW;
     childlist_add_child(app->childlist,w);
     //XMapWindow(app->dpy, w->widget);
     debug_print("size of Func_t = %lu\n", sizeof(w->func)/sizeof(void*));
-    return w;
-}
 
-Widget_t *create_widget(Xputty *app, Widget_t *parent,
-                          int x, int y, int width, int height) {
-
-    Widget_t *w = (Widget_t*)malloc(sizeof(Widget_t));
-    assert(w != NULL);
     debug_print("assert(w)\n");
-os_create_widget_window_and_surface(w, app, parent, x, y, width, height);
+os_create_main_window_and_surface(w, app, win, x, y, width, height);
     assert(cairo_surface_status(w->surface) == CAIRO_STATUS_SUCCESS);
     w->cr = cairo_create(w->surface);
     cairo_select_font_face (w->cr, "Roboto", CAIRO_FONT_SLANT_NORMAL,
@@ -250,6 +225,14 @@ os_create_widget_window_and_surface(w, app, parent, x, y, width, height);
     cairo_select_font_face (w->crb, "Roboto", CAIRO_FONT_SLANT_NORMAL,
                                CAIRO_FONT_WEIGHT_NORMAL);
 
+    return w;
+}
+
+Widget_t *create_widget(Xputty *app, Widget_t *parent,
+                          int x, int y, int width, int height) {
+
+    Widget_t *w = (Widget_t*)malloc(sizeof(Widget_t));
+    assert(w != NULL);
     w->image = NULL;
     
     w->flags = IS_WIDGET | USE_TRANSPARENCY;
@@ -310,6 +293,21 @@ w->widget_type = WT_WIDGET;
     childlist_add_child(app->childlist,w);
     //XMapWindow(app->dpy, w->widget);
     debug_print("size of Widget_t = %ld\n", sizeof(struct Widget_t));
+
+    debug_print("assert(w)\n");
+os_create_widget_window_and_surface(w, app, parent, x, y, width, height);
+    assert(cairo_surface_status(w->surface) == CAIRO_STATUS_SUCCESS);
+    w->cr = cairo_create(w->surface);
+    cairo_select_font_face (w->cr, "Roboto", CAIRO_FONT_SLANT_NORMAL,
+                               CAIRO_FONT_WEIGHT_NORMAL);
+
+    w->buffer = cairo_surface_create_similar (w->surface, 
+                        CAIRO_CONTENT_COLOR_ALPHA, width, height);
+    assert(cairo_surface_status(w->buffer) == CAIRO_STATUS_SUCCESS);
+    w->crb = cairo_create (w->buffer);
+    cairo_select_font_face (w->crb, "Roboto", CAIRO_FONT_SLANT_NORMAL,
+                               CAIRO_FONT_WEIGHT_NORMAL);
+
     return w;
 }
 
