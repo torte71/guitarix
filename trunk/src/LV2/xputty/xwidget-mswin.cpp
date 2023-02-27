@@ -121,6 +121,9 @@ void os_create_main_window_and_surface(Widget_t *w, Xputty *app, Window win,
 
 debug_print("os_create_main_window_and_surface:x=%d:y=%d:w=%d:h=%d:w=%p:app=%p:win=%p\n",x,y,width,height,w,app,win);
 
+	// create a permanent surface for drawing (see onPaint() event)
+	w->surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
+
 //	wndclass.style		   = CS_HREDRAW | CS_VREDRAW; // clear on resize
 	wndclass.lpfnWndProc   = WndProc;
 	wndclass.hInstance	   = hInstance;
@@ -173,17 +176,13 @@ debug_print("os_create_main_window_and_surface:x=%d:y=%d:w=%d:h=%d:w=%p:app=%p:w
 							CW_USEDEFAULT, CW_USEDEFAULT, // X, Y
 							width, height, // nWidth, nHeight
 							win, // hWndParent (no embeddeding takes place yet)
-							NULL, hInstance, NULL); // hMenu, hInstance, lpParam
-debug_print("os_create_main_window_and_surface:w=%p:hwnd=%p",w,w->widget);
-	// attach a pointer to "w" to this window (so w is available in WndProc)
-	SetWindowLongPtr(w->widget, GWLP_USERDATA, (LONG_PTR)w);
+							NULL, hInstance, (LPVOID)w); // hMenu, hInstance, lpParam
+debug_print("os_create_main_window_and_surface:w=%p:hwnd=%p:width=%d:height=%d",w,w->widget,width,height);
 	SetParent(w->widget, win); // embed into parentWindow
 	SetMouseTracking(w->widget, true); // for receiving WM_MOUSELEAVE
 //diff:SizeHints?
 //    win_size_hints = XAllocSizeHints();
 
-	// create a permanent surface for drawing (see onPaint() event)
-	w->surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
 }
 
 void os_create_widget_window_and_surface(Widget_t *w, Xputty *app, Widget_t *parent,
@@ -195,6 +194,9 @@ void os_create_widget_window_and_surface(Widget_t *w, Xputty *app, Widget_t *par
 	WNDCLASS wndclass = {0};
 	HINSTANCE hInstance = NULL;
 printf("os_create_widget_window_and_surface:x=%d:y=%d:w=%d:h=%d:w=%p:app=%p:parent=%p\n",x,y,width,height,w,app,parent);
+
+	// create a permanent surface for drawing (see onPaint() event)
+	w->surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
 
 //	wndclass.style		   = CS_HREDRAW | CS_VREDRAW; // clear on resize
 	wndclass.lpfnWndProc   = WndProc;
@@ -213,17 +215,17 @@ printf("os_create_widget_window_and_surface:x=%d:y=%d:w=%d:h=%d:w=%p:app=%p:pare
 							x, y, // X, Y
 							width, height, // nWidth, nHeight
 							parent->widget, // hWndParent (no embeddeding takes place yet)
-							NULL, hInstance, NULL); // hMenu, hInstance, lpParam
+							NULL, hInstance, (LPVOID)w); // hMenu, hInstance, lpParam
 debug_print("os_create_widget_window_and_surface:w=%p:hwnd=%p",w,w->widget);
 													//
-	// attach a pointer to "w" to this window (so w is available in WndProc)
-	SetWindowLongPtr(w->widget, GWLP_USERDATA, (LONG_PTR)w);
 	SetParent(w->widget, parent->widget); // embed into parentWindow
 	SetMouseTracking(w->widget, true); // for receiving WM_MOUSELEAVE
 //diff:no SizeHints
 
-	// create a permanent surface for drawing (see onPaint() event)
-	w->surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
+}
+
+void os_create_cairo_context_and_buffer(Widget_t *w) {
+	// done in WM_CREATE (so it takes place within the CreateWindow() call, not afterwards)
 }
 
 void os_set_title(Widget_t *w, const char *title) {
@@ -373,6 +375,20 @@ debug_wm(hwnd, msg, wParam, lParam, ui, widget_type_name(ui));
 	xmotion.y = GET_Y_LPARAM(lParam);
 
 	switch (msg) {
+		case WM_CREATE:
+			debug_print("WM:WM_CREATE:hwnd=%p:ui=%p",hwnd,ui);
+			{
+				CREATESTRUCT *pCreate = (CREATESTRUCT *)lParam;
+				ui = (Widget_t *)pCreate->lpCreateParams;
+				// CreateWindowEx() hasnt returned yet, so ui->widget is not set
+				ui->widget = hwnd;
+				// make "ui" available in messageloop events via GetWindowLongPtr()
+				SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)ui);
+				// complete initialization
+				create_cairo_context_and_buffer(ui);
+			}
+			return 0;
+
 		// MSWin only: React to close requests
 		case WM_CLOSE:
 			debug_print("WM:WM_CLOSE:hwnd=%p:ui=%p",hwnd,ui);
@@ -497,6 +513,7 @@ RedrawWindow(view_port->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_U
 		// X11:LeaveNotify (X11:EnterNotify: see WM_MOUSEMOVE)
 		case WM_MOUSELEAVE:
 			if (!ui) return DefWindowProc(hwnd, msg, wParam, lParam);
+			// xputty -> xwidget: handled by "ButtonPress" event on Linux
 			// close popup menu if cursor moves out of widget
             if(ui->app->hold_grab != NULL) {
 				GetCursorPos(&pt);
@@ -591,16 +608,27 @@ if (!(ui->flags & IS_WINDOW))
 			debug_print("WM:WM_DELETE_WINDOW:hwnd=%p:ui=%p",hwnd,ui);
 			return 1;
 #if 0
+			Xputty * main = ui->app;
+			// xwidget -> xputty (run_embedded())
 			if (ui) {
-				//int i = childlist_find_widget(main->childlist, xev.xclient.window);
-				int i = childlist_find_widget(ui->app->childlist, (Window)wParam);
+				int i = childlist_find_widget(main->childlist, (Window)wParam);
 				if(i<1) return 0;
-				//Widget_t *w = main->childlist->childs[i];
-				Widget_t *w = ui->app->childlist->childs[i];
+				Widget_t *w = main->childlist->childs[i];
 				if(w->flags & HIDE_ON_DELETE) widget_hide(w);
-				//else destroy_widget(w, main);
-				else destroy_widget(w, ui->app);
+				else destroy_widget(w, main);
 				return 0;
+			}
+			// xwidget -> xputty (main_run())
+			if (ui) {
+				if (hwnd == ui->widget) {
+					main->run = false;
+				} else {
+					int i = childlist_find_widget(main->childlist, (Window)wParam);
+					if(i<1) return;
+					Widget_t *w = main->childlist->childs[i];
+					if(w->flags & HIDE_ON_DELETE) widget_hide(w);
+					else destroy_widget(main->childlist->childs[i],main);
+				}
 			}
 #endif
 		// X11:ClientMessage:WIDGET_DESTROY
