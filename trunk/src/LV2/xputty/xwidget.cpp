@@ -22,6 +22,8 @@
 #include "xwidget.h"
 #include "xwidget_private.h"
 
+void create_cairo_context_and_buffer(Widget_t *w);
+
 #define XPUTTY_WIDGET_NAME_MAX 256
 char *widget_type_name(Widget_t *w) {
     static char name[XPUTTY_WIDGET_NAME_MAX+1] = {0};
@@ -72,6 +74,7 @@ char *widget_type_name(Widget_t *w) {
         }
     return name;
 }
+
 void destroy_widget(Widget_t * w, Xputty *main) {
 #ifdef _WIN32
 debug_print("destroy_widget:main=%p:w=%p:hwnd=%p",main,w,w?w->widget:0);
@@ -151,6 +154,7 @@ Widget_t *create_window(Xputty *app, Window win,
 
     Widget_t *w = (Widget_t*)malloc(sizeof(Widget_t));
     assert(w != NULL);
+    memset(w, 0, sizeof(Widget_t));
     w->image = NULL;
 
     w->flags = IS_WINDOW;
@@ -213,7 +217,7 @@ w->widget_type = WT_WINDOW;
 
     debug_print("assert(w)\n");
     os_create_main_window_and_surface(w, app, win, x, y, width, height);
-    os_create_cairo_context_and_buffer(w);
+    create_cairo_context_and_buffer(w);
 
     return w;
 }
@@ -239,6 +243,7 @@ Widget_t *create_widget(Xputty *app, Widget_t *parent,
 
     Widget_t *w = (Widget_t*)malloc(sizeof(Widget_t));
     assert(w != NULL);
+    memset(w, 0, sizeof(Widget_t));
     w->image = NULL;
     
     w->flags = IS_WIDGET | USE_TRANSPARENCY;
@@ -302,7 +307,7 @@ w->widget_type = WT_WIDGET;
 
     debug_print("assert(w)\n");
     os_create_widget_window_and_surface(w, app, parent, x, y, width, height);
-    os_create_cairo_context_and_buffer(w);
+    create_cairo_context_and_buffer(w);
 
     return w;
 }

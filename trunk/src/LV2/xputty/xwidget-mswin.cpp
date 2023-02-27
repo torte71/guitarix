@@ -224,10 +224,6 @@ debug_print("os_create_widget_window_and_surface:w=%p:hwnd=%p",w,w->widget);
 
 }
 
-void os_create_cairo_context_and_buffer(Widget_t *w) {
-	// done in WM_CREATE (so it takes place within the CreateWindow() call, not afterwards)
-}
-
 void os_set_title(Widget_t *w, const char *title) {
 	debug_print("STUB:os_set_title:w=%p",w);
 	// STUB
@@ -384,8 +380,6 @@ debug_wm(hwnd, msg, wParam, lParam, ui, widget_type_name(ui));
 				ui->widget = hwnd;
 				// make "ui" available in messageloop events via GetWindowLongPtr()
 				SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)ui);
-				// complete initialization
-				create_cairo_context_and_buffer(ui);
 			}
 			return 0;
 
@@ -412,6 +406,10 @@ RedrawWindow(ui->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_UPDATENO
 		// X11:Expose
 		case WM_PAINT:
 			if (!ui) return DefWindowProc(hwnd, msg, wParam, lParam);
+			if (!(ui->crb)) {
+				debug_print("WM_PAINT:BAILOUT:ui->crb==NULL");
+				return 0;
+			}
 			return onPaint(hwnd, wParam, lParam); // not possible on mswin: (only fetch the last expose event)
 
 		// MSWin only: Allow keyboard input
