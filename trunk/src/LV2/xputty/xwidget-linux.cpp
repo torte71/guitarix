@@ -147,10 +147,6 @@ void os_create_widget_window_and_surface(Widget_t *w, Xputty *app, Widget_t *par
                   DefaultVisual(app->dpy, DefaultScreen(app->dpy)), width, height);
 }
 
-void os_create_cairo_context_and_buffer(Widget_t *w) {
-	create_cairo_context_and_buffer(w);
-}
-
 void os_set_title(Widget_t *w, const char *title) {
     XStoreName(w->app->dpy, w->widget, title);
 }
