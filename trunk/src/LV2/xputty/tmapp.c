@@ -55,7 +55,9 @@ static void midi_button_released(void *w_, void* button_, void* user_data) {
 }
 static void menu_button_released(void *w_, void* button_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
-    menu = create_menu(w, 3*25);
+
+    Widget_t *menuwin = create_window(w->app, (HWND)-1, 0, 0, 200, 100);
+    menu = create_menu(menuwin, 3*25);
     menu->parent_struct = w; // for check_grab()
     Widget_t* menu_item           = menu_add_item(menu, "menu_itemlabel");
     Widget_t* menu_check_item     = menu_add_check_item(menu, "menu_check_itemlabel");
@@ -160,8 +162,9 @@ image_toggle_button->func.button_release_callback = menu_button_released;
 
 // close window button
 button->func.button_release_callback = quit_button_released;
-#endif //xxx
-button->func.button_release_callback = file_button_released;
+//button->func.button_release_callback = file_button_released;
+#endif //msg
+button->func.button_release_callback = menu_button_released;
 
     /** map the Window to display */
     widget_show_all(mainwin);
