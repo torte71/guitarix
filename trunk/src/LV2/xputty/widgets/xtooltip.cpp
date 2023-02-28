@@ -65,6 +65,7 @@ wid->widget_type = WT_TOOLTIP;
         XA_ATOM, 32, PropModeReplace, (unsigned char *) &vale,1 );
     XSetTransientForHint(parent->app->dpy,wid->widget,parent->widget);
 #endif
+    wid->parent_struct = parent;
     wid->flags &= ~USE_TRANSPARENCY;
     wid->func.expose_callback = _draw_tooltip;
     wid->flags |= IS_TOOLTIP;

@@ -101,6 +101,9 @@ debug_print("destroy_widget:main=%p:w=%p:hwnd=%p",main,w,w?w->widget:0);
         if(w->flags & IS_WIDGET) {
             Widget_t *p = (Widget_t *) w->parent;
             childlist_remove_child(p->childlist, w);
+        } else if(w->flags & IS_TOOLTIP) {
+            Widget_t *p = (Widget_t *) w->parent_struct;
+            childlist_remove_child(p->childlist, w);
         }
         delete_adjustment(w->adj_x);
         delete_adjustment(w->adj_y);
