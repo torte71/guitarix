@@ -41,13 +41,19 @@ LRESULT onPaint( HWND hwnd, WPARAM wParam, LPARAM lParam );
 			common functions (required)
 -----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
-void debug_lasterror(char *prefix) {
+void debug_lasterror(const char *prefix) {
 	LPSTR msg = nullptr;
 	DWORD err = GetLastError();
 	size_t size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
 								 NULL, err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&msg, 0, NULL);
-	debug_print("%s:ERR=%8.8x (%ld): %s",prefix?prefix:"",err,err,msg);
-	LocalFree(msg);
+	if (size) {
+		debug_print("%s:ERR=%8.8lx (%ld): %s",prefix?prefix:"",err,err,msg);
+		LocalFree(msg);
+	} else {
+		DWORD fmt_err = GetLastError();
+		debug_print("%s:ERROR:FormatMessage for ERR=%8.8lx (%ld) returned %8.8lx (%ld)",
+				(prefix ? prefix : ""), err, err, fmt_err, fmt_err);
+	}
 }
 
 void os_destroy_window(Widget_t *w) {
