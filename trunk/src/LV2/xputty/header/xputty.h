@@ -121,7 +121,8 @@ typedef unsigned long int XID;
 typedef unsigned long int Atom;
 typedef XID *Display;
 //typedef XID Window;
-#define Window HWND
+//#define Window HWND
+typedef HWND Window;
 typedef XID Pixmap;
 typedef XID KeySym;
 typedef void *XIC;
@@ -192,14 +193,14 @@ typedef struct {
 #define XK_parenleft	'('
 #define XK_minus	'-'
 #define XK_plus		'+'
-#define XK_agrave	'à'
-#define XK_ccedilla	'ç'
-#define XK_eacute	'é'
-#define XK_egrave	'è'
-#define XK_udiaeresis	'ü'
+#define XK_agrave	0xE0 //'à'
+#define XK_ccedilla	0xE7 //'ç'
+#define XK_eacute	0xE9 //'é'
+#define XK_egrave	0xE8 //'è'
+#define XK_udiaeresis	0xFC //'ü'
 #define XK_dead_circumflex	'^'
 // ??
-#define XK_dead_diaeresis	'ü'
+#define XK_dead_diaeresis	0xFC //'ü'
 /*
 #define XK_Tab		VK_TAB
 #define XK_Up		VK_UP
