@@ -77,10 +77,13 @@ char *widget_type_name(Widget_t *w) {
 
 void destroy_widget(Widget_t * w, Xputty *main) {
 #ifdef _WIN32
-debug_print("destroy_widget:main=%p:w=%p:hwnd=%p",main,w,w?w->widget:0);
+//debug_print("destroy_widget:main=%p:w=%p:hwnd=%p",main,w,w?w->widget:0);
+debug_print("destroy_widget:main=%p:w=%p",main,w);
 #endif
     int count = childlist_find_child(main->childlist, w);
-    if (count == 0 && main->run == true) {
+    //if (count == 0 && main->run == true) {
+if (false) { // only standalone
+debug_print("%s:count==0 && main->run==true:quit()\n",__FUNCTION__);
         quit(w);
     } else if(childlist_find_child(main->childlist, w)>=0) {
         if(w->flags & REUSE_IMAGE) {
@@ -89,20 +92,31 @@ debug_print("destroy_widget:main=%p:w=%p:hwnd=%p",main,w,w?w->widget:0);
         if(w->flags & HAS_MEM) {
             w->func.mem_free_callback(w, NULL);
         }
+debug_print("%s:childlist_remove_child:main->childlist=%p:w=%p\n",__FUNCTION__,main->childlist,w);
         childlist_remove_child(main->childlist, w);
         int ch = childlist_has_child(w->childlist);
         if (ch) {
             int i = ch;
             for(;i>0;i--) {
+debug_print("%s:destroy_widget:i=%d:w=%p\n",__FUNCTION__,i,w->childlist->childs[i-1]);
                 destroy_widget(w->childlist->childs[i-1],main);
             }
+debug_print("%s:destroy_widget:last:w=%p\n",__FUNCTION__,w);
             destroy_widget(w,main);
         }
         if(w->flags & IS_WIDGET) {
             Widget_t *p = (Widget_t *) w->parent;
+debug_print("%s:IS_WIDGET:remove_child:p->childlist=%p:w=%p\n",__FUNCTION__,p->childlist,w);
+            childlist_remove_child(p->childlist, w);
+        } else if(w->flags & IS_POPUP) {
+//only _WIN32?
+            Widget_t *p = (Widget_t *) w->parent_struct;
+debug_print("%s:IS_POPUP:remove_child:p->childlist=%p:w=%p\n",__FUNCTION__,p->childlist,w);
             childlist_remove_child(p->childlist, w);
         } else if(w->flags & IS_TOOLTIP) {
+//only _WIN32?
             Widget_t *p = (Widget_t *) w->parent_struct;
+debug_print("%s:IS_TOOLTIP:remove_child:p->childlist=%p:w=%p\n",__FUNCTION__,p->childlist,w);
             childlist_remove_child(p->childlist, w);
         }
         delete_adjustment(w->adj_x);
@@ -216,7 +230,7 @@ w->widget_type = WT_WINDOW;
 
     childlist_add_child(app->childlist,w);
     //XMapWindow(app->dpy, w->widget);
-    debug_print("size of Func_t = %lu\n", sizeof(w->func)/sizeof(void*));
+    debug_print("size of Func_t = %llu\n", sizeof(w->func)/sizeof(void*));
 
     debug_print("assert(w)\n");
     os_create_main_window_and_surface(w, app, win, x, y, width, height);
@@ -306,7 +320,7 @@ w->widget_type = WT_WIDGET;
 
     childlist_add_child(app->childlist,w);
     //XMapWindow(app->dpy, w->widget);
-    debug_print("size of Widget_t = %ld\n", sizeof(struct Widget_t));
+    debug_print("size of Widget_t = %lld\n", sizeof(struct Widget_t));
 
     debug_print("assert(w)\n");
     os_create_widget_window_and_surface(w, app, parent, x, y, width, height);

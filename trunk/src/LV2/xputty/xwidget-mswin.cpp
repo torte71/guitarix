@@ -30,6 +30,9 @@ extern "C" {
 #include "xwidget.h"
 #include "xwidget_private.h"
 
+TCHAR szMainUIClassName[]   = TEXT("xputtyMainUI____0123456789ABCDEF");
+TCHAR szWidgetUIClassName[] = TEXT("xputtyWidgetUI__0123456789ABCDEF");
+
 // forward declarations
 void SetClientSize(HWND hwnd, int clientWidth, int clientHeight);
 BOOL SetMouseTracking(HWND hwnd, BOOL enable);
@@ -41,18 +44,18 @@ LRESULT onPaint( HWND hwnd, WPARAM wParam, LPARAM lParam );
 			common functions (required)
 -----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
-void debug_lasterror(const char *prefix) {
+void debug_lasterror(const char *prefix, const char *prefix2) {
 	LPSTR msg = nullptr;
 	DWORD err = GetLastError();
 	size_t size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
 								 NULL, err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&msg, 0, NULL);
 	if (size) {
-		debug_print("%s:ERR=%8.8lx (%ld): %s",prefix?prefix:"",err,err,msg);
+		debug_print("%s%s:ERR=%8.8lx (%ld): %s",prefix?prefix:"",prefix2?prefix2:"",err,err,msg);
 		LocalFree(msg);
 	} else {
 		DWORD fmt_err = GetLastError();
-		debug_print("%s:ERROR:FormatMessage for ERR=%8.8lx (%ld) returned %8.8lx (%ld)",
-				(prefix ? prefix : ""), err, err, fmt_err, fmt_err);
+		debug_print("%s%s:ERROR:FormatMessage for ERR=%8.8lx (%ld) returned %8.8lx (%ld)",
+				(prefix ? prefix : ""), (prefix2 ? prefix2 : ""), err, err, fmt_err, fmt_err);
 	}
 }
 
@@ -61,14 +64,18 @@ void os_destroy_window(Widget_t *w) {
 
 	// mswin automatically sends WM_DESTROY to all child windows
 	// floating windows need to be handled manually
-	if ((w) && ( (w->flags & IS_WINDOW)
-			  || (w->flags & WT_MENU)
-			  || (w->flags & WT_TOOLTIP)
-			  || (w->flags & WT_FILE_DIALOG)
-			  || (w->flags & WT_MESSAGE_DIALOG)
-			  || (w->flags & WT_MIDI_KEYBOARD) )) {
+	//if ((w) && ( (w->flags & IS_WINDOW)
+	//		  || (w->flags & WT_MENU)
+	//		  || (w->flags & WT_TOOLTIP)
+	//		  || (w->flags & WT_FILE_DIALOG)
+	//		  || (w->flags & WT_MESSAGE_DIALOG)
+	//		  || (w->flags & WT_MIDI_KEYBOARD) )) {
+	if (w && (IsWindow(w->widget))) {
 		debug_print("STUB:os_destroy_window:DestroyWindow:hwnd=%p",(w)?w->widget:NULL);
 		DestroyWindow(w->widget);
+		//SendMessage(w->widget, WM_CLOSE, 0, 0);
+	} else {
+		debug_print("STUB:os_destroy_window:DestroyWindow:NOTFOUND:hwnd=%p",(w)?w->widget:NULL);
 	}
 	//UnregisterClass(TEXT("xputtyMainUIClass"), NULL);
 	//UnregisterClass(TEXT("xputtyWidgetUIClass"), NULL);
@@ -121,11 +128,12 @@ void os_create_main_window_and_surface(Widget_t *w, Xputty *app, Window win,
                           int x, int y, int width, int height) {
 	// prepare window class
 //diff:classname
-	static TCHAR szClassName[] = TEXT("xputtyMainUIClass");
 	WNDCLASS wndclass = {0};
 	HINSTANCE hInstance = NULL;
 
 debug_print("os_create_main_window_and_surface:x=%d:y=%d:w=%d:h=%d:w=%p:app=%p:win=%p\n",x,y,width,height,w,app,win);
+	snprintf(szMainUIClassName+16, 16, "%p", WndProc);
+	snprintf(szWidgetUIClassName+16, 16, "%p", WndProc);
 
 	// create a permanent surface for drawing (see onPaint() event)
 	w->surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
@@ -136,7 +144,7 @@ debug_print("os_create_main_window_and_surface:x=%d:y=%d:w=%d:h=%d:w=%p:app=%p:w
 	wndclass.hCursor	   = LoadCursor(NULL, IDC_ARROW);
 	//wndclass.hbrBackground =(HBRUSH)COLOR_WINDOW;
 	wndclass.hbrBackground =NULL;
-	wndclass.lpszClassName = szClassName;
+	wndclass.lpszClassName = szMainUIClassName;
 	wndclass.cbWndExtra    = sizeof(w); // reserve space for SetWindowLongPtr
 	RegisterClass(&wndclass);
 	// TODO: pass window style (mainwindow,childwidget,popup,...) to create_window()
@@ -176,7 +184,7 @@ debug_print("os_create_main_window_and_surface:x=%d:y=%d:w=%d:h=%d:w=%p:app=%p:w
 		dwExStyle = WS_EX_CONTROLPARENT | WS_EX_TOOLWINDOW;
 	}
 	// create the window
-	w->widget = CreateWindowEx(dwExStyle, szClassName,
+	w->widget = CreateWindowEx(dwExStyle, szMainUIClassName,
 							TEXT("Draw Surface"), // lpWindowName
 							dwStyle, // dwStyle
 							CW_USEDEFAULT, CW_USEDEFAULT, // X, Y
@@ -196,7 +204,6 @@ void os_create_widget_window_and_surface(Widget_t *w, Xputty *app, Widget_t *par
   // STUB
 	// prepare window class
 //diff:classname
-	static TCHAR szClassName[] = TEXT("xputtyWidgetUIClass");
 	WNDCLASS wndclass = {0};
 	HINSTANCE hInstance = NULL;
 printf("os_create_widget_window_and_surface:x=%d:y=%d:w=%d:h=%d:w=%p:app=%p:parent=%p\n",x,y,width,height,w,app,parent);
@@ -210,12 +217,12 @@ printf("os_create_widget_window_and_surface:x=%d:y=%d:w=%d:h=%d:w=%p:app=%p:pare
 	wndclass.hCursor	   = LoadCursor(NULL, IDC_ARROW);
 	//wndclass.hbrBackground =(HBRUSH)COLOR_WINDOW;
 	wndclass.hbrBackground = NULL;
-	wndclass.lpszClassName = szClassName;
+	wndclass.lpszClassName = szWidgetUIClassName;
 	wndclass.cbWndExtra    = sizeof(w); // reserve space for SetWindowLongPtr
 	RegisterClass(&wndclass);
 	// create the window
 	DWORD dwExStyle = WS_EX_CONTROLPARENT;
-	w->widget = CreateWindowEx(dwExStyle, szClassName,
+	w->widget = CreateWindowEx(dwExStyle, szWidgetUIClassName,
 							TEXT("Draw Surface"), // lpWindowName
 							WS_CHILD, // dwStyle
 							x, y, // X, Y
@@ -289,27 +296,31 @@ void os_adjustment_callback(void *w_, void *user_data) {
 }
 
 void os_quit(Widget_t *w) {
-	WPARAM wParam = (WPARAM)get_toplevel_widget(w->app)->widget;
-	DWORD msg = os_register_wm_delete_window(w);
-	int res = SendMessage(w->widget, msg, wParam, 0); // WM_DELETE_WINDOW
-	debug_print("STUB:os_quit:w=%p:hwnd/dest=%p:wPar/toplvl=%16.16llx:msg=%8.8lx:res=%d",w,(w)?w->widget:NULL,wParam,msg,res);
-	//CloseWindow(w->widget);
-	//UnregisterClass(TEXT("xputtyMainUIClass"), NULL);
+	debug_print("STUB:os_quit:w=%p",w);
+#if 0
+	if (w) {
+		WPARAM wParam = (WPARAM)get_toplevel_widget(w->app)->widget;
+		DWORD msg = os_register_wm_delete_window(w);
+		int res = SendMessage(w->widget, msg, wParam, 0); // WM_DELETE_WINDOW
+		//debug_print("STUB:os_quit:w=%p:hwnd/dest=%p:wPar/toplvl=%16.16llx:msg=%8.8lx:res=%d",w,(w)?w->widget:NULL,wParam,msg,res);
+	}
+#endif
 	// STUB
 
 	// UnregisterClass silently fails, if there are still more windows of this class
-	if (UnregisterClass(TEXT("xputtyMainUIClass"), NULL)) {
-		debug_print("UnregisterClass:xputtyMainUIClass:OK");
+	if (UnregisterClass(szMainUIClassName, NULL)) {
+		debug_print("UnregisterMainClass:%s:OK", szMainUIClassName);
 	} else
-		debug_lasterror("UnregisterClass:xputtyMainUIClass");
+		debug_lasterror("UnregisterMainClass:", szMainUIClassName);
 
-	if (UnregisterClass(TEXT("xputtyWidgetUIClass"), NULL)) {
-		debug_print("UnregisterClass:xputtyWidgetUIClass:OK");
+	if (UnregisterClass(szWidgetUIClassName, NULL)) {
+		debug_print("UnregisterWidgetClass:%s:OK",szWidgetUIClassName);
 	} else
-		debug_lasterror("UnregisterClass:xputtyWidgetUIClass");
+		debug_lasterror("UnregisterWidgetClass:%s",szWidgetUIClassName);
 
 }
 void os_quit_widget(Widget_t *w) {
+	// who invokes this?
 	WPARAM wParam = (WPARAM)w->widget;
 	DWORD msg = os_register_widget_destroy(w);
 	int res = SendMessage(w->widget, msg, wParam, 0); // WIDGET_DESTROY
@@ -391,15 +402,18 @@ debug_wm(hwnd, msg, wParam, lParam, ui, widget_type_name(ui));
 
 		// MSWin only: React to close requests
 		case WM_CLOSE:
+			// standalone
 			debug_print("WM:WM_CLOSE:hwnd=%p:ui=%p",hwnd,ui);
-			DestroyWindow(hwnd);
+			main_quit(ui->app);
+			PostQuitMessage(0);
+			//DestroyWindow(hwnd);
 			return 0;
 		case WM_DESTROY:
 			debug_print("WM:WM_DESTROY:hwnd=%p:ui=%p",hwnd,ui);
 			if (!ui) return DefWindowProc(hwnd, msg, wParam, lParam);
 			// terminate app/messageloop if main window is destroyed
-			if (ui->app->childlist->elem && ui->app->childlist->childs[0] == ui)
-				PostQuitMessage(0);
+			//if (ui->app->childlist->elem && ui->app->childlist->childs[0] == ui)
+			//	PostQuitMessage(0);
 			return 0;
 
 		// X11:ConfigureNotify
@@ -609,9 +623,9 @@ if (!(ui->flags & IS_WINDOW))
 			return 0;
 
 		case WM_USER + 01: // WM_DELETE_WINDOW
+			{
 			debug_print("WM:WM_DELETE_WINDOW:hwnd=%p:ui=%p",hwnd,ui);
-			return 1;
-#if 0
+#if 1
 			Xputty * main = ui->app;
 			// xwidget -> xputty (run_embedded())
 			if (ui) {
@@ -622,6 +636,8 @@ if (!(ui->flags & IS_WINDOW))
 				else destroy_widget(w, main);
 				return 0;
 			}
+#endif
+#if 0
 			// xwidget -> xputty (main_run())
 			if (ui) {
 				if (hwnd == ui->widget) {
@@ -635,11 +651,13 @@ if (!(ui->flags & IS_WINDOW))
 				}
 			}
 #endif
+			}
+			return 1;
 		// X11:ClientMessage:WIDGET_DESTROY
 		case WM_USER + 02: // WIDGET_DESTROY
 			debug_print("WM:WIDGET_DESTROY:hwnd=%p:ui=%p",hwnd,ui);
-			return 2;
-#if 0
+#if 1
+			//os_widget_event_loop()
 			if (ui) {
 				int ch = childlist_has_child(ui->childlist);
 				if (ch) {
@@ -649,11 +667,12 @@ if (!(ui->flags & IS_WINDOW))
 					}
 					quit_widget(ui);
 				} else {
-					//destroy_widget(ui,ui->app);
+					destroy_widget(ui,ui->app);
 				}
 				return 0;
 			}
 #endif
+			return 2;
 
 		default:
 			return DefWindowProc(hwnd, msg, wParam, lParam);
