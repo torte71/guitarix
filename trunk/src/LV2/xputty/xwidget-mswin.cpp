@@ -297,14 +297,12 @@ void os_adjustment_callback(void *w_, void *user_data) {
 
 void os_quit(Widget_t *w) {
 	debug_print("STUB:os_quit:w=%p",w);
-#if 0
 	if (w) {
 		WPARAM wParam = (WPARAM)get_toplevel_widget(w->app)->widget;
 		DWORD msg = os_register_wm_delete_window(w);
 		int res = SendMessage(w->widget, msg, wParam, 0); // WM_DELETE_WINDOW
-		//debug_print("STUB:os_quit:w=%p:hwnd/dest=%p:wPar/toplvl=%16.16llx:msg=%8.8lx:res=%d",w,(w)?w->widget:NULL,wParam,msg,res);
+		debug_print("STUB:os_quit:w=%p:hwnd/dest=%p:wPar/toplvl=%16.16llx:msg=%8.8lx:res=%d",w,(w)?w->widget:NULL,wParam,msg,res);
 	}
-#endif
 	// STUB
 
 	// UnregisterClass silently fails, if there are still more windows of this class
@@ -375,6 +373,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	// be aware: "ui" can be NULL during window creation (esp. if there is a debugger attached)
 	//gx_AxisFaceUI *ui = (gx_AxisFaceUI *)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 	Widget_t *ui = (Widget_t *)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+	Xputty *main = ui ? ui-> app : NULL;
 //debug_print("HWND:%p msg=%8.8x w=%p l=%p ui=%p state=%d\n",hwnd,msg,(void*)wParam,(void*)lParam,ui,(ui ? ui->state : 0));
 #ifdef _debugwm
 debug_wm(hwnd, msg, wParam, lParam, ui, widget_type_name(ui));
@@ -404,9 +403,11 @@ debug_wm(hwnd, msg, wParam, lParam, ui, widget_type_name(ui));
 		case WM_CLOSE:
 			// standalone
 			debug_print("WM:WM_CLOSE:hwnd=%p:ui=%p",hwnd,ui);
-			main_quit(ui->app);
-			PostQuitMessage(0);
-			//DestroyWindow(hwnd);
+			if (hwnd == main->childlist->childs[0]->widget) {
+				// is main window: end application
+				PostQuitMessage(0); // end messageloop (continuing to main_quit())
+			} else // is sub window (menu, dialog, ...): close
+				DestroyWindow(hwnd);
 			return 0;
 		case WM_DESTROY:
 			debug_print("WM:WM_DESTROY:hwnd=%p:ui=%p",hwnd,ui);
@@ -625,7 +626,7 @@ if (!(ui->flags & IS_WINDOW))
 		case WM_USER + 01: // WM_DELETE_WINDOW
 			{
 			debug_print("WM:WM_DELETE_WINDOW:hwnd=%p:ui=%p",hwnd,ui);
-#if 1
+#if 0
 			Xputty * main = ui->app;
 			// xwidget -> xputty (run_embedded())
 			if (ui) {
@@ -637,14 +638,15 @@ if (!(ui->flags & IS_WINDOW))
 				return 0;
 			}
 #endif
-#if 0
+#if 1
 			// xwidget -> xputty (main_run())
 			if (ui) {
-				if (hwnd == ui->widget) {
+				if (hwnd == main->childlist->childs[0]->widget) { // main window (this is not invoked for any other window?)
 					main->run = false;
+					destroy_widget(ui, main);
 				} else {
 					int i = childlist_find_widget(main->childlist, (Window)wParam);
-					if(i<1) return;
+					if(i<1) return 0;
 					Widget_t *w = main->childlist->childs[i];
 					if(w->flags & HIDE_ON_DELETE) widget_hide(w);
 					else destroy_widget(main->childlist->childs[i],main);

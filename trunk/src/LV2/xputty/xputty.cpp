@@ -171,8 +171,6 @@ void main_quit(Xputty *main) {
     free(main->color_scheme);
 #ifndef _WIN32
     XCloseDisplay(main->dpy);
-#else
-    os_quit(NULL); // UnregisterClass()
 #endif
     debug_print("quit\n");
 }

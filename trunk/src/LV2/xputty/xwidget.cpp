@@ -81,8 +81,8 @@ void destroy_widget(Widget_t * w, Xputty *main) {
 debug_print("destroy_widget:main=%p:w=%p",main,w);
 #endif
     int count = childlist_find_child(main->childlist, w);
-    //if (count == 0 && main->run == true) {
-if (false) { // only standalone
+    if (count == 0 && main->run == true) {
+	// only standalone
 debug_print("%s:count==0 && main->run==true:quit()\n",__FUNCTION__);
         quit(w);
     } else if(childlist_find_child(main->childlist, w)>=0) {
