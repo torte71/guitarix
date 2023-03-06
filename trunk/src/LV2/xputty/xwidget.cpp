@@ -121,6 +121,7 @@ debug_print("%s:IS_TOOLTIP:remove_child:p->childlist=%p:w=%p\n",__FUNCTION__,p->
         }
         delete_adjustment(w->adj_x);
         delete_adjustment(w->adj_y);
+debug_print("%s:childlist_destroy:list=%p",__FUNCTION__,w->childlist);
         childlist_destroy(w->childlist);
         cairo_surface_destroy(w->image);
         cairo_destroy(w->crb);

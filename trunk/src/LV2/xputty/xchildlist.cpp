@@ -36,6 +36,7 @@ void childlist_init(Childlist_t *childlist) {
 }
 
 void childlist_destroy(Childlist_t *childlist) {
+debug_print("%s:childlist_destroy:list=%p",__FUNCTION__,childlist);
     if(childlist) free(childlist->childs);
 }
 
@@ -73,9 +74,11 @@ widget_type_name(child),
 }
 
 void childlist_remove_child(Childlist_t *childlist, Widget_t *child) {
+debug_print("%s:list=%p:child=%p\n",__FUNCTION__,childlist,child);
     if (!childlist) return;
     int it = childlist_find_child(childlist, child);
     if(it >= 0){
+debug_print("%s:REMOVING:list=%p:child=%p\n",__FUNCTION__,childlist,child);
         childlist->childs[it] = NULL;
         childlist->elem--;
         int i = it;

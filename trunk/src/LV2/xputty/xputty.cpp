@@ -164,8 +164,10 @@ void main_quit(Xputty *main) {
     int i = main->childlist->elem-1;
     for(;i>-1;i--) {
         Widget_t *w = main->childlist->childs[i];
+debug_print("%s:%d:destroy_widget:w=%p",__FUNCTION__,i,w);
         destroy_widget(w, main);
     }
+debug_print("%s:childlist_destroy:list=%p",__FUNCTION__,main->childlist);
     childlist_destroy(main->childlist);
     free(main->childlist);
     free(main->color_scheme);

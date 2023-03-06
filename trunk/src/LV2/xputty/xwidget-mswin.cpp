@@ -206,7 +206,7 @@ void os_create_widget_window_and_surface(Widget_t *w, Xputty *app, Widget_t *par
 //diff:classname
 	WNDCLASS wndclass = {0};
 	HINSTANCE hInstance = NULL;
-printf("os_create_widget_window_and_surface:x=%d:y=%d:w=%d:h=%d:w=%p:app=%p:parent=%p\n",x,y,width,height,w,app,parent);
+debug_print("os_create_widget_window_and_surface:x=%d:y=%d:w=%d:h=%d:w=%p:app=%p:parent=%p\n",x,y,width,height,w,app,parent);
 
 	// create a permanent surface for drawing (see onPaint() event)
 	w->surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
@@ -312,9 +312,9 @@ void os_quit(Widget_t *w) {
 		debug_lasterror("UnregisterMainClass:", szMainUIClassName);
 
 	if (UnregisterClass(szWidgetUIClassName, NULL)) {
-		debug_print("UnregisterWidgetClass:%s:OK",szWidgetUIClassName);
+		debug_print("UnregisterWidgetClass:%s:OK", szWidgetUIClassName);
 	} else
-		debug_lasterror("UnregisterWidgetClass:%s",szWidgetUIClassName);
+		debug_lasterror("UnregisterWidgetClass" ,szWidgetUIClassName);
 
 }
 void os_quit_widget(Widget_t *w) {
@@ -642,14 +642,18 @@ if (!(ui->flags & IS_WINDOW))
 			// xwidget -> xputty (main_run())
 			if (ui) {
 				if (hwnd == main->childlist->childs[0]->widget) { // main window (this is not invoked for any other window?)
+debug_print("%s:WM_DELETE_WINDOW:hwnd==ui->widget==%p:main->run=false + destroy_widget:w=%p:main=%p",__FUNCTION__,hwnd,ui,main);
 					main->run = false;
 					destroy_widget(ui, main);
 				} else {
 					int i = childlist_find_widget(main->childlist, (Window)wParam);
+debug_print("%s:WM_DELETE_WINDOW:childlist_find_widget:list=%p:hwnd=%p:i=%d",__FUNCTION__,main->childlist,(void*)wParam,i);
 					if(i<1) return 0;
 					Widget_t *w = main->childlist->childs[i];
 					if(w->flags & HIDE_ON_DELETE) widget_hide(w);
-					else destroy_widget(main->childlist->childs[i],main);
+					else { destroy_widget(main->childlist->childs[i],main);
+debug_print("%s:WM_DELETE_WINDOW:destroy_widget:%d:w=%p",__FUNCTION__,i,main->childlist->childs[i]);
+					}
 				}
 			}
 #endif
