@@ -120,8 +120,6 @@ extern "C" {
 typedef unsigned long int XID;
 typedef unsigned long int Atom;
 typedef XID *Display;
-//typedef XID Window;
-//#define Window HWND
 typedef HWND Window;
 typedef XID Pixmap;
 typedef XID KeySym;
@@ -129,23 +127,16 @@ typedef void *XIC;
 typedef void *XIM;
 
 typedef struct {
+  Window window;
   int x;
   int y;
+  int button;
   int keycode;
   unsigned int state;	/* key or button mask */
-} XKeyEvent;
-typedef struct {
-  int x;
-  int y;
-  unsigned int state;	/* key or button mask */
-  Window window;
-} XMotionEvent;
-typedef struct {
-  int button;
-  int x;
-  int y;
-  Window window;
-} XButtonEvent;
+} XEvent;
+typedef XEvent XButtonEvent;
+typedef XEvent XKeyEvent;
+typedef XEvent XMotionEvent;
 
 #define Button1 1
 #define Button2 2
