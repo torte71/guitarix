@@ -117,7 +117,9 @@ debug_print("_check_grab:wid=%p:hold=%p:btn=%d:wnd=%p",wid,main->hold_grab,xbutt
         Widget_t *view_port = main->hold_grab->childlist->childs[0];
         if(xbutton->button == Button1) {
             //if (xbutton->window == view_port->widget) return;
-#ifndef _WIN32
+#ifdef _WIN32
+            ReleaseCapture();
+#else
             XUngrabPointer(main->dpy,CurrentTime);
 #endif
             int i = view_port->childlist->elem-1;
