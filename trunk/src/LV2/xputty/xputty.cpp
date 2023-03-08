@@ -27,11 +27,7 @@
 
 
 void main_init(Xputty *main) {
-#ifdef _WIN32
-    main->dpy = 0;
-#else
-    main->dpy = XOpenDisplay(0);
-#endif
+    main->dpy = os_open_display(0);
     assert(main->dpy);
     main->childlist = (Childlist_t*)malloc(sizeof(Childlist_t));
     assert(main->childlist);
@@ -171,8 +167,6 @@ debug_print("%s:childlist_destroy:list=%p",__FUNCTION__,main->childlist);
     childlist_destroy(main->childlist);
     free(main->childlist);
     free(main->color_scheme);
-#ifndef _WIN32
-    XCloseDisplay(main->dpy);
-#endif
+    os_close_display(main->dpy);
     debug_print("quit\n");
 }

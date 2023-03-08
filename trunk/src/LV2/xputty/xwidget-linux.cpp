@@ -30,6 +30,14 @@ extern "C" {
 
 // compat wrappers
 
+Display *os_open_display(char *display_name) {
+	return XOpenDisplay(display_name);
+}
+
+void os_close_display(Display *dpy) {
+    XCloseDisplay(dpy);
+}
+
 void os_destroy_window(Widget_t *w) {
     if (w->xic) XDestroyIC(w->xic);
     if (w->xim) XCloseIM(w->xim);

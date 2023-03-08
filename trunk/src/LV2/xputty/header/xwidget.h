@@ -683,6 +683,9 @@ typedef struct {
 char *widget_type_name(Widget_t *w);
 
 int key_mapping(Display *dpy, XKeyEvent *xkey);
+
+Display *os_open_display(char *display_name);
+void os_close_display(Display *dpy);
 void os_destroy_window(Widget_t *w);
 void os_get_window_metrics(Widget_t *w_, Metrics_t *metrics);
 void os_get_surface_size(cairo_surface_t *surface, int *width, int *height);

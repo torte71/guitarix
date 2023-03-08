@@ -59,6 +59,15 @@ void debug_lasterror(const char *prefix, const char *prefix2) {
 	}
 }
 
+Display *os_open_display(char *display_name) {
+	// nothing to do on MSWin
+	return (Display *)1;
+}
+
+void os_close_display(Display *dpy) {
+	// nothing to do on MSWin
+}
+
 void os_destroy_window(Widget_t *w) {
 	debug_print("STUB:os_destroy_window:w=%p:hwnd=%p:%s",w,(w)?w->widget:NULL,widget_type_name(w));
 
