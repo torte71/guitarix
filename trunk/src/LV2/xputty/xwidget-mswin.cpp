@@ -443,21 +443,17 @@ RedrawWindow(ui->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_UPDATENO
 
 		// X11:ButtonPress
 		case WM_LBUTTONDOWN:
-			if (!ui) return DefWindowProc(hwnd, msg, wParam, lParam);
-			SetCapture(hwnd); // also receive WM_MOUSEMOVE from outside this window
-            if (ui->state == 4) break;
-            if (ui->flags & HAS_TOOLTIP) hide_tooltip(ui);
-			xbutton.button = Button1;
-            _button_press(ui, &xbutton, user_data);
-            debug_print("Widget_t  ButtonPress %i hwnd=%p\n", xbutton.button,hwnd);
-
-
-			return 0;
 		case WM_RBUTTONDOWN:
 			if (!ui) return DefWindowProc(hwnd, msg, wParam, lParam);
+			SetCapture(hwnd); // also receive WM_MOUSEMOVE from outside this window
+			if (msg == WM_LBUTTONUP)
+				xbutton.button = Button1;
+			else
+				xbutton.button = Button3;
             if (ui->state == 4) break;
-			xbutton.button = Button3;
+            if (ui->flags & HAS_TOOLTIP) hide_tooltip(ui);
             _button_press(ui, &xbutton, user_data);
+            debug_print("Widget_t  ButtonPress %i\n", xbutton.button);
 			return 0;
 		case WM_MOUSEWHEEL:
 			if (!ui) return DefWindowProc(hwnd, msg, wParam, lParam);
@@ -489,8 +485,12 @@ RedrawWindow(view_port->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_U
 			return 0;
 		// X11:ButtonRelease
 		case WM_LBUTTONUP:
+		case WM_RBUTTONUP:
 			ReleaseCapture();
-			xbutton.button = Button1;
+			if (msg == WM_LBUTTONUP)
+				xbutton.button = Button1;
+			else
+				xbutton.button = Button3;
             _check_grab(ui, &xbutton, ui->app);
             if (ui->state == 4) break;
             _has_pointer(ui, &xbutton);
@@ -498,12 +498,7 @@ RedrawWindow(view_port->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_U
             else ui->state = 0;
             _check_enum(ui, &xbutton);
             ui->func.button_release_callback((void*)ui, &xbutton, user_data);
-            debug_print("Widget_t  ButtonRelease %i hwnd=%p\n", xbutton.button,hwnd);
-			return 0;
-		case WM_RBUTTONUP:
-            if (ui->state == 4) break;
-			xbutton.button = Button3;
-            ui->func.button_release_callback((void*)ui, &xbutton, user_data);
+            debug_print("Widget_t  ButtonRelease %i\n", xbutton.button);
 			return 0;
 
 		// X11:KeyPress
