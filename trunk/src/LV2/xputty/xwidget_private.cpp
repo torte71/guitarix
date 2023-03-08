@@ -115,7 +115,7 @@ void _check_grab(Widget_t * wid, XButtonEvent *xbutton, Xputty *main) {
         if(xbutton->button == Button1) {
             //if (xbutton->window == view_port->widget) return;
 #ifdef _WIN32
-            ReleaseCapture();
+            //ReleaseCapture(); // SetCapture() is currently disabled in pop_menu_show()
 #else
             XUngrabPointer(main->dpy,CurrentTime);
 #endif
