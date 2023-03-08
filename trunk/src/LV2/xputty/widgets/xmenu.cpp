@@ -57,20 +57,9 @@ wid->widget_type = WT_MENU_VIEWPORT;
 Widget_t* create_menu(Widget_t *parent, int height) {
 
     int x1, y1;
-#ifdef _WIN32
-    POINT Point = {0, 0};
-    ClientToScreen(parent->widget, &Point);
-    x1 = Point.x;
-    y1 = Point.y;
-
-    Widget_t *wid = create_window(parent->app, HWND_DESKTOP, x1, y1, 10, height);
+    os_translate_coords(parent, parent->widget, os_get_root_window(parent), 0, 0, &x1, &y1);
+    Widget_t *wid = create_window(parent->app, os_get_root_window(parent), x1, y1, 10, height);
 wid->widget_type = WT_MENU;
-#else
-    Window child;
-    XTranslateCoordinates( parent->app->dpy, parent->widget, DefaultRootWindow(parent->app->dpy), 0, 0, &x1, &y1, &child );
-    Widget_t *wid = create_window(parent->app, DefaultRootWindow(parent->app->dpy), x1, y1, 10, height);
-wid->widget_type = WT_MENU;
-#endif
     create_viewport(wid, 10, 5*height);
 
 #ifndef _WIN32

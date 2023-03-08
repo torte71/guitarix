@@ -45,6 +45,17 @@ void os_destroy_window(Widget_t *w) {
     XDestroyWindow(w->app->dpy, w->widget);
 }
 
+Window os_get_root_window(Widget_t *w) {
+	return DefaultRootWindow(w->app->dpy)
+}
+
+void os_translate_coords(Widget_t *w, Window from_window, Window to_window,
+                          int from_x, int from_y, int *to_x, int *to_y) {
+    Window child;
+    XTranslateCoordinates(w->app->dpy, from_window, to_window,
+                          from_x, from_y, to_x, to_y, &child);
+}
+
 void os_get_window_metrics(Widget_t *w_, Metrics_t *metrics) {
     Widget_t *wid = (Widget_t*)w_;
     XWindowAttributes attrs;
@@ -175,8 +186,7 @@ void os_show_tooltip(Widget_t *wid, Widget_t *w) {
     Window child, root;
     XQueryPointer(wid->app->dpy, wid->widget, &root, &child, &rx, &ry, &x, &y, &mask);
     int x1, y1;
-    XTranslateCoordinates( wid->app->dpy, wid->widget, DefaultRootWindow(wid->app->dpy),
-							       x, y, &x1, &y1, &child );
+    os_translate_coords(wid, wid->widget, os_get_root_window(wid), x, y, &x1, &y1);
     XMoveWindow(w->app->dpy,w->widget,x1+10, y1-10);
 }
 
