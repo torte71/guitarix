@@ -148,7 +148,6 @@ void _listbox_entry_released(void *w_, void* button_, void* user_data) {
             int old_value = (int) listbox->adj->value;
             for(;i>-1;i--) {
                 Widget_t *wid = view_port->childlist->childs[i];
-#ifndef _WIN32
                 if (xbutton->window == wid->widget) {
                     const char *l = view_port->childlist->childs[i]->label;
                     float value = (float)i;
@@ -156,7 +155,6 @@ void _listbox_entry_released(void *w_, void* button_, void* user_data) {
                     wid->state= 3;
                     listbox->func.button_release_callback(listbox, &i, &l);
                 }
-#endif
                 wid->state= 0;
             }
             expose_widget(view_port->childlist->childs[old_value]);
