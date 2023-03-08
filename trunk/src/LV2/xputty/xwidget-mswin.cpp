@@ -446,7 +446,7 @@ RedrawWindow(ui->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_UPDATENO
 		case WM_RBUTTONDOWN:
 			if (!ui) return DefWindowProc(hwnd, msg, wParam, lParam);
 			SetCapture(hwnd); // also receive WM_MOUSEMOVE from outside this window
-			if (msg == WM_LBUTTONUP)
+			if (msg == WM_LBUTTONDOWN)
 				xbutton.button = Button1;
 			else
 				xbutton.button = Button3;
