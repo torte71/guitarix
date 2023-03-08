@@ -110,9 +110,6 @@ void _button_press(Widget_t * wid, XButtonEvent *xbutton, void* user_data) {
 }
 
 void _check_grab(Widget_t * wid, XButtonEvent *xbutton, Xputty *main) {
-#ifdef _WIN32
-debug_print("_check_grab:wid=%p:hold=%p:btn=%d:wnd=%p",wid,main->hold_grab,xbutton->button,xbutton->window);
-#endif
     if(main->hold_grab != NULL) {
         Widget_t *view_port = main->hold_grab->childlist->childs[0];
         if(xbutton->button == Button1) {
@@ -127,9 +124,6 @@ debug_print("_check_grab:wid=%p:hold=%p:btn=%d:wnd=%p",wid,main->hold_grab,xbutt
                 Widget_t *w = view_port->childlist->childs[i];
                 if (xbutton->window == w->widget) {
                     const char *l = view_port->childlist->childs[i]->label;
-#ifdef _WIN32
-debug_print("_check_grab:found:btn_release:towid=%p:idx=%d:label='%s'",main->hold_grab,i,l);
-#endif
                     main->hold_grab->func.button_release_callback
                         (main->hold_grab, &i, &l);
                     break;

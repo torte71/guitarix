@@ -158,7 +158,6 @@ void _configure_menu(Widget_t *parent, Widget_t *menu, int elem, bool above) {
     ClientToScreen(parent->widget, &Point);
     x1 = Point.x;
     y1 = Point.y;
-debug_print("_configure_menu:oldX:%d:oldY:%d:newX=%d:newY=%d",0,posy,x1,y1);
 #else
     Window child;
     XTranslateCoordinates( parent->app->dpy, parent->widget, DefaultRootWindow(parent->app->dpy), 0, posy, &x1, &y1, &child );

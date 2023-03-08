@@ -45,9 +45,6 @@ void pop_menu_show(Widget_t *parent, Widget_t *menu, int elem, bool above) {
 Widget_t* create_viewport(Widget_t *parent, int width, int height) {
     Widget_t *wid = create_widget(parent->app, parent, 0, 0, width, height);
 wid->widget_type = WT_MENU_VIEWPORT;
-#ifdef _WIN32
-  debug_print("cbx:create_viewport:parent=%p:wid=%p:win=%p",parent,wid,wid->widget);
-#endif
     wid->scale.gravity = NONE;
     wid->flags &= ~USE_TRANSPARENCY;
     wid->adj_y = add_adjustment(wid,0.0, 0.0, 0.0, -1.0,1.0, CL_VIEWPORT);
@@ -68,7 +65,6 @@ Widget_t* create_menu(Widget_t *parent, int height) {
 
     Widget_t *wid = create_window(parent->app, HWND_DESKTOP, x1, y1, 10, height);
 wid->widget_type = WT_MENU;
-debug_print("cbx:create_menu:parent=%p:wid=%p:win=%p",parent,wid,wid->widget);
 #else
     Window child;
     XTranslateCoordinates( parent->app->dpy, parent->widget, DefaultRootWindow(parent->app->dpy), 0, 0, &x1, &y1, &child );
@@ -113,9 +109,6 @@ Widget_t* menu_add_item(Widget_t *menu,const char * label) {
     int si = childlist_has_child(view_port->childlist);
     Widget_t *wid = create_widget(menu->app, view_port, 0, height*si, width, height);
 wid->widget_type = WT_MENU_ITEM;
-#ifdef _WIN32
-  debug_print("cbx:menu_add_item:menu=%p:view_port=%p:childlist=%p:si=%d:label='%s'",menu,view_port,view_port->childlist,si,label);
-#endif
     float max_value = view_port->adj->max_value+1.0;
     set_adjustment(view_port->adj,0.0, 0.0, 0.0, max_value,1.0, CL_VIEWPORT);
     wid->scale.gravity = MENUITEM;
