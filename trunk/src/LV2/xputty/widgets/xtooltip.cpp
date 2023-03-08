@@ -48,7 +48,7 @@ Widget_t* create_tooltip(Widget_t *parent, int width, int height) {
 
     int x1, y1;
     os_translate_coords(parent, parent->widget, os_get_root_window(parent), 0, 0, &x1, &y1);
-    Widget_t *wid = create_window(parent->app, HWND_DESKTOP, x1+10, y1+10, width, height);
+    Widget_t *wid = create_window(parent->app, os_get_root_window(parent), x1+10, y1+10, width, height);
 wid->widget_type = WT_TOOLTIP;
 #ifndef _WIN32
     Atom window_type = XInternAtom(wid->app->dpy, "_NET_WM_WINDOW_TYPE", False);
