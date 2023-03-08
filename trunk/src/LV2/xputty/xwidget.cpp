@@ -24,55 +24,57 @@
 
 void create_cairo_context_and_buffer(Widget_t *w);
 
-#define XPUTTY_WIDGET_NAME_MAX 256
-char *widget_type_name(Widget_t *w) {
-    static char name[XPUTTY_WIDGET_NAME_MAX+1] = {0};
-    if (!w)
-        strncpy(name, "UNKNOWN", XPUTTY_WIDGET_NAME_MAX);
-    else
-        switch (w->widget_type) {
-            case WT_NONE:                       strncpy(name, "WT_NONE",                       XPUTTY_WIDGET_NAME_MAX); break;
-            case WT_WINDOW:                     strncpy(name, "WT_WINDOW",                     XPUTTY_WIDGET_NAME_MAX); break;
-            case WT_WIDGET:                     strncpy(name, "WT_WIDGET",                     XPUTTY_WIDGET_NAME_MAX); break;
-            case WT_BUTTON:                     strncpy(name, "WT_BUTTON",                     XPUTTY_WIDGET_NAME_MAX); break;
-            case WT_ON_OFF_BUTTON:              strncpy(name, "WT_ON_OFF_BUTTON",              XPUTTY_WIDGET_NAME_MAX); break;
-            case WT_TOGGLE_BUTTON:              strncpy(name, "WT_TOGGLE_BUTTON",              XPUTTY_WIDGET_NAME_MAX); break;
-            case WT_IMAGE_TOGGLE_BUTTON:        strncpy(name, "WT_IMAGE_TOGGLE_BUTTON",        XPUTTY_WIDGET_NAME_MAX); break;
-            case WT_SWITCH_IMAGE_TOGGLE_BUTTON: strncpy(name, "WT_SWITCH_IMAGE_TOGGLE_BUTTON", XPUTTY_WIDGET_NAME_MAX); break;
-            case WT_CHECK_BUTTON:               strncpy(name, "WT_CHECK_BUTTON",               XPUTTY_WIDGET_NAME_MAX); break;
-            case WT_CHECK_BOX:                  strncpy(name, "WT_CHECK_BOX",                  XPUTTY_WIDGET_NAME_MAX); break;
-            case WT_COMBOBOX:                   strncpy(name, "WT_COMBOBOX",                   XPUTTY_WIDGET_NAME_MAX); break;
-            case WT_FILE_DIALOG:                strncpy(name, "WT_FILE_DIALOG",                XPUTTY_WIDGET_NAME_MAX); break;
-            case WT_KNOB:                       strncpy(name, "WT_KNOB",                       XPUTTY_WIDGET_NAME_MAX); break;
-            case WT_IMAGE_KNOB:                 strncpy(name, "WT_IMAGE_KNOB",                 XPUTTY_WIDGET_NAME_MAX); break;
-            case WT_LABEL:                      strncpy(name, "WT_LABEL",                      XPUTTY_WIDGET_NAME_MAX); break;
-            case WT_LISTBOX_VIEWPORT:           strncpy(name, "WT_LISTBOX_VIEWPORT",           XPUTTY_WIDGET_NAME_MAX); break;
-            case WT_LISTBOX:                    strncpy(name, "WT_LISTBOX",                    XPUTTY_WIDGET_NAME_MAX); break;
-            case WT_LISTBOX_ENTRY:              strncpy(name, "WT_LISTBOX_ENTRY",              XPUTTY_WIDGET_NAME_MAX); break;
-            case WT_LISTVIEW_VIEWPORT:          strncpy(name, "WT_LISTVIEW_VIEWPORT",          XPUTTY_WIDGET_NAME_MAX); break;
-            case WT_LISTVIEW:                   strncpy(name, "WT_LISTVIEW",                   XPUTTY_WIDGET_NAME_MAX); break;
-            case WT_MENU:                       strncpy(name, "WT_MENU",                       XPUTTY_WIDGET_NAME_MAX); break;
-            case WT_MENU_VIEWPORT:              strncpy(name, "WT_MENU_VIEWPORT",              XPUTTY_WIDGET_NAME_MAX); break;
-            case WT_MENU_ITEM:                  strncpy(name, "WT_MENU_ITEM",                  XPUTTY_WIDGET_NAME_MAX); break;
-            case WT_MENU_CHECK_ITEM:            strncpy(name, "WT_MENU_CHECK_ITEM",            XPUTTY_WIDGET_NAME_MAX); break;
-            case WT_MENU_RADIO_ITEM:            strncpy(name, "WT_MENU_RADIO_ITEM",            XPUTTY_WIDGET_NAME_MAX); break;
-            case WT_MESSAGE_DIALOG:             strncpy(name, "WT_MESSAGE_DIALOG",             XPUTTY_WIDGET_NAME_MAX); break;
-            case WT_VMETER:                     strncpy(name, "WT_VMETER",                     XPUTTY_WIDGET_NAME_MAX); break;
-            case WT_VMETER_SCALE:               strncpy(name, "WT_VMETER_SCALE",               XPUTTY_WIDGET_NAME_MAX); break;
-            case WT_HMETER:                     strncpy(name, "WT_HMETER",                     XPUTTY_WIDGET_NAME_MAX); break;
-            case WT_HMETER_SCALE:               strncpy(name, "WT_HMETER_SCALE",               XPUTTY_WIDGET_NAME_MAX); break;
-            case WT_MIDI_KEYBOARD:              strncpy(name, "WT_MIDI_KEYBOARD",              XPUTTY_WIDGET_NAME_MAX); break;
-            case WT_PLAYHEAD:                   strncpy(name, "WT_PLAYHEAD",                   XPUTTY_WIDGET_NAME_MAX); break;
-            case WT_VSLIDER:                    strncpy(name, "WT_VSLIDER",                    XPUTTY_WIDGET_NAME_MAX); break;
-            case WT_HSLIDER:                    strncpy(name, "WT_HSLIDER",                    XPUTTY_WIDGET_NAME_MAX); break;
-            case WT_TOOLTIP:                    strncpy(name, "WT_TOOLTIP",                    XPUTTY_WIDGET_NAME_MAX); break;
-            case WT_TUNER:                      strncpy(name, "WT_TUNER",                      XPUTTY_WIDGET_NAME_MAX); break;
-            case WT_VALUEDISPLAY:               strncpy(name, "WT_VALUEDISPLAY",               XPUTTY_WIDGET_NAME_MAX); break;
-            case WT_TEXT_ENTRY:                 strncpy(name, "WT_TEXT_ENTRY",                 XPUTTY_WIDGET_NAME_MAX); break;
-            default:
-                strncpy(name, "UNKNOWN", XPUTTY_WIDGET_NAME_MAX);
-        }
-    return name;
+#define XPUTTY_WIDGET_NAME_COUNT 38
+#define XPUTTY_WIDGET_NAME_MAXLEN 256
+const char widget_type_names[XPUTTY_WIDGET_NAME_COUNT + 1][XPUTTY_WIDGET_NAME_MAXLEN] = {
+    "WT_NONE",
+    "WT_WINDOW",
+    "WT_WIDGET",
+    "WT_BUTTON",
+    "WT_ON_OFF_BUTTON",
+    "WT_TOGGLE_BUTTON",
+    "WT_IMAGE_TOGGLE_BUTTON",
+    "WT_SWITCH_IMAGE_TOGGLE_BUTTON",
+    "WT_CHECK_BUTTON",
+    "WT_CHECK_BOX",
+    "WT_COMBOBOX",
+    "WT_FILE_DIALOG",
+    "WT_KNOB",
+    "WT_IMAGE_KNOB",
+    "WT_LABEL",
+    "WT_LISTBOX_VIEWPORT",
+    "WT_LISTBOX",
+    "WT_LISTBOX_ENTRY",
+    "WT_LISTVIEW_VIEWPORT",
+    "WT_LISTVIEW",
+    "WT_MENU",
+    "WT_MENU_VIEWPORT",
+    "WT_MENU_ITEM",
+    "WT_MENU_CHECK_ITEM",
+    "WT_MENU_RADIO_ITEM",
+    "WT_MESSAGE_DIALOG",
+    "WT_VMETER",
+    "WT_VMETER_SCALE",
+    "WT_HMETER",
+    "WT_HMETER_SCALE",
+    "WT_MIDI_KEYBOARD",
+    "WT_PLAYHEAD",
+    "WT_VSLIDER",
+    "WT_HSLIDER",
+    "WT_TOOLTIP",
+    "WT_TUNER",
+    "WT_VALUEDISPLAY",
+    "WT_TEXT_ENTRY",
+    "UNKNOWN"
+};
+
+const char *widget_type_name(Widget_t *w) {
+  if (!w)
+    return widget_type_names[0]; // "WT_NONE"
+  else if (w->widget_type >= XPUTTY_WIDGET_NAME_COUNT)
+    return widget_type_names[XPUTTY_WIDGET_NAME_COUNT]; // "UNKNOWN"
+  else
+    return widget_type_names[w->widget_type];
 }
 
 void destroy_widget(Widget_t * w, Xputty *main) {

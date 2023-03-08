@@ -680,7 +680,7 @@ typedef struct {
 } Metrics_t;
 
 
-char *widget_type_name(Widget_t *w);
+const char *widget_type_name(Widget_t *w);
 
 int key_mapping(Display *dpy, XKeyEvent *xkey);
 
