@@ -133,8 +133,10 @@ y += height + 4; height =     64; width = height ; Widget_t* tuner              
 y += height + 4; height =     64; width = height ; Widget_t* valuedisplay        = add_valuedisplay(mainwin, "valuedisplaylabel", x, y, width, height);
 #if 1
 // crash after close? seems gone
-y += height + 4; height =  1* 64; width = height ; Widget_t* listbox             = add_listbox(mainwin, "listboxlabel", x, y, width, height);
-y += height + 4; height =     64; width = height ; Widget_t* listbox_entry       = listbox_add_entry(listbox, "listbox_entrylabel");
+y += height + 4; height =  2* 64; width = height ; Widget_t* listbox             = add_listbox(mainwin, "listboxlabel", x, y, width, height);
+y += height + 4; height =  0* 64; width = height ; Widget_t* listbox_entry       = listbox_add_entry(listbox, "listbox_entrylabel");
+y += height + 4; height =  0* 64; width = height ; Widget_t* listbox_entry2      = listbox_add_entry(listbox, "listbox_entry2label");
+y += height + 4; height =  0* 64; width = height ; Widget_t* listbox_entry3      = listbox_add_entry(listbox, "listbox_entry3label");
 y += height + 4; height =  1* 64; width = height ; Widget_t* listview            = add_listview(mainwin, "listviewlabel", x, y, width, height);
 #endif
 
