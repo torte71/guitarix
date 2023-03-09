@@ -30,6 +30,7 @@ void main_init(Xputty *main) {
     main->dpy = os_open_display(0);
     assert(main->dpy);
     main->childlist = (Childlist_t*)malloc(sizeof(Childlist_t));
+debug_print("%s:main=%p:main->childlist=%p",__FUNCTION__,main,main->childlist);
     assert(main->childlist);
     childlist_init(main->childlist);
     main->color_scheme = (XColor_t*)malloc(sizeof(XColor_t));
