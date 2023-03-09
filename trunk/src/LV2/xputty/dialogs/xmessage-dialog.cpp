@@ -97,6 +97,7 @@ static void entry_add_text(void  *w_, void *label_) {
     if (!label) {
         label = (char*)"";
     }
+debug_print("%s:label='%s'\n",__FUNCTION__,label);
     draw_entry(w,NULL);
     cairo_text_extents_t extents;
     use_text_color_scheme(w, NORMAL_);
@@ -216,11 +217,13 @@ static void create_checkboxes(Widget_t *w) {
 }
 
 static void entry_get_text(void *w_, void *key_, void *user_data) {
+debug_print("%s\n",__FUNCTION__);
     Widget_t *w = (Widget_t*)w_;
     if (!w) return;
     XKeyEvent *key = (XKeyEvent*)key_;
     if (!key) return;
     int nk = key_mapping(w->app->dpy, key);
+debug_print("%s:keycode=%x ascii=%x nk=%d\n",__FUNCTION__,key->keycode,key->ascii,nk);
     if (nk) {
         switch (nk) {
             case 10: 
@@ -231,6 +234,7 @@ static void entry_get_text(void *w_, void *key_, void *user_data) {
                 if (strlen( mb->text_entry->input_label))
                     mb->text_entry->input_label[strlen( mb->text_entry->input_label)-1] = 0;
                 mb->text_entry->label = mb->text_entry->input_label;
+debug_print("%s:dialog_callback:%p=%s\n",__FUNCTION__,&mb->text_entry->label,mb->text_entry->label);
                 pa->func.dialog_callback(pa,&mb->text_entry->label);
 
                 destroy_widget(p, p->app);
@@ -242,7 +246,55 @@ static void entry_get_text(void *w_, void *key_, void *user_data) {
             break;
         }
     } else {
-#ifndef _WIN32
+#ifdef _WIN32
+        char buf[3];
+	// non-existing compounds (e.g. "^" + "d") come as two bytes in a single word
+	// also happening for non-compounds (e.g. only "^")
+	// only evaluate the first byte in that case
+	if (key->ascii > 0xFF)
+	    buf[0] = (key->ascii >> 8);
+	else
+	    buf[0] = (char)key->ascii;
+	buf[1] = 0;
+debug_print("%s:buf='%s'\n",__FUNCTION__,buf);
+
+	// utf8 conversion
+	char *utf8 = NULL;
+	DWORD from_cp = GetACP(); // active codepage (e.g. 1252)
+	int flags = MB_PRECOMPOSED; // | MB_ERR_INVALID_CHARS;
+	// prepare conversion to WideChar (given codepage) - get required space
+	size_t size = MultiByteToWideChar(from_cp, flags, buf, 1, NULL, 0);
+	if (!size) {
+	  debug_print("ERR1\n");
+	} else {
+	  // convert Ansi to WideChar (pwc)
+	  wchar_t *pwc= (wchar_t*)malloc(size*2);
+	  size_t size_wc = MultiByteToWideChar(from_cp, flags, buf, 1, pwc, size);
+	  if (!size_wc) {
+	    debug_print("ERR2\n");
+	    } else {
+	    // prepare conversion to UTF8 - get required space
+	    flags = 0;
+	    size = WideCharToMultiByte(CP_UTF8, flags, pwc, size_wc, NULL, 0, NULL, NULL);
+	    if (!size) {
+	      debug_print("ERR3\n");
+	    } else {
+	      // convert WideChar (pwc) to Ansi using UTF8
+	      utf8 = (char*)malloc(size+1);
+	      memset(utf8, 0 , size+1);
+	      size = WideCharToMultiByte(CP_UTF8, flags, pwc, size_wc, utf8, size, NULL, NULL);
+	      if (!size) {
+		debug_print("ERR4\n");
+	      }
+	    }
+	  }
+	}
+debug_print("%s:buf='%s' utf8='%s'\n",__FUNCTION__,buf,utf8);
+
+	entry_add_text(w, utf8); //buf);
+os_expose_widget(w);
+
+#else
         Status status;
         KeySym keysym;
         char buf[32];

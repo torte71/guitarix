@@ -88,6 +88,7 @@ void keysym_azerty_to_midi_key(long inkey, float *midi_key) {
 }
 
 void keysym_qwertz_to_midi_key(long inkey, float *midi_key) {
+debug_print("%s:inkey=%8.8lx\n",__FUNCTION__,inkey);
     switch(inkey) {
         case(XK_y) : (*midi_key) = 12.0; /* y = C0 */
         break;
@@ -152,6 +153,7 @@ void keysym_qwertz_to_midi_key(long inkey, float *midi_key) {
         case(XK_plus) : (*midi_key) = 42.0; /* + */
         break;
     }
+debug_print("%s:inkey=%8.8lx:midi_key=%f\n",__FUNCTION__,inkey,*midi_key);
 }
 
 void keysym_qwerty_to_midi_key(unsigned int inkey, float *midi_key) {
@@ -548,6 +550,7 @@ static void keyboard_motion(void *w_, void* xmotion_, void* user_data) {
 }
 
 static void get_outkey(MidiKeyboard *keys, KeySym sym, float *outkey) {
+debug_print("%s:keys->layout=%d\n",__FUNCTION__,keys->layout);
     switch(keys->layout) {
         case(0):keysym_qwertz_to_midi_key(sym, outkey);
         break;
@@ -569,19 +572,23 @@ static void key_press(void *w_, void *key_, void *user_data) {
     if (!key) return;
     float outkey = 0.0;
 #ifdef _WIN32
-    KeySym sym = 0;
+    KeySym sym = key->keycode;
+debug_print("%s:key=%p:sym=key->keycode=%8.8lx\n",__FUNCTION__,key,sym);
 #else
     KeySym sym = XLookupKeysym (key, 0);
 #endif
     get_outkey(keys, sym, &outkey);
+debug_print("%s:get_outkey:outkey=%f (int=%d)\n",__FUNCTION__,outkey,(int)outkey);
 
     if ((int)outkey && !is_key_in_matrix(keys->key_matrix, (int)outkey+keys->octave)) {
+debug_print("%s:!is_key_in_matrix()\n",__FUNCTION__);
         set_key_in_matrix(keys->key_matrix,(int)outkey+keys->octave,true);
         keys->send_key = (int)outkey+keys->octave;
         keys->mk_send_note(p, &keys->send_key,true);
         expose_widget(w);
     } 
     if (sym == XK_space) {
+debug_print("%s:sym==XK_SPACE\n",__FUNCTION__);
         clear_key_matrix(&keys->key_matrix[0]);
         keys->mk_send_all_sound_off(p, NULL);
         expose_widget(w);
@@ -597,12 +604,15 @@ static void key_release(void *w_, void *key_, void *user_data) {
     if (!key) return;
     float outkey = 0.0;
 #ifdef _WIN32
-    KeySym sym = 0;
+    KeySym sym = key->keycode;
+debug_print("%s:key=%p:sym=key->keycode=%8.8lx\n",__FUNCTION__,key,sym);
 #else
     KeySym sym = XLookupKeysym (key, 0);
 #endif
     get_outkey(keys, sym, &outkey);
+debug_print("%s:get_outkey:outkey=%f (int=%d)\n",__FUNCTION__,outkey,(int)outkey);
     if ((int)outkey && is_key_in_matrix(keys->key_matrix, (int)outkey+keys->octave)) {
+debug_print("%s:!is_key_in_matrix()\n",__FUNCTION__);
         set_key_in_matrix(keys->key_matrix,(int)outkey+keys->octave,false);
         keys->send_key = (int)outkey+keys->octave;
         keys->mk_send_note(p,&keys->send_key,false);

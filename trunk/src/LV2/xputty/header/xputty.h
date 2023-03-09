@@ -133,6 +133,7 @@ typedef struct {
   int button;
   int keycode;
   unsigned int state;	/* key or button mask */
+  WORD ascii;
 } XEvent;
 typedef XEvent XButtonEvent;
 typedef XEvent XKeyEvent;
@@ -148,7 +149,6 @@ typedef XEvent XMotionEvent;
 #define Button1Mask (1<<8)
 
 // xmidi_keyboard.cpp
-#define XK_space	VK_SPACE
 #define XK_0	'0'
 #define XK_2	'2'
 #define XK_3	'3'
@@ -156,8 +156,6 @@ typedef XEvent XMotionEvent;
 #define XK_6	'6'
 #define XK_7	'7'
 #define XK_9	'9'
-#define XK_m	'm'
-#define XK_q	'q'
 #define XK_a	'a'
 #define XK_b	'b'
 #define XK_c	'c'
@@ -167,9 +165,11 @@ typedef XEvent XMotionEvent;
 #define XK_h	'h'
 #define XK_i	'i'
 #define XK_j	'j'
+#define XK_m	'm'
 #define XK_n	'n'
 #define XK_o	'o'
 #define XK_p	'p'
+#define XK_q	'q'
 #define XK_r	'r'
 #define XK_s	's'
 #define XK_t	't'
@@ -179,41 +179,42 @@ typedef XEvent XMotionEvent;
 #define XK_x	'x'
 #define XK_y	'y'
 #define XK_z	'z'
-#define XK_comma	','
-#define XK_quotedbl	'"'
-#define XK_parenleft	'('
-#define XK_minus	'-'
-#define XK_plus		'+'
-#define XK_agrave	0xE0 //'à'
-#define XK_ccedilla	0xE7 //'ç'
-#define XK_eacute	0xE9 //'é'
-#define XK_egrave	0xE8 //'è'
-#define XK_udiaeresis	0xFC //'ü'
-#define XK_dead_circumflex	'^'
-// ??
-#define XK_dead_diaeresis	0xFC //'ü'
-/*
-#define XK_Tab		VK_TAB
-#define XK_Up		VK_UP
-#define XK_Right	VK_RIGHT
-#define XK_Down		VK_DOWN
-#define XK_Left		VK_LEFT
-#define XK_Home		VK_HOME
-#define XK_Insert	VK_INSERT
-#define XK_End		VK_END
-#define XK_BackSpace	VK_BACK
-#define XK_KP_Subtract	VK_SUBTRACT
-#define XK_KP_Add	VK_ADD
-#define XK_KP_Up	VK_UP
-#define XK_KP_Right	VK_RIGHT
-#define XK_KP_Down	VK_DOWN
-#define XK_KP_Left	VK_LEFT
-#define XK_KP_Home	VK_HOME
-#define XK_KP_Insert	VK_INSERT
-#define XK_KP_End	VK_END
-#define XK_KP_Enter	VK_RETURN
-#define XK_Return	VK_RETURN
-*/
+#define XK_space	VK_SPACE // 0x20
+#define XK_quotedbl	'"' //0x22
+#define XK_parenleft	'(' //0x28
+#define XK_plus		'+' //0x2b
+#define XK_comma	',' //0x2c
+#define XK_minus	'-' //0x2d
+#define XK_agrave	0xe0 //'à'
+#define XK_ccedilla	0xe7 //'ç'
+#define XK_eacute	0xe9 //'é'
+#define XK_egrave	0xe8 //'è'
+#define XK_udiaeresis	0xfc //'ü'
+#define XK_dead_circumflex	0xfe52 //0x5e '^'
+#define XK_dead_diaeresis	0xfe57 //0xfc 'ü' - unsure: pass uppercase 'Ü' 0xdc
+#define XK_BackSpace	0xff08
+#define XK_Tab		0xff09
+#define XK_Return	0xff0d
+#define XK_Home		0xff50
+#define XK_Left		0xff51
+#define XK_Up		0xff52
+#define XK_Right	0xff53
+#define XK_Down		0xff54
+#define XK_End		0xff57
+#define XK_Insert	0xff63
+#define XK_KP_Enter	0xff8d
+#define XK_KP_Home	0xff95
+#define XK_KP_Left	0xff96
+#define XK_KP_Up	0xff97
+#define XK_KP_Right	0xff98
+#define XK_KP_Down	0xff99
+#define XK_KP_End	0xff9c
+#define XK_KP_Insert	0xff9e
+#define XK_KP_Add	0xffab
+#define XK_KP_Subtract	0xffad
+
+#define XKeysymToKeycode(A,B) B
+
 #endif
 
 

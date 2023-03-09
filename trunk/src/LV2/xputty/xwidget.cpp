@@ -77,6 +77,51 @@ const char *widget_type_name(Widget_t *w) {
     return widget_type_names[w->widget_type];
 }
 
+int key_mapping(Display *dpy, XKeyEvent *xkey) {
+    if (xkey->keycode == XKeysymToKeycode(dpy,XK_Tab))
+        return (xkey->state == ShiftMask) ? 1 : 2;
+    else if (xkey->keycode == XKeysymToKeycode(dpy,XK_Up))
+        return 3;
+    else if (xkey->keycode == XKeysymToKeycode(dpy,XK_Right))
+        return 4;
+    else if (xkey->keycode == XKeysymToKeycode(dpy,XK_Down))
+        return 5;
+    else if (xkey->keycode == XKeysymToKeycode(dpy,XK_Left))
+        return 6;
+    else if (xkey->keycode == XKeysymToKeycode(dpy,XK_Home))
+        return 7;
+    else if (xkey->keycode == XKeysymToKeycode(dpy,XK_Insert))
+        return 8;
+    else if (xkey->keycode == XKeysymToKeycode(dpy,XK_End))
+        return 9;
+    else if (xkey->keycode == XKeysymToKeycode(dpy,XK_Return))
+        return 10;
+    else if (xkey->keycode == XKeysymToKeycode(dpy,XK_BackSpace))
+        return 11;
+    // keypad
+    else if (xkey->keycode == XKeysymToKeycode(dpy,XK_KP_Subtract))
+        return 1;
+    else if (xkey->keycode == XKeysymToKeycode(dpy,XK_KP_Add))
+        return 2;
+    else if (xkey->keycode == XKeysymToKeycode(dpy,XK_KP_Up))
+        return 3;
+    else if (xkey->keycode == XKeysymToKeycode(dpy,XK_KP_Right))
+        return 4;
+    else if (xkey->keycode == XKeysymToKeycode(dpy,XK_KP_Down))
+        return 5;
+    else if (xkey->keycode == XKeysymToKeycode(dpy,XK_KP_Left))
+        return 6;
+    else if (xkey->keycode == XKeysymToKeycode(dpy,XK_KP_Home))
+        return 7;
+    else if (xkey->keycode == XKeysymToKeycode(dpy,XK_KP_Insert))
+        return 8;
+    else if (xkey->keycode == XKeysymToKeycode(dpy,XK_KP_End))
+        return 9;
+    else if (xkey->keycode == XKeysymToKeycode(dpy,XK_KP_Enter))
+        return 10;
+    else return 0;
+}
+
 void destroy_widget(Widget_t * w, Xputty *main) {
 #ifdef _WIN32
 //debug_print("destroy_widget:main=%p:w=%p:hwnd=%p",main,w,w?w->widget:0);

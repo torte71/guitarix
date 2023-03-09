@@ -283,7 +283,7 @@ void os_show_tooltip(Widget_t *wid, Widget_t *w) {
 }
 
 void os_expose_widget(Widget_t *w) {
-	debug_print("os_expose_widget:w=%p",w);
+//	debug_print("os_expose_widget:w=%p",w);
 	RedrawWindow(w->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_UPDATENOW);
 }
 
@@ -372,12 +372,134 @@ Atom os_register_widget_destroy(Widget_t * wid) {
 
 // os specific
 
+#if 0
 int key_mapping(Display *dpy, XKeyEvent *xkey) {
 	debug_print("STUB:key_mapping");
 	return 0; // STUB
 }
+#endif
 
 /*------------- the event loop ---------------*/
+
+void dumpkey(WORD xkey) {
+	switch (xkey) {
+		case XK_space:                    debug_print("XK_space:\n"); break;
+		case XK_0:                        debug_print("XK_0:\n"); break;
+		case XK_2:                        debug_print("XK_2:\n"); break;
+		case XK_3:                        debug_print("XK_3:\n"); break;
+		case XK_5:                        debug_print("XK_5:\n"); break;
+		case XK_6:                        debug_print("XK_6:\n"); break;
+		case XK_7:                        debug_print("XK_7:\n"); break;
+		case XK_9:                        debug_print("XK_9:\n"); break;
+		case XK_m:                        debug_print("XK_m:\n"); break;
+		case XK_q:                        debug_print("XK_q:\n"); break;
+		case XK_a:                        debug_print("XK_a:\n"); break;
+		case XK_b:                        debug_print("XK_b:\n"); break;
+		case XK_c:                        debug_print("XK_c:\n"); break;
+		case XK_d:                        debug_print("XK_d:\n"); break;
+		case XK_e:                        debug_print("XK_e:\n"); break;
+		case XK_g:                        debug_print("XK_g:\n"); break;
+		case XK_h:                        debug_print("XK_h:\n"); break;
+		case XK_i:                        debug_print("XK_i:\n"); break;
+		case XK_j:                        debug_print("XK_j:\n"); break;
+		case XK_n:                        debug_print("XK_n:\n"); break;
+		case XK_o:                        debug_print("XK_o:\n"); break;
+		case XK_p:                        debug_print("XK_p:\n"); break;
+		case XK_r:                        debug_print("XK_r:\n"); break;
+		case XK_s:                        debug_print("XK_s:\n"); break;
+		case XK_t:                        debug_print("XK_t:\n"); break;
+		case XK_u:                        debug_print("XK_u:\n"); break;
+		case XK_v:                        debug_print("XK_v:\n"); break;
+		case XK_w:                        debug_print("XK_w:\n"); break;
+		case XK_x:                        debug_print("XK_x:\n"); break;
+		case XK_y:                        debug_print("XK_y:\n"); break;
+		case XK_z:                        debug_print("XK_z:\n"); break;
+		case XK_comma:                    debug_print("XK_comma:\n"); break;
+		case XK_quotedbl:                 debug_print("XK_quotedbl:\n"); break;
+		case XK_parenleft:                debug_print("XK_parenleft:\n"); break;
+		case XK_minus:                    debug_print("XK_minus:\n"); break;
+		case XK_plus:                     debug_print("XK_plus:\n"); break;
+		case XK_agrave:                   debug_print("XK_agrave:\n"); break;
+		case XK_ccedilla:                 debug_print("XK_ccedilla:\n"); break;
+		case XK_eacute:                   debug_print("XK_eacute:\n"); break;
+		case XK_egrave:                   debug_print("XK_egrave:\n"); break;
+		case XK_udiaeresis:               debug_print("XK_udiaeresis:\n"); break;
+		case XK_dead_circumflex:          debug_print("XK_dead_circumflex:\n"); break;
+		case XK_dead_diaeresis:           debug_print("XK_dead_diaeresis:\n"); break;
+		case XK_Tab:                      debug_print("XK_Tab:\n"); break;
+		case XK_Up:                       debug_print("XK_Up:\n"); break;
+		case XK_Right:                    debug_print("XK_Right:\n"); break;
+		case XK_Down:                     debug_print("XK_Down:\n"); break;
+		case XK_Left:                     debug_print("XK_Left:\n"); break;
+		case XK_Home:                     debug_print("XK_Home:\n"); break;
+		case XK_Insert:                   debug_print("XK_Insert:\n"); break;
+		case XK_End:                      debug_print("XK_End:\n"); break;
+		case XK_BackSpace:                debug_print("XK_BackSpace:\n"); break;
+		case XK_KP_Subtract:              debug_print("XK_KP_Subtract:\n"); break;
+		case XK_KP_Add:                   debug_print("XK_KP_Add:\n"); break;
+		case XK_KP_Up:                    debug_print("XK_KP_Up:\n"); break;
+		case XK_KP_Right:                 debug_print("XK_KP_Right:\n"); break;
+		case XK_KP_Down:                  debug_print("XK_KP_Down:\n"); break;
+		case XK_KP_Left:                  debug_print("XK_KP_Left:\n"); break;
+		case XK_KP_Home:                  debug_print("XK_KP_Home:\n"); break;
+		case XK_KP_Insert:                debug_print("XK_KP_Insert:\n"); break;
+		case XK_KP_End:                   debug_print("XK_KP_End:\n"); break;
+		case XK_KP_Enter:                 debug_print("XK_KP_Enter:\n"); break;
+		case XK_Return:                   debug_print("XK_Return:\n"); break;
+		default:
+				debug_print("XK_UNKNOWN!!!:\n");
+	}
+}
+
+void build_xkey_event(XKeyEvent *ev, UINT msg, WPARAM wParam, LPARAM lParam) {
+	BYTE lpKeyState[256];
+	if (GetKeyboardState(lpKeyState)) {
+		WORD lpChar;
+		UINT uVirtKey = (UINT)wParam;
+		UINT uScanCode = (UINT)(HIWORD(lParam) & 0x1FF);
+		UINT uFlags = 0; // 1=menu is active
+		int ta_res = ToAscii(uVirtKey, uScanCode, lpKeyState, &lpChar, uFlags);
+		debug_print("%s:ToAscii:res=%d:VK=%4.4x:SC=%4.4x:CHAR=%4.4x='%c' %s\n",__FUNCTION__,
+				ta_res,uVirtKey,uScanCode,lpChar,lpChar,
+				(ta_res < 0) ? "ISDEAD" : (ta_res == 0) ? "UNTRANS" : (ta_res == 1) ? "1CHAR"
+				: (ta_res == 2) ? "2CHARS" : "UNKNOWN");
+		ev->ascii = lpChar;
+		switch (uScanCode) {
+			case 0x0029: ev->keycode = XK_dead_circumflex;	break;
+			case 0x000e: ev->keycode = XK_BackSpace;		break;
+			case 0x000f: ev->keycode = XK_Tab;				break;
+			case 0x001c: ev->keycode = XK_Return;			break;
+			case 0x0147: ev->keycode = XK_Home;				break;
+			case 0x014b: ev->keycode = XK_Left;				break;
+			case 0x0148: ev->keycode = XK_Up;				break;
+			case 0x014d: ev->keycode = XK_Right;			break;
+			case 0x0150: ev->keycode = XK_Down;				break;
+			case 0x014f: ev->keycode = XK_End;				break;
+			case 0x0152: ev->keycode = XK_Insert;			break;
+			case 0x011c: ev->keycode = XK_KP_Enter;			break;
+			case 0x0047: ev->keycode = XK_KP_Home;			break;
+			case 0x004b: ev->keycode = XK_KP_Left;			break;
+			case 0x0048: ev->keycode = XK_KP_Up;			break;
+			case 0x004d: ev->keycode = XK_KP_Right;			break;
+			case 0x0050: ev->keycode = XK_KP_Down;			break;
+			case 0x004f: ev->keycode = XK_KP_End;			break;
+			case 0x0052: ev->keycode = XK_KP_Insert;		break;
+			case 0x004e: ev->keycode = XK_KP_Add;			break;
+			case 0x004a: ev->keycode = XK_KP_Subtract;		break;
+			default:
+				if (lpChar == 0xfc) //'ü'
+					ev->keycode = XK_udiaeresis;
+				else if (lpChar == 0xdc) //'Ü'
+					ev->keycode = XK_dead_diaeresis;
+				else
+					ev->keycode = lpChar;
+		}
+dumpkey(ev->keycode);
+	} else {
+		debug_print("%s:ERROR:GetKeyboardState()\n",__FUNCTION__);
+		ev->keycode = 0;
+	}
+}
 
 
 #define _debugwm
@@ -389,6 +511,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	POINT pt;
 	XButtonEvent xbutton;
 	XMotionEvent xmotion;
+	XKeyEvent xkey;
 	void *user_data = NULL;
 
 	// be aware: "ui" can be NULL during window creation (esp. if there is a debugger attached)
@@ -406,6 +529,7 @@ debug_wm(hwnd, msg, wParam, lParam, ui, widget_type_name(ui));
 	xmotion.window = hwnd;
 	xmotion.x = GET_X_LPARAM(lParam);
 	xmotion.y = GET_Y_LPARAM(lParam);
+	//xkey.keycode = wParam;
 
 	switch (msg) {
 		case WM_CREATE:
@@ -523,27 +647,41 @@ RedrawWindow(view_port->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_U
 			return 0;
 
 		// X11:KeyPress
-		case WM_KEYUP:
+		case WM_KEYDOWN:
+build_xkey_event(&xkey, msg, wParam, lParam);
 			if (!ui) return DefWindowProc(hwnd, msg, wParam, lParam);
-//			switch (key_mapping(wParam)) {
-//				case 1: set_previous_controller_active(ui); // "-"
-//				break;
-//				case 2: set_next_controller_active(ui); // "+"
-//				break;
-//				case 3: key_event(ui, 1); // UP/RIGHT
-//				break;
-//				case 4: key_event(ui, -1); // DOWN/LEFT
-//				break;
-//				case 5: set_key_value(ui, 1); // HOME
-//				break;
-//				case 6: set_key_value(ui, 2); // INSERT
-//				break;
-//				case 7: set_key_value(ui, 3); // END
-//				break;
-//				default:
-//				break;
-//			}
-			return DefWindowProc(hwnd, msg, wParam, lParam);
+            if (ui->state == 4) break;
+            _check_keymap(ui, xkey);
+            ui->func.key_press_callback((void *)ui, &xkey, user_data);
+            debug_print("Widget_t KeyPress %x\n", xkey.keycode);
+			return 0;
+		//X11:KeyRelease
+		case WM_KEYUP:
+build_xkey_event(&xkey, msg, wParam, lParam);
+            if (ui->state == 4) break;
+            {
+            unsigned short is_retriggered = 0;
+            if(ui->flags & NO_AUTOREPEAT) {
+				if (lParam & 0x4000000)
+					is_retriggered = 1;
+#if 0
+                if (XEventsQueued(main->dpy, QueuedAlready)) {
+                    XEvent nev;
+                    XPeekEvent(main->dpy, &nev);
+                    if (nev.type == KeyPress && nev.xkey.time == xev->xkey.time &&
+                        nev.xkey.keycode == xev->xkey.keycode && 
+                        (nev.xkey.keycode > 119 || nev.xkey.keycode < 110)) {
+                        XNextEvent (main->dpy, xev);
+                        is_retriggered = 1;
+                    }
+                }
+#endif
+            }
+            if (!is_retriggered) {
+                ui->func.key_release_callback((void *)ui, &xkey, user_data);
+                debug_print("Widget_t KeyRelease %x\n", xkey.keycode);
+            }
+        }
 
 		// X11:LeaveNotify (X11:EnterNotify: see WM_MOUSEMOVE)
 		case WM_MOUSELEAVE:

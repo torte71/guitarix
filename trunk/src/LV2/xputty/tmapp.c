@@ -34,7 +34,9 @@ printf("destroy_button_released:w=%p:%s:u=%p:btn=%p:%s:main=%p:%s\n",w, widget_t
 void msg_button_dialog_callback(void * widget, void* user_data) {
   printf("msg_button_dialog_callback:w=%p:u=%p:%s\n",widget,user_data,widget_type_name((Widget_t*)widget));
   int i = *(int*)user_data;
+  char *str = *(char**)user_data;
   printf("*user_data=%d\n",i);
+  printf("str=%s\n",str);
 }
 Widget_t *message_dialog;
 static void msg_button_released(void *w_, void* button_, void* user_data) {
@@ -44,8 +46,8 @@ static void msg_button_released(void *w_, void* button_, void* user_data) {
     //message_dialog = open_message_dialog(w, WARNING_BOX, "message_dialog_title", "message_dialog_message|line2|line3", NULL);
     //message_dialog = open_message_dialog(w, ERROR_BOX, "message_dialog_title", "message_dialog_message|line2|line3", NULL);
     //message_dialog = open_message_dialog(w, QUESTION_BOX, "message_dialog_title", "message_dialog_message|line2|line3", NULL); // no user defined choices
-    message_dialog = open_message_dialog(w, SELECTION_BOX, "message_dialog_title", "message_dialog_message|line2|line3", "choice1|choice2|choice3");
-    //message_dialog = open_message_dialog(w, ENTRY_BOX, "message_dialog_title", "message_dialog_message|line2|line3", NULL); // no user defined choices
+    //message_dialog = open_message_dialog(w, SELECTION_BOX, "message_dialog_title", "message_dialog_message|line2|line3", "choice1|choice2|choice3");
+    message_dialog = open_message_dialog(w, ENTRY_BOX, "message_dialog_title", "message_dialog_message|line2|line3", NULL); // no user defined choices
 }
 Widget_t *midi_keyboard;
 static void midi_button_released(void *w_, void* button_, void* user_data) {

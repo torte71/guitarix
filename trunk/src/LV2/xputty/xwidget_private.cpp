@@ -160,8 +160,8 @@ void _propagate_child_expose(Widget_t *wid) {
 }
 
 void _check_keymap (void *w_ ,XKeyEvent xkey) {
-#ifndef _WIN32
     Widget_t *wid = (Widget_t*)w_;
+debug_print("%s:w=%p %s",__FUNCTION__,wid,widget_type_name(wid));
     int n = 1;
     int i = 0;
     for(;i<wid->childlist->elem;i++) {
@@ -177,6 +177,7 @@ void _check_keymap (void *w_ ,XKeyEvent xkey) {
     }
     int nk = key_mapping(wid->app->dpy, &xkey);
     if (nk) {
+debug_print("%s:nk=%d",__FUNCTION__,nk);
         switch (nk) {
             case 3: _set_adj_value(wid, false, 1*n);
             break;
@@ -204,7 +205,6 @@ void _check_keymap (void *w_ ,XKeyEvent xkey) {
             break;
         }
     }
-#endif
 }
 
 void _hide_all_tooltips(Widget_t *wid) {
