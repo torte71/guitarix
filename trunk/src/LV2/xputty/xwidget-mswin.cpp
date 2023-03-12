@@ -59,6 +59,52 @@ void debug_lasterror(const char *prefix, const char *prefix2) {
 	}
 }
 
+char *convert_cp(DWORD cp_from, DWORD cp_to, char *s_from) {
+	char *s_to = NULL;
+	int flags = MB_PRECOMPOSED; // | MB_ERR_INVALID_CHARS;
+	// prepare conversion to WideChar (using cp_from) - get required space
+	size_t size = MultiByteToWideChar(cp_from, flags, s_from, -1, NULL, 0);
+	if (size) {
+	  // convert Ansi to WideChar (pwc)
+	  wchar_t *pwc= (wchar_t*)malloc(size*2);
+	  size_t size_wc = MultiByteToWideChar(cp_from, flags, s_from, -1, pwc, size);
+	  if (size_wc) {
+		// prepare conversion to cp_to - get required space
+		flags = 0;
+		size = WideCharToMultiByte(cp_to, flags, pwc, size_wc, NULL, 0, NULL, NULL);
+		if (size) {
+		  // convert WideChar (pwc) to Ansi using cp_to
+		  s_to = (char*)malloc(size+1);
+		  memset(s_to, 0 , size+1);
+		  size = WideCharToMultiByte(cp_to, flags, pwc, size_wc, s_to, size, NULL, NULL);
+		}
+	  }
+	  free(pwc);
+	}
+    // needs to be free()d by caller
+	return s_to;
+}
+
+char *utf8_from_locale(char *localestr) {
+	return (convert_cp(GetACP(), CP_UTF8, localestr));
+}
+
+char *locale_from_utf8(char *utf8str) {
+	return (convert_cp(CP_UTF8, GetACP(), utf8str));
+}
+
+bool os_get_keyboard_input(Widget_t *w, XKeyEvent *key, char *buf, size_t bufsize) {
+	char ansibuf[2];
+	ansibuf[0] = (char)key->vk;
+	ansibuf[1] = 0;
+	char *utf8 = utf8_from_locale(ansibuf);
+	int l=min(bufsize, strlen(utf8));
+	strncpy(buf, utf8, l);
+	buf[l] = 0;
+	free(utf8);
+	return true;
+}
+
 Display *os_open_display(char *display_name) {
 	// nothing to do on MSWin
 	return (Display *)1;
@@ -452,53 +498,41 @@ void dumpkey(WORD xkey) {
 }
 
 void build_xkey_event(XKeyEvent *ev, UINT msg, WPARAM wParam, LPARAM lParam) {
-	BYTE lpKeyState[256];
-	if (GetKeyboardState(lpKeyState)) {
-		WORD lpChar;
-		UINT uVirtKey = (UINT)wParam;
-		UINT uScanCode = (UINT)(HIWORD(lParam) & 0x1FF);
-		UINT uFlags = 0; // 1=menu is active
-		int ta_res = ToAscii(uVirtKey, uScanCode, lpKeyState, &lpChar, uFlags);
-		debug_print("%s:ToAscii:res=%d:VK=%4.4x:SC=%4.4x:CHAR=%4.4x='%c' %s\n",__FUNCTION__,
-				ta_res,uVirtKey,uScanCode,lpChar,lpChar,
-				(ta_res < 0) ? "ISDEAD" : (ta_res == 0) ? "UNTRANS" : (ta_res == 1) ? "1CHAR"
-				: (ta_res == 2) ? "2CHARS" : "UNKNOWN");
-		ev->ascii = lpChar;
-		switch (uScanCode) {
-			case 0x0029: ev->keycode = XK_dead_circumflex;	break;
-			case 0x000e: ev->keycode = XK_BackSpace;		break;
-			case 0x000f: ev->keycode = XK_Tab;				break;
-			case 0x001c: ev->keycode = XK_Return;			break;
-			case 0x0147: ev->keycode = XK_Home;				break;
-			case 0x014b: ev->keycode = XK_Left;				break;
-			case 0x0148: ev->keycode = XK_Up;				break;
-			case 0x014d: ev->keycode = XK_Right;			break;
-			case 0x0150: ev->keycode = XK_Down;				break;
-			case 0x014f: ev->keycode = XK_End;				break;
-			case 0x0152: ev->keycode = XK_Insert;			break;
-			case 0x011c: ev->keycode = XK_KP_Enter;			break;
-			case 0x0047: ev->keycode = XK_KP_Home;			break;
-			case 0x004b: ev->keycode = XK_KP_Left;			break;
-			case 0x0048: ev->keycode = XK_KP_Up;			break;
-			case 0x004d: ev->keycode = XK_KP_Right;			break;
-			case 0x0050: ev->keycode = XK_KP_Down;			break;
-			case 0x004f: ev->keycode = XK_KP_End;			break;
-			case 0x0052: ev->keycode = XK_KP_Insert;		break;
-			case 0x004e: ev->keycode = XK_KP_Add;			break;
-			case 0x004a: ev->keycode = XK_KP_Subtract;		break;
-			default:
-				if (lpChar == 0xfc) //'ü'
-					ev->keycode = XK_udiaeresis;
-				else if (lpChar == 0xdc) //'Ü'
-					ev->keycode = XK_dead_diaeresis;
-				else
-					ev->keycode = lpChar;
-		}
-dumpkey(ev->keycode);
-	} else {
-		debug_print("%s:ERROR:GetKeyboardState()\n",__FUNCTION__);
-		ev->keycode = 0;
+	UINT uVirtKey = (UINT)wParam;
+	UINT uScanCode = (UINT)(HIWORD(lParam) & 0x1FF);
+	ev->vk_is_ascii = (msg == WM_CHAR);
+	ev->vk = uVirtKey;
+	switch (uScanCode) {
+		case 0x0029: ev->keycode = XK_dead_circumflex;	break;
+		case 0x000e: ev->keycode = XK_BackSpace;		break;
+		case 0x000f: ev->keycode = XK_Tab;				break;
+		case 0x001c: ev->keycode = XK_Return;			break;
+		case 0x0147: ev->keycode = XK_Home;				break;
+		case 0x014b: ev->keycode = XK_Left;				break;
+		case 0x0148: ev->keycode = XK_Up;				break;
+		case 0x014d: ev->keycode = XK_Right;			break;
+		case 0x0150: ev->keycode = XK_Down;				break;
+		case 0x014f: ev->keycode = XK_End;				break;
+		case 0x0152: ev->keycode = XK_Insert;			break;
+		case 0x011c: ev->keycode = XK_KP_Enter;			break;
+		case 0x0047: ev->keycode = XK_KP_Home;			break;
+		case 0x004b: ev->keycode = XK_KP_Left;			break;
+		case 0x0048: ev->keycode = XK_KP_Up;			break;
+		case 0x004d: ev->keycode = XK_KP_Right;			break;
+		case 0x0050: ev->keycode = XK_KP_Down;			break;
+		case 0x004f: ev->keycode = XK_KP_End;			break;
+		case 0x0052: ev->keycode = XK_KP_Insert;		break;
+		case 0x004e: ev->keycode = XK_KP_Add;			break;
+		case 0x004a: ev->keycode = XK_KP_Subtract;		break;
+		default:
+			if (ev->vk == 0xfc) //'ü'
+				ev->keycode = XK_udiaeresis;
+			else if (ev->vk == 0xdc) //'Ü'
+				ev->keycode = XK_dead_diaeresis;
+			else
+				ev->keycode = ev->vk;
 	}
+	dumpkey(ev->keycode);
 }
 
 
@@ -657,8 +691,12 @@ build_xkey_event(&xkey, msg, wParam, lParam);
 			return 0;
 		//X11:KeyRelease
 		case WM_KEYUP:
-build_xkey_event(&xkey, msg, wParam, lParam);
-            if (ui->state == 4) break;
+			build_xkey_event(&xkey, msg, wParam, lParam);
+			return 0;
+		case WM_CHAR:
+			build_xkey_event(&xkey, msg, wParam, lParam);
+            //if (ui->state == 4) break;
+            if (ui->state == 4) return 0;
             {
             unsigned short is_retriggered = 0;
             if(ui->flags & NO_AUTOREPEAT) {
@@ -682,6 +720,7 @@ build_xkey_event(&xkey, msg, wParam, lParam);
                 debug_print("Widget_t KeyRelease %x\n", xkey.keycode);
             }
         }
+			return 0;
 
 		// X11:LeaveNotify (X11:EnterNotify: see WM_MOUSEMOVE)
 		case WM_MOUSELEAVE:

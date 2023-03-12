@@ -93,6 +93,9 @@ typedef struct {
     evfunc button_press_callback;
     evfunc button_release_callback;
     evfunc motion_callback;
+    // MSWin: down/release callbacks: incorrect ascii value (raw virtualkey)
+    // MSWin: press callback: incorrect key state (pressed/unpressed)
+evfunc key_down_callback;
     evfunc key_press_callback;
     evfunc key_release_callback;
 } Func_t;
@@ -683,6 +686,9 @@ typedef struct {
 const char *widget_type_name(Widget_t *w);
 
 int key_mapping(Display *dpy, XKeyEvent *xkey);
+
+bool os_get_keyboard_input(Widget_t *w, XKeyEvent *key, char *buf, size_t bufsize);
+char *convert_cp(DWORD cp_from, DWORD cp_to, char *s_from);
 
 Display *os_open_display(char *display_name);
 void os_close_display(Display *dpy);

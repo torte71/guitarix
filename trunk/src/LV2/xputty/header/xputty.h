@@ -133,7 +133,8 @@ typedef struct {
   int button;
   int keycode;
   unsigned int state;	/* key or button mask */
-  WORD ascii;
+  bool vk_is_ascii;
+  WORD vk;
 } XEvent;
 typedef XEvent XButtonEvent;
 typedef XEvent XKeyEvent;

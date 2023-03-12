@@ -129,7 +129,10 @@ static void entry_clip(Widget_t *w) {
         int i = strlen( w->input_label)-1;
         int j = 0;
         int u = 0;
-        for(;i>0;i--) {
+// MARKER:NOT JUST FOR _WIN32
+// failed, if first char was utf8
+        //for(;i>0;i--) {
+        for(;i>=0;i--) {
             if(IS_UTF8(w->input_label[i])) {
                  u++;
             }
@@ -223,7 +226,7 @@ debug_print("%s\n",__FUNCTION__);
     XKeyEvent *key = (XKeyEvent*)key_;
     if (!key) return;
     int nk = key_mapping(w->app->dpy, key);
-debug_print("%s:keycode=%x ascii=%x nk=%d\n",__FUNCTION__,key->keycode,key->ascii,nk);
+debug_print("%s:keycode=%x ascii=%x nk=%d\n",__FUNCTION__,key->keycode,key->vk,nk);
     if (nk) {
         switch (nk) {
             case 10: 
@@ -241,67 +244,19 @@ debug_print("%s:dialog_callback:%p=%s\n",__FUNCTION__,&mb->text_entry->label,mb-
                 }
             break;
             case 11: entry_clip(w);
+#ifdef _WIN32
+                os_expose_widget(w);
+#endif
             break;
             default:
             break;
         }
     } else {
-#ifdef _WIN32
-        char buf[3];
-	// non-existing compounds (e.g. "^" + "d") come as two bytes in a single word
-	// also happening for non-compounds (e.g. only "^")
-	// only evaluate the first byte in that case
-	if (key->ascii > 0xFF)
-	    buf[0] = (key->ascii >> 8);
-	else
-	    buf[0] = (char)key->ascii;
-	buf[1] = 0;
-debug_print("%s:buf='%s'\n",__FUNCTION__,buf);
-
-	// utf8 conversion
-	char *utf8 = NULL;
-	DWORD from_cp = GetACP(); // active codepage (e.g. 1252)
-	int flags = MB_PRECOMPOSED; // | MB_ERR_INVALID_CHARS;
-	// prepare conversion to WideChar (given codepage) - get required space
-	size_t size = MultiByteToWideChar(from_cp, flags, buf, 1, NULL, 0);
-	if (!size) {
-	  debug_print("ERR1\n");
-	} else {
-	  // convert Ansi to WideChar (pwc)
-	  wchar_t *pwc= (wchar_t*)malloc(size*2);
-	  size_t size_wc = MultiByteToWideChar(from_cp, flags, buf, 1, pwc, size);
-	  if (!size_wc) {
-	    debug_print("ERR2\n");
-	    } else {
-	    // prepare conversion to UTF8 - get required space
-	    flags = 0;
-	    size = WideCharToMultiByte(CP_UTF8, flags, pwc, size_wc, NULL, 0, NULL, NULL);
-	    if (!size) {
-	      debug_print("ERR3\n");
-	    } else {
-	      // convert WideChar (pwc) to Ansi using UTF8
-	      utf8 = (char*)malloc(size+1);
-	      memset(utf8, 0 , size+1);
-	      size = WideCharToMultiByte(CP_UTF8, flags, pwc, size_wc, utf8, size, NULL, NULL);
-	      if (!size) {
-		debug_print("ERR4\n");
-	      }
-	    }
-	  }
-	}
-debug_print("%s:buf='%s' utf8='%s'\n",__FUNCTION__,buf,utf8);
-
-	entry_add_text(w, utf8); //buf);
-os_expose_widget(w);
-
-#else
-        Status status;
-        KeySym keysym;
         char buf[32];
-        Xutf8LookupString(w->xic, key, buf, sizeof(buf) - 1, &keysym, &status);
-        if(status == XLookupChars || status == XLookupBoth){
+        if (os_get_keyboard_input(w, key, buf, sizeof(buf) - 1))
             entry_add_text(w, buf);
-        }
+#ifdef _WIN32
+os_expose_widget(w);
 #endif
     }
 }
@@ -313,7 +268,12 @@ static void create_entry_box(Widget_t *w) {
 mb->text_entry->widget_type = WT_TEXT_ENTRY;
     memset(mb->text_entry->input_label, 0, 32 * (sizeof mb->text_entry->input_label[0]) );
     mb->text_entry->func.expose_callback = entry_add_text;
+#ifdef _WIN32
+    // MSWin: compound characters (dead-key combinations, etc.) are only available in WM_CHAR
+    mb->text_entry->func.key_release_callback = entry_get_text;
+#else
     mb->text_entry->func.key_press_callback = entry_get_text;
+#endif
     mb->text_entry->flags &= ~USE_TRANSPARENCY;
     mb->text_entry->scale.gravity = CENTER;
 }

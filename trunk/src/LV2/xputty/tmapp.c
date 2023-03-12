@@ -37,6 +37,8 @@ void msg_button_dialog_callback(void * widget, void* user_data) {
   char *str = *(char**)user_data;
   printf("*user_data=%d\n",i);
   printf("str=%s\n",str);
+  char *cv = convert_cp(CP_UTF8, 850, str); // IBM850 = DOS Latin1 for console
+  printf("cv=%s\n",cv);
 }
 Widget_t *message_dialog;
 static void msg_button_released(void *w_, void* button_, void* user_data) {

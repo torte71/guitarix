@@ -30,6 +30,13 @@ extern "C" {
 
 // compat wrappers
 
+bool os_get_keyboard_input(Widget_t *w, XKeyEvent *key, char *buf, size_t bufsize) {
+	Status status;
+	KeySym keysym;
+	Xutf8LookupString(w->xic, key, buf, bufsize - 1, &keysym, &status);
+	result = (status == XLookupChars || status == XLookupBoth);
+}
+
 Display *os_open_display(char *display_name) {
 	return XOpenDisplay(display_name);
 }
