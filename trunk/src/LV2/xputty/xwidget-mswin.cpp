@@ -329,7 +329,7 @@ void os_show_tooltip(Widget_t *wid, Widget_t *w) {
 }
 
 void os_expose_widget(Widget_t *w) {
-//	debug_print("os_expose_widget:w=%p",w);
+	debug_print("os_expose_widget:w=%p",w);
 	RedrawWindow(w->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_UPDATENOW);
 }
 
@@ -418,12 +418,6 @@ Atom os_register_widget_destroy(Widget_t * wid) {
 
 // os specific
 
-#if 0
-int key_mapping(Display *dpy, XKeyEvent *xkey) {
-	debug_print("STUB:key_mapping");
-	return 0; // STUB
-}
-#endif
 
 /*------------- the event loop ---------------*/
 
@@ -563,7 +557,6 @@ debug_wm(hwnd, msg, wParam, lParam, ui, widget_type_name(ui));
 	xmotion.window = hwnd;
 	xmotion.x = GET_X_LPARAM(lParam);
 	xmotion.y = GET_Y_LPARAM(lParam);
-	//xkey.keycode = wParam;
 
 	switch (msg) {
 		case WM_CREATE:
@@ -682,7 +675,7 @@ RedrawWindow(view_port->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_U
 
 		// X11:KeyPress
 		case WM_KEYDOWN:
-build_xkey_event(&xkey, msg, wParam, lParam);
+			build_xkey_event(&xkey, msg, wParam, lParam);
 			if (!ui) return DefWindowProc(hwnd, msg, wParam, lParam);
             if (ui->state == 4) break;
             _check_keymap(ui, xkey);
