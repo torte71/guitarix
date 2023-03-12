@@ -677,7 +677,7 @@ RedrawWindow(view_port->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_U
 		case WM_KEYDOWN:
 			build_xkey_event(&xkey, msg, wParam, lParam);
 			if (!ui) return DefWindowProc(hwnd, msg, wParam, lParam);
-            if (ui->state == 4) break;
+            if (ui->state == 4) return 0;
             _check_keymap(ui, xkey);
             ui->func.key_press_callback((void *)ui, &xkey, user_data);
             debug_print("Widget_t KeyPress %x\n", xkey.keycode);
@@ -688,25 +688,12 @@ RedrawWindow(view_port->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_U
 			return 0;
 		case WM_CHAR:
 			build_xkey_event(&xkey, msg, wParam, lParam);
-            //if (ui->state == 4) break;
             if (ui->state == 4) return 0;
             {
             unsigned short is_retriggered = 0;
             if(ui->flags & NO_AUTOREPEAT) {
 				if (lParam & 0x4000000)
 					is_retriggered = 1;
-#if 0
-                if (XEventsQueued(main->dpy, QueuedAlready)) {
-                    XEvent nev;
-                    XPeekEvent(main->dpy, &nev);
-                    if (nev.type == KeyPress && nev.xkey.time == xev->xkey.time &&
-                        nev.xkey.keycode == xev->xkey.keycode && 
-                        (nev.xkey.keycode > 119 || nev.xkey.keycode < 110)) {
-                        XNextEvent (main->dpy, xev);
-                        is_retriggered = 1;
-                    }
-                }
-#endif
             }
             if (!is_retriggered) {
                 ui->func.key_release_callback((void *)ui, &xkey, user_data);
