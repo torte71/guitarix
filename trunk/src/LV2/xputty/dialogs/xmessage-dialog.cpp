@@ -97,7 +97,6 @@ static void entry_add_text(void  *w_, void *label_) {
     if (!label) {
         label = (char*)"";
     }
-debug_print("%s:label='%s'\n",__FUNCTION__,label);
     draw_entry(w,NULL);
     cairo_text_extents_t extents;
     use_text_color_scheme(w, NORMAL_);
@@ -220,13 +219,11 @@ static void create_checkboxes(Widget_t *w) {
 }
 
 static void entry_get_text(void *w_, void *key_, void *user_data) {
-debug_print("%s\n",__FUNCTION__);
     Widget_t *w = (Widget_t*)w_;
     if (!w) return;
     XKeyEvent *key = (XKeyEvent*)key_;
     if (!key) return;
     int nk = key_mapping(w->app->dpy, key);
-debug_print("%s:keycode=%x ascii=%x nk=%d\n",__FUNCTION__,key->keycode,key->vk,nk);
     if (nk) {
         switch (nk) {
             case 10: 
@@ -237,7 +234,6 @@ debug_print("%s:keycode=%x ascii=%x nk=%d\n",__FUNCTION__,key->keycode,key->vk,n
                 if (strlen( mb->text_entry->input_label))
                     mb->text_entry->input_label[strlen( mb->text_entry->input_label)-1] = 0;
                 mb->text_entry->label = mb->text_entry->input_label;
-debug_print("%s:dialog_callback:%p=%s\n",__FUNCTION__,&mb->text_entry->label,mb->text_entry->label);
                 pa->func.dialog_callback(pa,&mb->text_entry->label);
 
                 destroy_widget(p, p->app);
@@ -256,7 +252,7 @@ debug_print("%s:dialog_callback:%p=%s\n",__FUNCTION__,&mb->text_entry->label,mb-
         if (os_get_keyboard_input(w, key, buf, sizeof(buf) - 1))
             entry_add_text(w, buf);
 #ifdef _WIN32
-os_expose_widget(w);
+	os_expose_widget(w);
 #endif
     }
 }
