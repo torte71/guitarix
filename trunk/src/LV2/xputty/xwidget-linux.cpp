@@ -34,7 +34,7 @@ bool os_get_keyboard_input(Widget_t *w, XKeyEvent *key, char *buf, size_t bufsiz
 	Status status;
 	KeySym keysym;
 	Xutf8LookupString(w->xic, key, buf, bufsize - 1, &keysym, &status);
-	result = (status == XLookupChars || status == XLookupBoth);
+	return (status == XLookupChars || status == XLookupBoth);
 }
 
 Display *os_open_display(char *display_name) {
