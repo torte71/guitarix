@@ -19,6 +19,9 @@
  */
 
 #include "xfilepicker.h"
+#ifdef _WIN32
+#include <windows.h>
+#endif
 
 
 static inline int fp_compare_fun (const void *p1, const void *p2) {
@@ -99,16 +102,34 @@ static void fp_clear_dirbuffer(FilePicker *filepicker) {
 static inline int fp_prefill_dirbuffer(FilePicker *filepicker, char *path) {
     int ret = 0;
     if (strcmp (path, PATH_SEPARATOR) == 0) {
+#ifdef _WIN32
+    DWORD drives = GetLogicalDrives();
+    int i;
+    for (i=0; i<='Z'-'A'; i++) {
+      if ((drives & (1 << i)) != 0) {
+        filepicker->dir_counter += 1;
+        filepicker->dir_names = (char **)realloc(filepicker->dir_names,
+          (filepicker->dir_counter) * sizeof(char *));
+        asprintf(&filepicker->dir_names[filepicker->dir_counter-1], "%c:\\", 'A'+i);
+      }
+    }
+#else
         filepicker->dir_names = (char **)realloc(filepicker->dir_names,
           (filepicker->dir_counter + 1) * sizeof(char *));
         assert(filepicker->dir_names != NULL);
         asprintf(&filepicker->dir_names[filepicker->dir_counter++], "%s",path);
         assert(&filepicker->dir_names[filepicker->dir_counter] != NULL);
+#endif
     } else {
         char *ho;
         asprintf(&ho, "%s",path);
         assert(ho != NULL);
+#ifdef _WIN32
+	while (!((strlen(ho)==3) && ho[1] == ':' && ho[2] == '\\')
+	      &&(!((strlen(ho)==1) && ho[0] == '\\'))) {
+#else
         while (strcmp (ho, PATH_SEPARATOR) != 0) {
+#endif
             filepicker->dir_names = (char **)realloc(filepicker->dir_names,
               (filepicker->dir_counter + 1) * sizeof(char *));
             assert(filepicker->dir_names != NULL);
@@ -116,7 +137,12 @@ static inline int fp_prefill_dirbuffer(FilePicker *filepicker, char *path) {
             assert(&filepicker->dir_names[filepicker->dir_counter] != NULL);
             ret++;
         }
+#ifdef _WIN32
+	if (!((strlen(path)==3) && path[1] == ':' && path[2] == '\\')
+	   &&(!((strlen(path)==1) && path[0] == '\\'))) {
+#else
         if (strcmp (path, PATH_SEPARATOR) != 0) {
+#endif
             filepicker->dir_names = (char **)realloc(filepicker->dir_names,
               (filepicker->dir_counter + 1) * sizeof(char *));
             assert(filepicker->dir_names != NULL);
