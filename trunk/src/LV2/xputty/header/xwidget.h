@@ -93,9 +93,6 @@ typedef struct {
     evfunc button_press_callback;
     evfunc button_release_callback;
     evfunc motion_callback;
-    // MSWin: down/release callbacks: incorrect ascii value (raw virtualkey)
-    // MSWin: press callback: incorrect key state (pressed/unpressed)
-    //evfunc key_down_callback;
     evfunc key_press_callback;
     evfunc key_release_callback;
 } Func_t;

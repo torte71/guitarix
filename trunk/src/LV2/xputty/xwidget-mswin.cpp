@@ -102,7 +102,7 @@ bool os_get_keyboard_input(Widget_t *w, XKeyEvent *key, char *buf, size_t bufsiz
 	strncpy(buf, utf8, l);
 	buf[l] = 0;
 	free(utf8);
-	return true;
+	return key->vk_is_final_char; // for only feeding readily processed chars into input widgets
 }
 
 Display *os_open_display(char *display_name) {
@@ -494,8 +494,26 @@ void dumpkey(WORD xkey) {
 void build_xkey_event(XKeyEvent *ev, UINT msg, WPARAM wParam, LPARAM lParam) {
 	UINT uVirtKey = (UINT)wParam;
 	UINT uScanCode = (UINT)(HIWORD(lParam) & 0x1FF);
-	ev->vk_is_ascii = (msg == WM_CHAR);
-	ev->vk = uVirtKey;
+	BYTE lpKeyState[256];
+	if (GetKeyboardState(lpKeyState)) {
+		//https://stackoverflow.com/questions/42667205/maximum-number-of-characters-output-from-win32-tounicode-toascii
+		// required size for the return buffer isn't exactly clear, maybe 255, so 1K should be a safe guess
+		WCHAR lpChar[1024];
+		UINT uFlags = 0x04; // 1=menu is active, 4=dont change anything
+		if (msg == WM_CHAR) {
+			ev->vk = uVirtKey;
+			ev->vk_is_final_char = 1;
+		} else {
+			int tu_res = ToUnicode(uVirtKey, uScanCode, lpKeyState, lpChar, 2, uFlags);
+			debug_print("%s:ToUnicode:res=%d:VK=%4.4x:SC=%4.4x:CHAR1=%4.4x='%c':CHAR2=%4.4x='%c' %s\n",__FUNCTION__,
+					tu_res,uVirtKey,uScanCode,lpChar[0],lpChar[0],lpChar[1],lpChar[1],
+					(tu_res < 0) ? "ISDEAD" : (tu_res == 0) ? "UNTRANS" : (tu_res == 1) ? "1CHAR"
+					: (tu_res == 2) ? "2CHARS" : "UNKNOWN");
+			ev->vk = lpChar[0];
+			ev->vk_is_final_char = 0;
+		}
+	}
+	// handle special characters (only in KEYUP/DOWN?)
 	switch (uScanCode) {
 		case 0x0029: ev->keycode = XK_dead_circumflex;	break;
 		case 0x000e: ev->keycode = XK_BackSpace;		break;
@@ -673,33 +691,41 @@ RedrawWindow(view_port->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_U
             debug_print("Widget_t  ButtonRelease %i\n", xbutton.button);
 			return 0;
 
-		// X11:KeyPress
+		// X11:KeyPress and X11:KeyRelease
+		// The resulting character (e.g. from dead-key combinations) cannot be
+		// determined from WM_KEYUP or WM_KEYDOWN: WM_CHAR has to be used instead.
+		// To workaround that, WM_CHAR fires key_press- and key_release_event()
+		// after another, with the flag "->vk_is_final_char" set, so the client
+		// code can differentiate between real KEYUP/DOWN and fake CHAR events.
+		case WM_CHAR:
 		case WM_KEYDOWN:
-			build_xkey_event(&xkey, msg, wParam, lParam);
-			if (!ui) return DefWindowProc(hwnd, msg, wParam, lParam);
-            if (ui->state == 4) return 0;
-            _check_keymap(ui, xkey);
-            ui->func.key_press_callback((void *)ui, &xkey, user_data);
-            debug_print("Widget_t KeyPress %x\n", xkey.keycode);
-			return 0;
-		//X11:KeyRelease
 		case WM_KEYUP:
 			build_xkey_event(&xkey, msg, wParam, lParam);
-			return 0;
-		case WM_CHAR:
-			build_xkey_event(&xkey, msg, wParam, lParam);
-            if (ui->state == 4) return 0;
-            {
-            unsigned short is_retriggered = 0;
-            if(ui->flags & NO_AUTOREPEAT) {
-				if (lParam & 0x4000000)
-					is_retriggered = 1;
-            }
-            if (!is_retriggered) {
-                ui->func.key_release_callback((void *)ui, &xkey, user_data);
-                debug_print("Widget_t KeyRelease %x\n", xkey.keycode);
-            }
-        }
+debug_print("%s:retriggered=%x:no_autorepeat=%x\n",__FUNCTION__,(HIWORD(lParam) & KF_REPEAT),(ui->flags & NO_AUTOREPEAT));
+			// X11:KeyPress
+			if (msg != WM_KEYUP) { // WM_KEYDOWN and WM_CHAR: key_press_callback()
+				if (!ui) return DefWindowProc(hwnd, msg, wParam, lParam);
+				if (ui->state == 4) return 0;
+				// on Linux, retrigger check happens in KeyRelease (WM_KEYUP)
+				unsigned short is_retriggered = 0;
+				if(ui->flags & NO_AUTOREPEAT) {
+					if ((HIWORD(lParam) & KF_REPEAT) == KF_REPEAT)
+						is_retriggered = 1;
+				}
+				if (!is_retriggered) {
+					_check_keymap(ui, xkey);
+					ui->func.key_press_callback((void *)ui, &xkey, user_data);
+					debug_print("Widget_t KeyPress %x\n", xkey.keycode);
+				}
+			}
+			//X11:KeyRelease
+			if (msg != WM_KEYDOWN) { // WM_KEYUP and WM_CHAR: key_release_callback()
+				if (ui->state == 4) return 0;
+				// On MSWin, the REPEAT flag is always set for WM_KEYUP,
+				// so the retrigger check has to take place in WM_KEYDOWN instead
+				ui->func.key_release_callback((void *)ui, &xkey, user_data);
+				debug_print("Widget_t KeyRelease %x\n", xkey.keycode);
+			}
 			return 0;
 
 		// X11:LeaveNotify (X11:EnterNotify: see WM_MOUSEMOVE)

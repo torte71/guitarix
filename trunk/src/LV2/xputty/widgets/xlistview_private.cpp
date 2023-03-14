@@ -119,6 +119,10 @@ void _list_key_pressed(void *w_, void* xkey_, void* user_data) {
     Metrics_t m;
     int height;
     if (!w) return;
+#ifdef _WIN32
+debug_print("%s:xkey=%p:xkey->keycode=%8.8lx:vk=%4.4x:final=%d\n",__FUNCTION__,xkey,xkey->keycode,xkey->vk,xkey->vk_is_final_char);
+    if (xkey->vk_is_final_char) return; // evaluate KEY_DOWN only, not WM_CHAR (dead-key support is not required/wanted here)
+#endif
 
     os_get_window_metrics(w, &m);
     height = m.height;

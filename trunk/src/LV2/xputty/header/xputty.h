@@ -133,7 +133,7 @@ typedef struct {
   int button;
   int keycode;
   unsigned int state;	/* key or button mask */
-  bool vk_is_ascii;
+  bool vk_is_final_char; // (from WM_CHAR) readily composed character (after processing dead keys and other input methods)
   WORD vk;
 } XEvent;
 typedef XEvent XButtonEvent;

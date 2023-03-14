@@ -264,12 +264,7 @@ static void create_entry_box(Widget_t *w) {
 mb->text_entry->widget_type = WT_TEXT_ENTRY;
     memset(mb->text_entry->input_label, 0, 32 * (sizeof mb->text_entry->input_label[0]) );
     mb->text_entry->func.expose_callback = entry_add_text;
-#ifdef _WIN32
-    // MSWin: compound characters (dead-key combinations, etc.) are only available in WM_CHAR
-    mb->text_entry->func.key_release_callback = entry_get_text;
-#else
     mb->text_entry->func.key_press_callback = entry_get_text;
-#endif
     mb->text_entry->flags &= ~USE_TRANSPARENCY;
     mb->text_entry->scale.gravity = CENTER;
 }
