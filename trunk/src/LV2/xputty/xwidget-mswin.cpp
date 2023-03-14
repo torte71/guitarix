@@ -504,11 +504,7 @@ void build_xkey_event(XKeyEvent *ev, UINT msg, WPARAM wParam, LPARAM lParam) {
 			ev->vk = uVirtKey;
 			ev->vk_is_final_char = 1;
 		} else {
-			int tu_res = ToUnicode(uVirtKey, uScanCode, lpKeyState, lpChar, 2, uFlags);
-			debug_print("%s:ToUnicode:res=%d:VK=%4.4x:SC=%4.4x:CHAR1=%4.4x='%c':CHAR2=%4.4x='%c' %s\n",__FUNCTION__,
-					tu_res,uVirtKey,uScanCode,lpChar[0],lpChar[0],lpChar[1],lpChar[1],
-					(tu_res < 0) ? "ISDEAD" : (tu_res == 0) ? "UNTRANS" : (tu_res == 1) ? "1CHAR"
-					: (tu_res == 2) ? "2CHARS" : "UNKNOWN");
+			ToUnicode(uVirtKey, uScanCode, lpKeyState, lpChar, 2, uFlags);
 			ev->vk = lpChar[0];
 			ev->vk_is_final_char = 0;
 		}
@@ -701,7 +697,6 @@ RedrawWindow(view_port->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_U
 		case WM_KEYDOWN:
 		case WM_KEYUP:
 			build_xkey_event(&xkey, msg, wParam, lParam);
-debug_print("%s:retriggered=%x:no_autorepeat=%x\n",__FUNCTION__,(HIWORD(lParam) & KF_REPEAT),(ui->flags & NO_AUTOREPEAT));
 			// X11:KeyPress
 			if (msg != WM_KEYUP) { // WM_KEYDOWN and WM_CHAR: key_press_callback()
 				if (!ui) return DefWindowProc(hwnd, msg, wParam, lParam);
