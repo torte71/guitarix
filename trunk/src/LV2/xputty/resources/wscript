@@ -19,8 +19,11 @@ def need_rebuild(bld, sources):
 
 def img2h(task):
     src = " ".join(["'%s_png'" % os.path.splitext(v.name)[0] for v in task.inputs[0:]])
-    cmd = ("bash -c \"rm -f ../src/LV2/xputty/resources/xresources.h && \
-    for f in %s; do echo 'EXTLD('$f')' >> ../src/LV2/xputty/resources/xresources.h; done\"" % src)
+    cmd = ("rm -f ../src/LV2/xputty/resources/xresources.h && \
+    for f in %s; do echo 'EXTLD('$f')' >> ../src/LV2/xputty/resources/xresources.h; done" % src)
+    # win32: dont use cmd.exe as shell
+    if task.env['OS'] == 'win32':
+        cmd = 'bash -c "%s"' % cmd
     ret = task.exec_command(cmd, shell=True)
     return ret
 
@@ -39,10 +42,19 @@ def img2obj(task):
     copyimg(task)
     before = ['xcairo']
     src = " ".join(["'%s'" % os.path.splitext(v.name)[0] for v in task.inputs[0:]])
-    cmd = ("bash -c \"cd src/LV2/xputty/resources/ \
+    # win32: fix dir-separator, remove non-existing flag
+    file = env.LD[0]
+    noexecstack = '-z noexecstack'
+    if task.env['OS'] == 'win32':
+        file = file.replace('\\','/')
+        noexecstack = ''
+    cmd = ("cd src/LV2/xputty/resources/ \
     && for f in %s; do\
-     %s -r -b binary ${f}.png -o  ${f}.o; \
-     done\" " % (src, env.LD[0].replace('\\','/')) )
+     %s -r -b binary %s ${f}.png -o  ${f}.o; \
+     done " % (src, file, noexecstack) )
+    # win32: dont use cmd.exe as shell
+    if task.env['OS'] == 'win32':
+        cmd = 'bash -c "%s"' % cmd
    # Logs.debug("runner: system command -> %s" % cmd)
     ret = task.exec_command(cmd, shell=True)
     return ret
