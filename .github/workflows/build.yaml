@@ -60,11 +60,6 @@ jobs:
     steps:
     - name: Check out sources
       uses: actions/checkout@v3.3.0
-    - name: remove temporary workarounds
-      run: |
-        wget https://github.com/torte71/guitarix/commit/100dc10bf80949a071b68b2e5f1e2c96f8ff98cb.patch
-        patch -R -p1 < 100dc10bf80949a071b68b2e5f1e2c96f8ff98cb.patch
-
     - name: install dependencies
       run: |
         sudo apt-get install lv2-dev debhelper fakeroot pkg-config meson libsigc++-2.0-dev libeigen3-dev libfftw3-dev libffi-dev libsndfile1-dev libcairo-dev
