@@ -1,4 +1,4 @@
-void debug_wm(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, void *ui, char *widget_type) {
+void debug_wm(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, void *ui, const char *widget_type) {
     const char *msgstr;
 //    if (debug_verbosity < 2)
 //        return;

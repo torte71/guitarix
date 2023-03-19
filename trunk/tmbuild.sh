@@ -7,13 +7,6 @@ export PYTHONLEGACYWINDOWSSTDIO=utf-8
 export WAF_NO_PREFORK=1
 
 
-if [ ! -e .tmpatched ] ; then
-  # unpack waf for patching
-  ./waf --version
-  patch -p1 < tm-04-ugly-Bdynamic-workaround.patch
-  touch .tmpatched
-fi
-
 ./waf configure -j 7 	\
   --check-cxx-compiler="g++" \
   --no-standalone	\
@@ -25,11 +18,6 @@ fi
   --no-nsm		\
   --no-desktop-update	\
   --static-lib		\
-  --ldflags="-shared -static \
-	$(pkg-config --static --libs sndfile) \
-	$(pkg-config --static --libs cairo) \
-	-lfftw3f -liconv"	\
-  --cxxflags="-g -Wall -DGSEAL_ENABLE -fpermissive -D_USE_MATH_DEFINES" \
   \
   && ./waf build \
   && ./waf install --destdir=$(pwd)/_bin \
