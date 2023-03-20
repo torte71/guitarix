@@ -119,7 +119,7 @@ void _list_key_pressed(void *w_, void* xkey_, void* user_data) {
     Metrics_t m;
     int height;
     if (!w) return;
-#ifdef _WIN32 //KeybHadler
+#ifdef _WIN32 //KeybHandler
     if (xkey->vk_is_final_char) return; // evaluate KEY_DOWN only, not WM_CHAR (dead-key support is not required/wanted here)
 #endif
 
