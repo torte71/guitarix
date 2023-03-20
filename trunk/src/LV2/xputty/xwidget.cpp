@@ -278,7 +278,7 @@ w->widget_type = WT_WINDOW;
 
     childlist_add_child(app->childlist,w);
     //XMapWindow(app->dpy, w->widget);
-    debug_print("size of Func_t = %llu\n", sizeof(w->func)/sizeof(void*));
+    debug_print("size of Func_t = %llu\n", (long long)(sizeof(w->func)/sizeof(void*)));
 
     debug_print("assert(w)\n");
     os_create_main_window_and_surface(w, app, win, x, y, width, height);
@@ -368,7 +368,7 @@ w->widget_type = WT_WIDGET;
 
     childlist_add_child(app->childlist,w);
     //XMapWindow(app->dpy, w->widget);
-    debug_print("size of Widget_t = %lld\n", sizeof(struct Widget_t));
+    debug_print("size of Widget_t = %lld\n", (long long)(sizeof(struct Widget_t)));
 
     debug_print("assert(w)\n");
     os_create_widget_window_and_surface(w, app, parent, x, y, width, height);
