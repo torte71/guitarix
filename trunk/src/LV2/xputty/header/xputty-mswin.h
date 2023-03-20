@@ -22,6 +22,7 @@
  * compatibility definitions
  */
 
+#ifdef _WIN32 //XCompatibility
 
 #pragma once
 
@@ -140,3 +141,4 @@ typedef XEvent XMotionEvent;
 
 #endif //XPUTTY_MSWIN_H_
 
+#endif //_WIN32 //XCompatibility
