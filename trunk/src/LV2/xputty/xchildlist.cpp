@@ -41,7 +41,7 @@ debug_print("%s:childlist_destroy:list=%p",__FUNCTION__,childlist);
 }
 
 void childlist_add_child(Childlist_t *childlist, Widget_t *child) {
-#ifdef _WIN32
+#ifdef _WIN32 //DebugChildList
 debug_print("childlist_add_child:list=%p:child=%p--hwnd=%p %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s",
     childlist,
     child,

@@ -33,7 +33,7 @@
 
 #include <math.h>
 #include <cairo.h>
-#ifdef _WIN32
+#ifdef _WIN32 //Includes
 #include <windows.h>
 #include <cairo-win32.h>
 #elif __linux__
@@ -66,7 +66,7 @@ extern "C" {
  * the -DDEBUG flag
  */
 
-#ifdef _WIN32
+#ifdef _WIN32 //DebugPrint
 #define debug_print(...) \
             { char xxdeb[1024]; snprintf(xxdeb, 1024, __VA_ARGS__); OutputDebugString(xxdeb); }
 #else
@@ -115,7 +115,7 @@ extern "C" {
 -----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
 
-#ifdef _WIN32
+#ifdef _WIN32 //XCompatDefs
 
 typedef unsigned long int XID;
 typedef unsigned long int Atom;

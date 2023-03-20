@@ -85,7 +85,7 @@ int main (int argc, char ** argv)
     /** init the main struct */
     main_init(&app);
     /** create a Window on default root window */
-#ifdef _WIN32
+#ifdef _WIN32 //WindowBorders
     //mainwin = create_window(&app, HWND_DESKTOP, 0, 0, 300, 900);
     mainwin = create_window(&app, (HWND)-1, 0, 0, 300, 900);
     set_light_theme(&app);
@@ -176,6 +176,7 @@ button->func.button_release_callback = file_button_released;
     /** run the event loop */
     main_run(&app);
 
+#ifdef _WIN32 //MessageLoop
 MSG msg;
 while(GetMessage(&msg, NULL, 0, 0))
 {
@@ -183,6 +184,7 @@ while(GetMessage(&msg, NULL, 0, 0))
     DispatchMessage(&msg);
 }
 printf("loop exit\n");
+#endif
 
     /** clean up after the event loop is finished */
     main_quit(&app);

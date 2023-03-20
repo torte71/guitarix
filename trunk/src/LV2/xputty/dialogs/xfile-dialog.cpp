@@ -237,7 +237,7 @@ static void fd_mem_free(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
     FileDialog *file_dialog = (FileDialog *)w->parent_struct;
     if(file_dialog->icon) {
-#ifndef _WIN32
+#ifndef _WIN32 //XFreePixmap
         XFreePixmap(w->app->dpy, (*file_dialog->icon));
 #endif
         file_dialog->icon = NULL;
@@ -258,7 +258,7 @@ Widget_t *open_file_dialog(Widget_t *w, const char *path, const char *filter) {
     file_dialog->send_clear_func = true;
     file_dialog->icon = NULL;
 
-#ifdef _WIN32
+#ifdef _WIN32 //WindowBorders
     file_dialog->w = create_window(w->app, (HWND)-1, 0, 0, 660, 420);
 #else
     file_dialog->w = create_window(w->app, DefaultRootWindow(w->app->dpy), 0, 0, 660, 420);

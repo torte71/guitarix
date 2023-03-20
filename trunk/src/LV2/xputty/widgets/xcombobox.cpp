@@ -48,7 +48,7 @@ wid->widget_type = WT_COMBOBOX;
     button->func.button_release_callback = _button_combobox_released;
 
     Widget_t* menu = create_menu(wid, 25);
-#ifdef _WIN32
+#ifdef _WIN32 //CloseOnMouseLeave
 menu->parent_struct = wid;
 #endif
     menu->func.button_release_callback = _entry_released;

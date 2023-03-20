@@ -568,7 +568,7 @@ static void key_press(void *w_, void *key_, void *user_data) {
     XKeyEvent *key = (XKeyEvent*)key_;
     if (!key) return;
     float outkey = 0.0;
-#ifdef _WIN32
+#ifdef _WIN32 //KeybHandler
     KeySym sym = key->keycode;
     if (key->vk_is_final_char) return; // only real KEY_DOWN, dead-key support not required/wanted
 #else
@@ -597,7 +597,7 @@ static void key_release(void *w_, void *key_, void *user_data) {
     XKeyEvent *key = (XKeyEvent*)key_;
     if (!key) return;
     float outkey = 0.0;
-#ifdef _WIN32
+#ifdef _WIN32 //KeybHandler
     KeySym sym = key->keycode;
     if (key->vk_is_final_char) return; // only real KEY_DOWN, dead-key support not required/wanted
 #else
@@ -767,7 +767,7 @@ static void keyboard_mem_free(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
     MidiKeyboard *keys = (MidiKeyboard*)w->parent_struct;
     if(keys->icon) {
-#ifndef _WIN32
+#ifndef _WIN32 //XFreePixmap
         XFreePixmap(w->app->dpy, (*keys->icon));
 #endif
         keys->icon = NULL;
@@ -810,7 +810,7 @@ Widget_t *add_keyboard_knob(Widget_t *parent, const char * label,
 }
 
 Widget_t *open_midi_keyboard(Widget_t *w) {
-#ifndef _WIN32
+#ifndef _WIN32 //WindowBorders
     Widget_t *wid = create_window(w->app, DefaultRootWindow(w->app->dpy), 0, 0, 700, 200);
     XSelectInput(wid->app->dpy, wid->widget,StructureNotifyMask|ExposureMask|KeyPressMask 
                     |EnterWindowMask|LeaveWindowMask|ButtonReleaseMask|KeyReleaseMask

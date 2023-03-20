@@ -29,7 +29,7 @@ void pop_menu_show(Widget_t *parent, Widget_t *menu, int elem, bool above) {
     if (!view_port->childlist->elem) return;
     _configure_menu(parent, menu, elem, above);
     pop_widget_show_all(menu);
-#ifdef _WIN32
+#ifdef _WIN32 //SetCaptureDisabled
     int err = 0;
     //SetCapture(view_port->widget);
 #else
@@ -62,7 +62,7 @@ Widget_t* create_menu(Widget_t *parent, int height) {
 wid->widget_type = WT_MENU;
     create_viewport(wid, 10, 5*height);
 
-#ifndef _WIN32
+#ifndef _WIN32 //XChangeProperty
     XSetWindowAttributes attributes;
     attributes.override_redirect = True;
     XChangeWindowAttributes(parent->app->dpy, wid->widget, CWOverrideRedirect, &attributes);

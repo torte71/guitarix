@@ -19,7 +19,7 @@
  */
 
 #include "xfilepicker.h"
-#ifdef _WIN32
+#ifdef _WIN32 //Includes
 #include <windows.h>
 #endif
 
@@ -102,7 +102,7 @@ static void fp_clear_dirbuffer(FilePicker *filepicker) {
 static inline int fp_prefill_dirbuffer(FilePicker *filepicker, char *path) {
     int ret = 0;
     if (strcmp (path, PATH_SEPARATOR) == 0) {
-#ifdef _WIN32
+#ifdef _WIN32 //DriveHack
     DWORD drives = GetLogicalDrives();
     int i;
     for (i=0; i<='Z'-'A'; i++) {
@@ -124,7 +124,7 @@ static inline int fp_prefill_dirbuffer(FilePicker *filepicker, char *path) {
         char *ho;
         asprintf(&ho, "%s",path);
         assert(ho != NULL);
-#ifdef _WIN32
+#ifdef _WIN32 //DriveHack
 	while (!((strlen(ho)==3) && ho[1] == ':' && ho[2] == '\\')
 	      &&(!((strlen(ho)==1) && ho[0] == '\\'))) {
 #else
@@ -137,7 +137,7 @@ static inline int fp_prefill_dirbuffer(FilePicker *filepicker, char *path) {
             assert(&filepicker->dir_names[filepicker->dir_counter] != NULL);
             ret++;
         }
-#ifdef _WIN32
+#ifdef _WIN32 //DriveHack
 	if (!((strlen(path)==3) && path[1] == ':' && path[2] == '\\')
 	   &&(!((strlen(path)==1) && path[0] == '\\'))) {
 #else
@@ -173,7 +173,7 @@ int fp_get_files(FilePicker *filepicker, char *path, int get_dirs) {
 
     while ((dp = readdir(dirp)) != NULL) {
 
-#ifndef _WIN32
+#ifndef _WIN32 //ReadDir
         if(dp-> d_type != DT_DIR && strlen(dp->d_name)!=0 && dp->d_type != DT_UNKNOWN
 #else
         if(((dirp->dd_dta.attrib & _A_SUBDIR)==0) && strlen(dp->d_name)!=0
@@ -187,7 +187,7 @@ int fp_get_files(FilePicker *filepicker, char *path, int get_dirs) {
             asprintf(&filepicker->file_names[filepicker->file_counter++],"%s",dp->d_name);
             assert(&filepicker->file_names[filepicker->file_counter] != NULL);
 
-#ifndef _WIN32
+#ifndef _WIN32 //ReadDir
         } else if(get_dirs && dp -> d_type == DT_DIR && strlen(dp->d_name)!=0
 #else
         } else if(get_dirs && ((dirp->dd_dta.attrib & _A_SUBDIR) != 0) && strlen(dp->d_name)!=0

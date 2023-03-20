@@ -19,7 +19,7 @@
  *
  */
 
-#ifdef _WIN32
+#ifdef _WIN32 //PlatformWrappers
 
 #ifdef __cplusplus
 extern "C" {
@@ -760,11 +760,7 @@ RedrawWindow(view_port->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_U
 					if (menu && win_cur == menu->widget) is_item = true; // inside combobox textarea?
 				}
                 if (!is_item) {
-#ifdef _WIN32
 					ReleaseCapture();
-#else
-                    XUngrabPointer(ui->dpy,CurrentTime);
-#endif
                     widget_hide(ui->app->hold_grab);
                     ui->app->hold_grab = NULL;
                 }

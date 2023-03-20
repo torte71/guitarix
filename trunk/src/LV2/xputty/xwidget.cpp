@@ -123,7 +123,7 @@ int key_mapping(Display *dpy, XKeyEvent *xkey) {
 }
 
 void destroy_widget(Widget_t * w, Xputty *main) {
-#ifdef _WIN32
+#ifdef _WIN32 //Debug
 //debug_print("destroy_widget:main=%p:w=%p:hwnd=%p",main,w,w?w->widget:0);
 debug_print("destroy_widget:main=%p:w=%p",main,w);
 #endif

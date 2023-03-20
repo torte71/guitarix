@@ -240,7 +240,7 @@ static void entry_get_text(void *w_, void *key_, void *user_data) {
                 }
             break;
             case 11: entry_clip(w);
-#ifdef _WIN32
+#ifdef _WIN32 //ForceRedraw
                 os_expose_widget(w);
 #endif
             break;
@@ -249,11 +249,12 @@ static void entry_get_text(void *w_, void *key_, void *user_data) {
         }
     } else {
         char buf[32];
-        if (os_get_keyboard_input(w, key, buf, sizeof(buf) - 1))
+        if (os_get_keyboard_input(w, key, buf, sizeof(buf) - 1)) {
             entry_add_text(w, buf);
-#ifdef _WIN32
-	os_expose_widget(w);
+#ifdef _WIN32 //ForceRedraw
+            os_expose_widget(w);
 #endif
+        }
     }
 }
 
@@ -314,7 +315,7 @@ static void mg_mem_free(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
     xxMessageBox *mb = (xxMessageBox *)w->parent_struct;
     if(mb->icon) {
-#ifndef _WIN32
+#ifndef _WIN32 //XFreePixmap
         XFreePixmap(w->app->dpy, (*mb->icon));
 #endif
         mb->icon = NULL;
@@ -347,7 +348,7 @@ Widget_t *open_message_dialog(Widget_t *w, int style, const char *title,
     check_for_message(mb, message);
     check_for_choices(mb, choices);
     check_for_style(mb, style);
-#ifdef _WIN32
+#ifdef _WIN32 //WindowBorders
     Widget_t *wid = create_window(w->app, (HWND)-1, 0, 0, mb->width, mb->height);
 #else
     Widget_t *wid = create_window(w->app, DefaultRootWindow(w->app->dpy), 0, 0, mb->width, mb->height);

@@ -685,7 +685,7 @@ const char *widget_type_name(Widget_t *w);
 int key_mapping(Display *dpy, XKeyEvent *xkey);
 
 bool os_get_keyboard_input(Widget_t *w, XKeyEvent *key, char *buf, size_t bufsize);
-#ifdef _WIN32
+#ifdef _WIN32 //convert_cp
 char *convert_cp(DWORD cp_from, DWORD cp_to, char *s_from);
 #endif
 

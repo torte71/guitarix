@@ -20,7 +20,7 @@
 
 #include "xputty.h"
 
-#ifdef _WIN32
+#ifdef _WIN32 //FIX:XCompat
 #define True true
 #define False false
 #endif
@@ -45,7 +45,7 @@ debug_print("%s:main=%p:main->childlist=%p",__FUNCTION__,main,main->childlist);
 }
 
 void main_run(Xputty *main) {
-#ifndef _WIN32
+#ifndef _WIN32 //MainLoop
     Widget_t * wid = main->childlist->childs[0]; 
     Atom WM_DELETE_WINDOW = os_register_wm_delete_window(wid);
 
@@ -99,7 +99,7 @@ void main_run(Xputty *main) {
 }
 
 void run_embedded(Xputty *main) {
-#ifndef _WIN32
+#ifndef _WIN32 //MainLoop
     XEvent xev;
     int ew = -1;
 
