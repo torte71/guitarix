@@ -315,9 +315,7 @@ static void mg_mem_free(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
     xxMessageBox *mb = (xxMessageBox *)w->parent_struct;
     if(mb->icon) {
-#ifndef _WIN32 //XFreePixmap
-        XFreePixmap(w->app->dpy, (*mb->icon));
-#endif
+        os_free_pixmap(w, mb->icon);
         mb->icon = NULL;
     }
     int i = 0;
