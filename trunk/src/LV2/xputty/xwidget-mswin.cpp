@@ -38,6 +38,7 @@ void SetClientSize(HWND hwnd, int clientWidth, int clientHeight);
 BOOL SetMouseTracking(HWND hwnd, BOOL enable);
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 LRESULT onPaint( HWND hwnd, WPARAM wParam, LPARAM lParam );
+char *convert_cp(DWORD cp_from, DWORD cp_to, char *s_from);
 
 /*---------------------------------------------------------------------
 -----------------------------------------------------------------------
