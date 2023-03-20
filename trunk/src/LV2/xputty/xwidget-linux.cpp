@@ -37,7 +37,7 @@ bool os_get_keyboard_input(Widget_t *w, XKeyEvent *key, char *buf, size_t bufsiz
 	return (status == XLookupChars || status == XLookupBoth);
 }
 
-void os_free_pixmap(Widget_t *w, Pixmap *pixmap) {
+void os_free_pixmap(Widget_t *w, Pixmap pixmap) {
     XFreePixmap(w->app->dpy, pixmap);
 }
 

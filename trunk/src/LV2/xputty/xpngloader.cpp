@@ -97,8 +97,6 @@ cairo_surface_t * surface_get_png(Widget_t *w, cairo_surface_t *sf, const unsign
 
 void widget_set_icon_from_surface(Widget_t *w, Pixmap *icon_, cairo_surface_t *image) {
 #ifdef _WIN32 //PixmapIcon
-    Pixmap icon = 0;
-    cairo_surface_t *surface = NULL;
     return; // TODO
 #else
     int width, height;
@@ -128,12 +126,10 @@ void widget_set_icon_from_surface(Widget_t *w, Pixmap *icon_, cairo_surface_t *i
 }
 
 void widget_set_icon_from_png(Widget_t *w, Pixmap *icon_, const unsigned char* name) {
-    cairo_surface_t *image = cairo_image_surface_create_from_stream (name);
 #ifdef _WIN32 //PixmapIcon
-    Pixmap icon = 0;
-    cairo_surface_t *surface = NULL;
     return; // TODO
 #else
+    cairo_surface_t *image = cairo_image_surface_create_from_stream (name);
     int width = cairo_image_surface_get_width(image);
     int height = cairo_image_surface_get_height(image);
     XWindowAttributes atr;

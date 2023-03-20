@@ -686,7 +686,7 @@ int key_mapping(Display *dpy, XKeyEvent *xkey);
 
 bool os_get_keyboard_input(Widget_t *w, XKeyEvent *key, char *buf, size_t bufsize);
 
-void os_free_pixmap(Widget_t *w, Pixmap *pixmap);
+void os_free_pixmap(Widget_t *w, Pixmap pixmap);
 Display *os_open_display(char *display_name);
 void os_close_display(Display *dpy);
 Window os_get_root_window(Widget_t *w);

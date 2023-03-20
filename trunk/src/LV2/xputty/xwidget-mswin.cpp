@@ -106,7 +106,7 @@ bool os_get_keyboard_input(Widget_t *w, XKeyEvent *key, char *buf, size_t bufsiz
 	return key->vk_is_final_char; // for only feeding readily processed chars into input widgets
 }
 
-void os_free_pixmap(Widget_t *w, Pixmap *pixmap) {
+void os_free_pixmap(Widget_t *w, Pixmap pixmap) {
     // Pixmap stuff not implemented at all
 }
 
