@@ -34,12 +34,10 @@ void _draw_tooltip(void *w_, void* user_data) {
     int width, height;
     Widget_t *w = (Widget_t*)w_;
     if (!w) return;
-
     os_get_window_metrics(w, &m);
     if (!m.visible) return;
     width = m.width;
     height = m.height;
-
     use_bg_color_scheme(w, get_color_state(w));
     cairo_paint (w->crb);
     cairo_text_extents_t extents;

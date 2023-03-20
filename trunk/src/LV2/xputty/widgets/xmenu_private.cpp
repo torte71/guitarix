@@ -34,11 +34,10 @@ void _draw_item(void *w_, void* user_data) {
     int width, height;
     Widget_t *w = (Widget_t*)w_;
     if (!w) return;
-
     os_get_window_metrics(w, &m);
-    if (!m.visible) return;
     width = m.width;
     height = m.height;
+    if (!m.visible) return;
 
     use_base_color_scheme(w, NORMAL_);
     cairo_rectangle(w->crb, 0, 0, width , height);
@@ -70,10 +69,8 @@ void _draw_check_item(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
     Metrics_t m;
     int height;
-
     os_get_window_metrics(w, &m);
     height = m.height;
-
     if (w->flags & IS_RADIO) {
         cairo_arc(w->crb, height/3, height/2, height/6, 0, 2 * M_PI );
     } else {
@@ -98,12 +95,10 @@ void _draw_viewslider(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
     int v = (int)w->adj->max_value;
     if (!v) return;
-
     os_get_window_metrics(w, &m);
     if (!m.visible) return;
     width = m.width;
     height = m.height;
-
     float sliderstate = adj_get_state(w->adj);
     use_bg_color_scheme(w, NORMAL_);
     cairo_rectangle(w->crb, width-5,0,5,height);
@@ -122,7 +117,6 @@ void _set_viewpoint(void *w_, void* user_data) {
     Metrics_t m;
     Widget_t *w = (Widget_t*)w_;
     int v = (int)max(0,adj_get_value(w->adj));
-
     os_get_window_metrics((Widget_t*)w->childlist->childs[0], &m);
     os_move_window(w->app->dpy,w,0, -m.height*v);
 }
@@ -147,10 +141,8 @@ void _configure_menu(Widget_t *parent, Widget_t *menu, int elem, bool above) {
     int height;
     Widget_t* view_port =  menu->childlist->childs[0];
     if (!view_port->childlist->elem) return;
-
     os_get_window_metrics((Widget_t*)view_port->childlist->childs[0], &m);
     height = m.height;
-
     int x1, y1;
     int posy = (above) ? parent->height : 0;
     os_translate_coords(parent, parent->widget, os_get_root_window(parent), 0, posy, &x1, &y1);

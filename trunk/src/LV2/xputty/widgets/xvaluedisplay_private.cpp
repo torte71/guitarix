@@ -27,12 +27,11 @@ void _draw_valuedisplay(void *w_, void* user_data) {
     if (!w) return;
     Metrics_t m;
     int width, height;
-
     os_get_window_metrics(w, &m);
-    if (!m.visible) return;
     width = m.width-2;
     height = m.height-2;
-    
+    if (!m.visible) return;
+
     cairo_rectangle(w->crb,2.0, 2.0, width, height);
 
     if(w->state==0) {

@@ -186,7 +186,6 @@ debug_print("%s:childlist_destroy:list=%p",__FUNCTION__,w->childlist);
 void configure_event(void *w_, void* user_data) {
     Widget_t *wid = (Widget_t*)w_;
     Metrics_t m;
-
     os_get_window_metrics(wid, &m);
     if (wid->width != m.width || wid->height != m.height) {
         wid->scale.scale_x    = (float)wid->scale.init_width - m.width;
@@ -460,6 +459,7 @@ void transparent_draw(void * w_, void* user_data) {
         Widget_t *parent = (Widget_t*)wid->parent;
 	Metrics_t m;
 	os_get_window_metrics(wid, &m);
+
         debug_print("Widget_t _transparency \n");
         cairo_set_source_surface (wid->crb, parent->buffer, -m.x, -m.y);
         cairo_paint (wid->crb);

@@ -58,7 +58,6 @@ void _draw_knob(void *w_, void* user_data) {
     Metrics_t m;
     int width, height;
     Widget_t *w = (Widget_t*)w_;
-
     os_get_window_metrics(w, &m);
     width = m.width-2;
     height = m.height-2;

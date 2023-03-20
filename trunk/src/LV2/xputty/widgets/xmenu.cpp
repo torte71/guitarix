@@ -90,11 +90,9 @@ Widget_t* menu_add_item(Widget_t *menu,const char * label) {
     Metrics_t m;
     int width, height;
     Widget_t* view_port =  menu->childlist->childs[0];
-
     os_get_window_metrics(menu, &m);
     width = m.width;
     height = m.height;
-
     int si = childlist_has_child(view_port->childlist);
     Widget_t *wid = create_widget(menu->app, view_port, 0, height*si, width, height);
 wid->widget_type = WT_MENU_ITEM;

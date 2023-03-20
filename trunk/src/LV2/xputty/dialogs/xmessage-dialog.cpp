@@ -39,11 +39,10 @@ static void draw_message_window(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
     Metrics_t m;
     int width_t, height_t;
-
     os_get_window_metrics(w, &m);
-    if (!m.visible) return;
     width_t = m.width;
     height_t = m.height;
+    if (!m.visible) return;
 
     cairo_rectangle(w->crb,0,0,width_t,height_t);
     set_pattern(w,&w->app->color_scheme->selected,&w->app->color_scheme->normal,BACKGROUND_);
@@ -71,11 +70,10 @@ static void draw_entry(void *w_, void* user_data) {
     if (!w) return;
     Metrics_t m;
     int width, height;
-
     os_get_window_metrics(w, &m);
-    if (!m.visible) return;
     width = m.width;
     height = m.height;
+    if (!m.visible) return;
 
     use_base_color_scheme(w, NORMAL_);
     cairo_rectangle(w->cr,0,0,width,height);

@@ -35,13 +35,10 @@ void _draw_list(void *w_, void* user_data) {
     _draw_listview_viewslider(w, user_data);
     Metrics_t m;
     int width, height;
-    if (!w) return;
-
     os_get_window_metrics(w, &m);
     if (!m.visible) return;
     width = m.width;
     height = m.height;
-
     ViewList_t *filelist = (ViewList_t*)w->parent_struct;
 
     int v = (int)w->adj->max_value;
@@ -100,8 +97,6 @@ void _list_motion(void *w_, void* xmotion_, void* user_data) {
     XMotionEvent *xmotion = (XMotionEvent*)xmotion_;
     Metrics_t m;
     int height;
-    if (!w) return;
-
     os_get_window_metrics(w, &m);
     height = m.height;
     int _items = height/(height/25);
@@ -118,11 +113,9 @@ void _list_key_pressed(void *w_, void* xkey_, void* user_data) {
     ViewList_t *filelist = (ViewList_t*)w->parent_struct;
     Metrics_t m;
     int height;
-    if (!w) return;
 #ifdef _WIN32 //KeybHandler
     if (xkey->vk_is_final_char) return; // evaluate KEY_DOWN only, not WM_CHAR (dead-key support is not required/wanted here)
 #endif
-
     os_get_window_metrics(w, &m);
     height = m.height;
     int _items = height/(height/25);
@@ -151,8 +144,6 @@ void _list_entry_released(void *w_, void* button_, void* user_data) {
         XButtonEvent *xbutton = (XButtonEvent*)button_;
 	Metrics_t m;
 	int height;
-	if (!w) return;
-
 	os_get_window_metrics(w, &m);
 	height = m.height;
         int _items = height/(height/25);
@@ -189,8 +180,6 @@ void _reconfigure_listview_viewport(void *w_, void* user_data) {
     ViewList_t *filelist = (ViewList_t*)w->parent_struct;
     Metrics_t m;
     int height;
-    if (!w) return;
-
     os_get_window_metrics(listview, &m);
     height = m.height;
     filelist->show_items = height/25;
@@ -204,10 +193,7 @@ void _configure_listview(void *w_, void* user_data) {
     ViewList_t *filelist = (ViewList_t*)w->parent_struct;
     Metrics_t m;
     int width;
-    if (!w) return;
-
     os_get_window_metrics(listview, &m);
-    if (!m.visible) return;
     width = m.width;
     os_resize_window(w->app->dpy, w, width, 25*(max(1,filelist->list_size)));
 }
@@ -218,8 +204,6 @@ void _draw_listview_viewslider(void *w_, void* user_data) {
     if (v<=0) return;
     Metrics_t m;
     int width, height;
-    if (!w) return;
-
     os_get_window_metrics(w, &m);
     if (!m.visible) return;
     width = m.width;

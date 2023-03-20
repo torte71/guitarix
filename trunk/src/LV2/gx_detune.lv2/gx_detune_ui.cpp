@@ -154,14 +154,14 @@ static void draw_my_vslider(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
     Metrics_t m;
     int width, height;
-
     os_get_window_metrics(w, &m);
-    if (!m.visible) return;
     width = m.width-2;
     height = m.height-2;
     float center = (float)width/2;
     float upcenter = (float)width;
     
+    if (!m.visible) return;
+
     float sliderstate = adj_get_state(w->adj_y);
 
     _pattern_vslider(w, get_color_state(w), width);

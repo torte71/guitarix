@@ -28,11 +28,10 @@ void _draw_combobox_button(void *w_, void* user_data) {
     if (!w) return;
     Metrics_t m;
     int width, height;
-
     os_get_window_metrics(w, &m);
-    if (!m.visible) return;
     width = m.width-2;
     height = m.height-4;
+    if (!m.visible) return;
 
     if (!w->state && (int)w->adj_y->value)
         w->state = 3;
@@ -105,11 +104,10 @@ void _draw_combobox(void *w_, void* user_data) {
     if (!w) return;
     Metrics_t m;
     int width, height;
-
     os_get_window_metrics(w, &m);
-    if (!m.visible) return;
     width = m.width-2;
     height = m.height-2;
+    if (!m.visible) return;
 
     cairo_rectangle(w->crb,2.0, 2.0, width, height);
 

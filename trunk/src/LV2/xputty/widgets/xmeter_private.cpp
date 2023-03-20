@@ -26,8 +26,6 @@ void _draw_vmeter_scale(void *w_, void* user_data) {
     Metrics_t m;
     int rect_width, rect_height;
     Widget_t *w = (Widget_t*)w_;
-    if (!w) return;
-
     os_get_window_metrics(w, &m);
     rect_width = m.width;
     rect_height = m.height;
@@ -73,10 +71,7 @@ void _draw_hmeter_scale(void *w_, void* user_data) {
     Metrics_t m;
     int rect_width, rect_height;
     Widget_t *w = (Widget_t*)w_;
-    if (!w) return;
-
     os_get_window_metrics(w, &m);
-    if (!m.visible) return;
     rect_width = m.width;
     rect_height = m.height;
     double x0      = 0;

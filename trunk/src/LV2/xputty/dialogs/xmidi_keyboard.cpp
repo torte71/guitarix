@@ -232,7 +232,6 @@ void mk_draw_knob(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
     Metrics_t m;
     int width, height;
-
     os_get_window_metrics(w, &m);
     width = m.width-2;
     height = m.height-2;
@@ -338,12 +337,10 @@ static void draw_keyboard(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
     Metrics_t m;
     int width_t, height_t;
-
     os_get_window_metrics(w, &m);
-    if (!m.visible) return;
     width_t = m.width;
     height_t = m.height;
-
+    if (!m.visible) return;
     MidiKeyboard *keys = (MidiKeyboard*)w->parent_struct;
     
     cairo_rectangle(w->crb,0,0,width_t,height_t*0.4);
@@ -452,7 +449,6 @@ static void keyboard_motion(void *w_, void* xmotion_, void* user_data) {
     XMotionEvent *xmotion = (XMotionEvent*)xmotion_;
     Metrics_t m;
     int width, height;
-
     os_get_window_metrics(w, &m);
     if (!m.visible) return;
     width = m.width;

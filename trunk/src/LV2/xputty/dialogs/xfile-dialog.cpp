@@ -40,7 +40,6 @@
 static void draw_window(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
     Metrics_t m;
-
     os_get_window_metrics(w, &m);
     if (!m.visible) return;
 

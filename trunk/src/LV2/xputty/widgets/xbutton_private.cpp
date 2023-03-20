@@ -116,12 +116,10 @@ void _draw_switch_image_button(void *w_, void* user_data) {
     int width, height;
     Widget_t *w = (Widget_t*)w_;
     if (!w) return;
-
     os_get_window_metrics(w, &m);
-    if (!m.visible) return;
     width = m.width-2;
     height = m.height-2;
-
+    if (!m.visible) return;
     if(strlen(w->label)) {
         _draw_image_button_with_label(w, width, height);
     } else {
@@ -182,12 +180,10 @@ void _draw_button(void *w_, void* user_data) {
     int width, height;
     Widget_t *w = (Widget_t*)w_;
     if (!w) return;
-
     os_get_window_metrics(w, &m);
-    if (!m.visible) return;
     width = m.width-2;
     height = m.height-2;
-
+    if (!m.visible) return;
     _draw_button_base(w, width, height);
 
     float offset = 0.0;
@@ -228,11 +224,10 @@ void _draw_on_off_button(void *w_, void* user_data) {
     int width, height;
     Widget_t *w = (Widget_t*)w_;
     if (!w) return;
-
     os_get_window_metrics(w, &m);
-    if (!m.visible) return;
     width = m.width-2;
     height = m.height-2;
+    if (!m.visible) return;
 
     _draw_button_base(w, width, height);
 
@@ -272,12 +267,10 @@ void _draw_ti_button(void *w_, void* user_data) {
     int width, height;
     Widget_t *w = (Widget_t*)w_;
     if (!w) return;
-
     os_get_window_metrics(w, &m);
-    if (!m.visible) return;
     width = m.width-2;
     height = m.height-2;
-
+    if (!m.visible) return;
     _draw_button_base(w, width, height);
     if (w->image) {
         float offset = 0.0;
@@ -300,12 +293,10 @@ void _draw_check_button(void *w_, void* user_data) {
     int width, height;
     Widget_t *w = (Widget_t*)w_;
     if (!w) return;
-
     os_get_window_metrics(w, &m);
-    if (!m.visible) return;
     width = m.width-2;
     height = m.height-2;
-
+    if (!m.visible) return;
     if (w->image) {
         _draw_image_button(w, width, height,0.0);
     } else {
@@ -336,11 +327,9 @@ void _draw_check_box(void *w_, void* user_data) {
     int height;
     Widget_t *w = (Widget_t*)w_;
     if (!w) return;
-
     os_get_window_metrics(w, &m);
-    if (!m.visible) return;
     height = m.height-2;
-
+    if (!m.visible) return;
     if (w->image) {
         _draw_image_button(w, height, height,0.0);
     } else {

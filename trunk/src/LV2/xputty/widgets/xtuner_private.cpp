@@ -87,7 +87,6 @@ void _draw_tuner(void *w_, void* user_data) {
     XTuner *xt = (XTuner *)w->parent_struct;
     Metrics_t m;
     int width, height;
-
     os_get_window_metrics(w, &m);
     if (!m.visible) return;
     width = m.width;
