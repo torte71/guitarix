@@ -96,19 +96,18 @@ cairo_surface_t * surface_get_png(Widget_t *w, cairo_surface_t *sf, const unsign
 }
 
 void widget_set_icon_from_surface(Widget_t *w, Pixmap *icon_, cairo_surface_t *image) {
-    int width, height;
-    os_get_surface_size(w->image, &width, &height);
 #ifdef _WIN32 //PixmapIcon
     Pixmap icon = 0;
     cairo_surface_t *surface = NULL;
     return; // TODO
 #else
+    int width, height;
+    os_get_surface_size(w->image, &width, &height);
     XWindowAttributes atr;
     XGetWindowAttributes (w->app->dpy, w->widget, &atr);
     Pixmap icon = XCreatePixmap(w->app->dpy, w->widget, width, height, atr.depth);
     cairo_surface_t *surface = cairo_xlib_surface_create (w->app->dpy, icon,  
                   DefaultVisual(w->app->dpy, DefaultScreen(w->app->dpy)), width, height);
-#endif
     cairo_t *cri = cairo_create (surface);
     Colors *c = get_color_scheme(w->app, PRELIGHT_);
     cairo_set_source_rgba(cri, c->bg[0],  c->bg[1], c->bg[2],  c->bg[3]);
@@ -119,7 +118,6 @@ void widget_set_icon_from_surface(Widget_t *w, Pixmap *icon_, cairo_surface_t *i
     cairo_destroy(cri);
     icon_ = &icon;
     
-#ifndef _WIN32 //PixmapIcon
     XWMHints* win_hints = XAllocWMHints();
     assert(win_hints);
     win_hints->flags = IconPixmapHint;
@@ -131,7 +129,11 @@ void widget_set_icon_from_surface(Widget_t *w, Pixmap *icon_, cairo_surface_t *i
 
 void widget_set_icon_from_png(Widget_t *w, Pixmap *icon_, const unsigned char* name) {
     cairo_surface_t *image = cairo_image_surface_create_from_stream (name);
-#ifndef _WIN32 //PixmapIcon
+#ifdef _WIN32 //PixmapIcon
+    Pixmap icon = 0;
+    cairo_surface_t *surface = NULL;
+    return; // TODO
+#else
     int width = cairo_image_surface_get_width(image);
     int height = cairo_image_surface_get_height(image);
     XWindowAttributes atr;
@@ -139,11 +141,6 @@ void widget_set_icon_from_png(Widget_t *w, Pixmap *icon_, const unsigned char* n
     Pixmap icon = XCreatePixmap(w->app->dpy, w->widget, width, height, atr.depth);
     cairo_surface_t *surface = cairo_xlib_surface_create (w->app->dpy, icon,  
                   DefaultVisual(w->app->dpy, DefaultScreen(w->app->dpy)), width, height);
-#else
-    Pixmap icon = 0;
-    cairo_surface_t *surface = NULL;
-    return; // TODO
-#endif
     cairo_t *cri = cairo_create (surface);
     Colors *c = get_color_scheme(w->app, PRELIGHT_);
     cairo_set_source_rgba(cri, c->bg[0],  c->bg[1], c->bg[2],  c->bg[3]);
@@ -155,7 +152,6 @@ void widget_set_icon_from_png(Widget_t *w, Pixmap *icon_, const unsigned char* n
     cairo_destroy(cri);
     icon_ = &icon;
     
-#ifndef _WIN32 //PixmapIcon
     XWMHints* win_hints = XAllocWMHints();
     assert(win_hints);
     win_hints->flags = IconPixmapHint;
