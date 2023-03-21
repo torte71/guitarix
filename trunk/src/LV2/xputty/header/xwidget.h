@@ -228,6 +228,56 @@ typedef enum {
 } WidgetType;
 
 /**
+ *
+ * @brief widget_type_names[]           - array with textual representations for WidgetType
+ * \n Max. length in characters for each name is XPUTTY_WIDGET_NAME_MAXLEN
+ * \n The last member "UKNOWN" is used for WidgetType out of bounds (0 < WidgetType < XPUTTY_WIDGET_NAME_COUNT)
+ */
+#define XPUTTY_WIDGET_NAME_COUNT 38
+#define XPUTTY_WIDGET_NAME_MAXLEN 256
+const char widget_type_names[XPUTTY_WIDGET_NAME_COUNT + 1][XPUTTY_WIDGET_NAME_MAXLEN] = {
+    "WT_NONE",
+    "WT_WINDOW",
+    "WT_WIDGET",
+    "WT_BUTTON",
+    "WT_ON_OFF_BUTTON",
+    "WT_TOGGLE_BUTTON",
+    "WT_IMAGE_TOGGLE_BUTTON",
+    "WT_SWITCH_IMAGE_TOGGLE_BUTTON",
+    "WT_CHECK_BUTTON",
+    "WT_CHECK_BOX",
+    "WT_COMBOBOX",
+    "WT_FILE_DIALOG",
+    "WT_KNOB",
+    "WT_IMAGE_KNOB",
+    "WT_LABEL",
+    "WT_LISTBOX_VIEWPORT",
+    "WT_LISTBOX",
+    "WT_LISTBOX_ENTRY",
+    "WT_LISTVIEW_VIEWPORT",
+    "WT_LISTVIEW",
+    "WT_MENU",
+    "WT_MENU_VIEWPORT",
+    "WT_MENU_ITEM",
+    "WT_MENU_CHECK_ITEM",
+    "WT_MENU_RADIO_ITEM",
+    "WT_MESSAGE_DIALOG",
+    "WT_VMETER",
+    "WT_VMETER_SCALE",
+    "WT_HMETER",
+    "WT_HMETER_SCALE",
+    "WT_MIDI_KEYBOARD",
+    "WT_PLAYHEAD",
+    "WT_VSLIDER",
+    "WT_HSLIDER",
+    "WT_TOOLTIP",
+    "WT_TUNER",
+    "WT_VALUEDISPLAY",
+    "WT_TEXT_ENTRY",
+    "UNKNOWN"
+};
+
+/**
  * 
  * @brief Gravity              - enum to indicate how to resize a widget
  * @param NORTHWEST            - Widget_t adjust nord/west
