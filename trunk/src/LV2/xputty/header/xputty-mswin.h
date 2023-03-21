@@ -59,6 +59,9 @@ typedef XEvent XButtonEvent;
 typedef XEvent XKeyEvent;
 typedef XEvent XMotionEvent;
 
+#define True 1
+#define False 0
+
 #define Button1 1
 #define Button2 2
 #define Button3 3

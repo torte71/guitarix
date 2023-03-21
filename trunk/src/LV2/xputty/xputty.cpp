@@ -20,11 +20,6 @@
 
 #include "xputty.h"
 
-#ifdef _WIN32 //FIX:XCompat
-#define True true
-#define False false
-#endif
-
 
 void main_init(Xputty *main) {
     main->dpy = os_open_display(0);
