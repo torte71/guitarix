@@ -1,8 +1,8 @@
-/* vim:ts=4:sw=4:noet:
- *                           0BSD 
- * 
+/* vim:ts=4:sw=4:et:
+ *                           0BSD
+ *
  *                    BSD Zero Clause License
- * 
+ *
  *  Copyright (c) 2019 Hermann Meyer
  *
  * Permission to use, copy, modify, and/or distribute this software for any
@@ -18,6 +18,15 @@
  *
  */
 
+/*
+ * Platform wrapper functions (Linux, MSWindows):
+ * This file contains forward definitions and structs for platform support.
+ * Platform specific implementations are located in xwidget-linux.cpp
+ * and xwidget-mswin.cpp.
+ * Xlib compatibility definitions are located in xputty-mswin.h.
+ */
+
+
 #pragma once
 
 #ifndef XWIDGET_PLATFORM_H
@@ -30,21 +39,40 @@ extern "C" {
 #endif
 
 /*---------------------------------------------------------------------
------------------------------------------------------------------------	
-					basic X11 widgets
+----------------------------------------------------------------------- 
+                    common structs and definitions
 -----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
 
+/**
+ *
+ * @brief Metrics_t            - struct to receive window size, position & visibility
+ * \n Pass this struct to os_get_window_metrics()
+ * @param width                - current width
+ * @param height               - current height
+ * @param x                    - current x position on Parent
+ * @param y                    - current y position on Parent
+ * @param visible              - window is not hidden or closed
+ */
+
 typedef struct {
-  int width;
-  int height;
-  int x;
-  int y;
-  bool visible;
+/** current width */
+    int width;
+/** current height */
+    int height;
+/** current x position on Parent */
+    int x;
+/** current y position on Parent */
+    int y;
+/** window is not hidden or closed */
+    bool visible;
 } Metrics_t;
 
-
-//const char *widget_type_name(Widget_t *w);
+/*---------------------------------------------------------------------
+----------------------------------------------------------------------- 
+                    wrapper functions
+-----------------------------------------------------------------------
+----------------------------------------------------------------------*/
 
 
 bool os_get_keyboard_input(Widget_t *w, XKeyEvent *key, char *buf, size_t bufsize);
@@ -80,7 +108,7 @@ void os_quit(Widget_t *w);
 void os_quit_widget(Widget_t *w);
 
 Atom os_register_widget_destroy(Widget_t * wid);
-// xputty.cpp xchildlist.cpp
+
 Atom os_register_wm_delete_window(Widget_t * wid);
 
 #ifdef __cplusplus
