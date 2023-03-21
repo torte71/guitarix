@@ -34,22 +34,22 @@ TCHAR szMainUIClassName[]   = TEXT("xputtyMainUI____0123456789ABCDEF");
 TCHAR szWidgetUIClassName[] = TEXT("xputtyWidgetUI__0123456789ABCDEF");
 
 // forward declarations
-void SetClientSize(HWND hwnd, int clientWidth, int clientHeight);
-BOOL SetMouseTracking(HWND hwnd, BOOL enable);
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 LRESULT onPaint( HWND hwnd, WPARAM wParam, LPARAM lParam );
-char *convert_cp(DWORD cp_from, DWORD cp_to, char *s_from);
 
 /*---------------------------------------------------------------------
 -----------------------------------------------------------------------
-			common functions (required)
+			internal helper functions
 -----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
+
 void debug_lasterror(const char *prefix, const char *prefix2) {
 	LPSTR msg = nullptr;
 	DWORD err = GetLastError();
-	size_t size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-								 NULL, err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&msg, 0, NULL);
+	size_t size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER
+                |FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS,
+                NULL, err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                (LPSTR)&msg, 0, NULL);
 	if (size) {
 		debug_print("%s%s:ERR=%8.8lx (%ld): %s",prefix?prefix:"",prefix2?prefix2:"",err,err,msg);
 		LocalFree(msg);
@@ -60,39 +60,81 @@ void debug_lasterror(const char *prefix, const char *prefix2) {
 	}
 }
 
+/*---------------------------------------------------------------------
+            codepage conversion
+----------------------------------------------------------------------*/
+
+// general codepage conversion
 char *convert_cp(DWORD cp_from, DWORD cp_to, char *s_from) {
-	char *s_to = NULL;
-	int flags = MB_PRECOMPOSED; // | MB_ERR_INVALID_CHARS;
-	// prepare conversion to WideChar (using cp_from) - get required space
-	size_t size = MultiByteToWideChar(cp_from, flags, s_from, -1, NULL, 0);
-	if (size) {
-	  // convert Ansi to WideChar (pwc)
-	  wchar_t *pwc= (wchar_t*)malloc(size*2);
-	  size_t size_wc = MultiByteToWideChar(cp_from, flags, s_from, -1, pwc, size);
-	  if (size_wc) {
-		// prepare conversion to cp_to - get required space
-		flags = 0;
-		size = WideCharToMultiByte(cp_to, flags, pwc, size_wc, NULL, 0, NULL, NULL);
-		if (size) {
-		  // convert WideChar (pwc) to Ansi using cp_to
-		  s_to = (char*)malloc(size+1);
-		  memset(s_to, 0 , size+1);
-		  size = WideCharToMultiByte(cp_to, flags, pwc, size_wc, s_to, size, NULL, NULL);
-		}
-	  }
-	  free(pwc);
-	}
+    char *s_to = NULL;
+    int flags = MB_PRECOMPOSED; // | MB_ERR_INVALID_CHARS;
+    // prepare conversion to WideChar (using cp_from) - get required space
+    size_t size = MultiByteToWideChar(cp_from, flags, s_from, -1, NULL, 0);
+    if (size) {
+        // convert Ansi to WideChar (pwc)
+        wchar_t *pwc= (wchar_t*)malloc(size*2);
+        size_t size_wc = MultiByteToWideChar(cp_from, flags, s_from, -1, pwc, size);
+        if (size_wc) {
+            // prepare conversion to cp_to - get required space
+            flags = 0;
+            size = WideCharToMultiByte(cp_to, flags, pwc, size_wc, NULL, 0, NULL, NULL);
+            if (size) {
+                // convert WideChar (pwc) to Ansi using cp_to
+                s_to = (char*)malloc(size+1);
+                memset(s_to, 0 , size+1);
+                size = WideCharToMultiByte(cp_to, flags, pwc, size_wc, s_to, size, NULL, NULL);
+            }
+        }
+        free(pwc);
+    }
     // needs to be free()d by caller
 	return s_to;
 }
 
+// convert active codepage to utf8
 char *utf8_from_locale(char *localestr) {
 	return (convert_cp(GetACP(), CP_UTF8, localestr));
 }
 
+// convert utf8 to active codepage
 char *locale_from_utf8(char *utf8str) {
 	return (convert_cp(CP_UTF8, GetACP(), utf8str));
 }
+
+/*---------------------------------------------------------------------
+            window settings
+----------------------------------------------------------------------*/
+
+void SetClientSize(HWND hwnd, int clientWidth, int clientHeight) {
+	if (IsWindow(hwnd)) {
+		DWORD dwStyle = GetWindowLongPtr(hwnd, GWL_STYLE) ;
+		DWORD dwExStyle = GetWindowLongPtr(hwnd, GWL_EXSTYLE) ;
+		HMENU menu = GetMenu(hwnd) ;
+		RECT rc = {0, 0, clientWidth, clientHeight} ;
+		AdjustWindowRectEx(&rc, dwStyle, menu ? TRUE : FALSE, dwExStyle);
+		SetWindowPos(hwnd, NULL, 0, 0, rc.right - rc.left, rc.bottom - rc.top,
+					 SWP_NOZORDER | SWP_NOMOVE) ;
+	}
+}
+
+// WM_MOUSELEAVE is only reported ONCE after calling TrackMouseEvent(TME_LEAVE)
+BOOL SetMouseTracking(HWND hwnd, BOOL enable) {
+	TRACKMOUSEEVENT tme;
+
+	tme.cbSize = sizeof(tme);
+	tme.dwFlags = TME_LEAVE;
+	if (!enable)
+		tme.dwFlags |= TME_CANCEL;
+	tme.hwndTrack = hwnd;
+	tme.dwHoverTime = HOVER_DEFAULT;
+	return TrackMouseEvent(&tme);
+}
+
+/*---------------------------------------------------------------------
+-----------------------------------------------------------------------
+			common functions (required)
+-----------------------------------------------------------------------
+----------------------------------------------------------------------*/
 
 bool os_get_keyboard_input(Widget_t *w, XKeyEvent *key, char *buf, size_t bufsize) {
 	char ansibuf[2];
@@ -124,22 +166,12 @@ void os_destroy_window(Widget_t *w) {
 
 	// mswin automatically sends WM_DESTROY to all child windows
 	// floating windows need to be handled manually
-	//if ((w) && ( (w->flags & IS_WINDOW)
-	//		  || (w->flags & WT_MENU)
-	//		  || (w->flags & WT_TOOLTIP)
-	//		  || (w->flags & WT_FILE_DIALOG)
-	//		  || (w->flags & WT_MESSAGE_DIALOG)
-	//		  || (w->flags & WT_MIDI_KEYBOARD) )) {
 	if (w && (IsWindow(w->widget))) {
 		debug_print("STUB:os_destroy_window:DestroyWindow:hwnd=%p",(w)?w->widget:NULL);
 		DestroyWindow(w->widget);
-		//SendMessage(w->widget, WM_CLOSE, 0, 0);
 	} else {
 		debug_print("STUB:os_destroy_window:DestroyWindow:NOTFOUND:hwnd=%p",(w)?w->widget:NULL);
 	}
-	//UnregisterClass(TEXT("xputtyMainUIClass"), NULL);
-	//UnregisterClass(TEXT("xputtyWidgetUIClass"), NULL);
-	// STUB
 }
 
 Window os_get_root_window(Widget_t *w) {
@@ -199,7 +231,6 @@ void os_resize_window(Display *dpy, Widget_t *w, int x, int y) {
 void os_create_main_window_and_surface(Widget_t *w, Xputty *app, Window win,
                           int x, int y, int width, int height) {
 	// prepare window class
-//diff:classname
 	WNDCLASS wndclass = {0};
 	HINSTANCE hInstance = NULL;
 
@@ -275,7 +306,6 @@ void os_create_widget_window_and_surface(Widget_t *w, Xputty *app, Widget_t *par
                           int x, int y, int width, int height) {
   // STUB
 	// prepare window class
-//diff:classname
 	WNDCLASS wndclass = {0};
 	HINSTANCE hInstance = NULL;
 debug_print("os_create_widget_window_and_surface:x=%d:y=%d:w=%d:h=%d:w=%p:app=%p:parent=%p\n",x,y,width,height,w,app,parent);
@@ -345,8 +375,6 @@ void os_widget_event_loop(void *w_, void* event, Xputty *main, void* user_data) 
 void os_send_configure_event(Widget_t *w,int x, int y, int width, int height) {
 	debug_print("STUB:os_send_configure_event:x=%d:y=%d:width=%d:height=%d:w=%p\n",x,y,width,height,w);
 	// STUB
-//SetClientSize(w->widget, width, height); // makes no difference
-//RedrawWindow(w->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_UPDATENOW);
 }
 void os_send_button_press_event(Widget_t *w) {
 	debug_print("STUB:os_send_button_press_event:w=%p",w);
@@ -375,8 +403,6 @@ void os_quit(Widget_t *w) {
 		int res = SendMessage(w->widget, msg, wParam, 0); // WM_DELETE_WINDOW
 		debug_print("STUB:os_quit:w=%p:hwnd/dest=%p:wPar/toplvl=%16.16llx:msg=%8.8lx:res=%d",w,(w)?w->widget:NULL,wParam,msg,res);
 	}
-	// STUB
-
 	// UnregisterClass silently fails, if there are still more windows of this class
 	if (UnregisterClass(szMainUIClassName, NULL)) {
 		debug_print("UnregisterMainClass:%s:OK", szMainUIClassName);
@@ -395,13 +421,6 @@ void os_quit_widget(Widget_t *w) {
 	DWORD msg = os_register_widget_destroy(w);
 	int res = SendMessage(w->widget, msg, wParam, 0); // WIDGET_DESTROY
 	debug_print("STUB:os_quit_widget:w=%p:hwnd=%p:msg=%8.8lx:res=%d",w,(w)?w->widget:NULL,msg,res);
-//if ((w) && (w->flags & IS_POPUP)) {
-//	debug_print("STUB:os_quit_widget:IS_POPUP:DestroyWindow:hwnd=%p",(w)?w->widget:NULL);
-//	CloseWindow(w->widget);
-//	DestroyWindow(w->widget);
-//}
-	//CloseWindow(w->widget);
-	//UnregisterClass(TEXT("xputtyWidgetUIClass"), NULL);
 	// STUB
 }
 
@@ -410,7 +429,6 @@ Atom os_register_wm_delete_window(Widget_t * wid) {
 	//Atom msg = RegisterWindowMessage("XPUTTY_WM_DELETE_WINDOW");
 	debug_print("STUB:os_register_wm_delete_window:w=%p:msg=%8.8lx",wid,msg);
 	return msg;
-	//return 0; // STUB
 }
 
 Atom os_register_widget_destroy(Widget_t * wid) {
@@ -418,7 +436,6 @@ Atom os_register_widget_destroy(Widget_t * wid) {
 	//Atom msg = RegisterWindowMessage("XPUTTY_WIDGET_DESTROY");
 	debug_print("STUB:os_register_widget_destroy:w=%p:msg=%8.8lx",wid,msg);
 	return msg;
-	//return 0; // STUB
 }
 
 // os specific
@@ -912,34 +929,6 @@ LRESULT onPaint( HWND hwnd, WPARAM wParam, LPARAM lParam ) {
 
 	EndPaint( hwnd, &ps );
 	return 0 ;
-}
-
-/*---------------------------------------------------------------------
----------------------------------------------------------------------*/
-
-void SetClientSize(HWND hwnd, int clientWidth, int clientHeight) {
-	if (IsWindow(hwnd)) {
-		DWORD dwStyle = GetWindowLongPtr(hwnd, GWL_STYLE) ;
-		DWORD dwExStyle = GetWindowLongPtr(hwnd, GWL_EXSTYLE) ;
-		HMENU menu = GetMenu(hwnd) ;
-		RECT rc = {0, 0, clientWidth, clientHeight} ;
-		AdjustWindowRectEx(&rc, dwStyle, menu ? TRUE : FALSE, dwExStyle);
-		SetWindowPos(hwnd, NULL, 0, 0, rc.right - rc.left, rc.bottom - rc.top,
-					 SWP_NOZORDER | SWP_NOMOVE) ;
-	}
-}
-
-// WM_MOUSELEAVE is only reported ONCE after calling TrackMouseEvent(TME_LEAVE)
-BOOL SetMouseTracking(HWND hwnd, BOOL enable) {
-	TRACKMOUSEEVENT tme;
-
-	tme.cbSize = sizeof(tme);
-	tme.dwFlags = TME_LEAVE;
-	if (!enable)
-		tme.dwFlags |= TME_CANCEL;
-	tme.hwndTrack = hwnd;
-	tme.dwHoverTime = HOVER_DEFAULT;
-	return TrackMouseEvent(&tme);
 }
 
 /*---------------------------------------------------------------------
