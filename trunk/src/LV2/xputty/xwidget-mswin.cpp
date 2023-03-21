@@ -570,9 +570,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	XKeyEvent xkey;
 	void *user_data = NULL;
 
-	// be aware: "ui" can be NULL during window creation (esp. if there is a debugger attached)
-	Widget_t *ui = (Widget_t *)GetWindowLongPtr(hwnd, GWLP_USERDATA);
-	Xputty *main = ui ? ui-> app : NULL;
+	// be aware: "wid" can be NULL during window creation (esp. if there is a debugger attached)
+	Widget_t *wid = (Widget_t *)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+	Xputty *main = wid ? wid-> app : NULL;
 
 	xbutton.window = hwnd;
 	xbutton.x = GET_X_LPARAM(lParam);
@@ -583,21 +583,21 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 	switch (msg) {
 		case WM_CREATE:
-			debug_print("WM:WM_CREATE:hwnd=%p:ui=%p",hwnd,ui);
+			debug_print("WM:WM_CREATE:hwnd=%p:wid=%p",hwnd,wid);
 			{
 				CREATESTRUCT *pCreate = (CREATESTRUCT *)lParam;
-				ui = (Widget_t *)pCreate->lpCreateParams;
-				// CreateWindowEx() hasnt returned yet, so ui->widget is not set
-				ui->widget = hwnd;
-				// make "ui" available in messageloop events via GetWindowLongPtr()
-				SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)ui);
+				wid = (Widget_t *)pCreate->lpCreateParams;
+				// CreateWindowEx() hasnt returned yet, so wid->widget is not set
+				wid->widget = hwnd;
+				// make "wid" available in messageloop events via GetWindowLongPtr()
+				SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)wid);
 			}
 			return 0;
 
 		// MSWin only: React to close requests
 		case WM_CLOSE:
 			// standalone
-			debug_print("WM:WM_CLOSE:hwnd=%p:ui=%p",hwnd,ui);
+			debug_print("WM:WM_CLOSE:hwnd=%p:wid=%p",hwnd,wid);
 			if (hwnd == main->childlist->childs[0]->widget) {
 				// is main window: end application
 				PostQuitMessage(0); // end messageloop (continuing to main_quit())
@@ -605,25 +605,25 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				DestroyWindow(hwnd);
 			return 0;
 		case WM_DESTROY:
-			debug_print("WM:WM_DESTROY:hwnd=%p:ui=%p",hwnd,ui);
-			if (!ui) return DefWindowProc(hwnd, msg, wParam, lParam);
+			debug_print("WM:WM_DESTROY:hwnd=%p:wid=%p",hwnd,wid);
+			if (!wid) return DefWindowProc(hwnd, msg, wParam, lParam);
 			// terminate app/messageloop if main window is destroyed
-			//if (ui->app->childlist->elem && ui->app->childlist->childs[0] == ui)
+			//if (wid->app->childlist->elem && wid->app->childlist->childs[0] == wid)
 			//	PostQuitMessage(0);
 			return 0;
 
 		// X11:ConfigureNotify
 		case WM_SIZE:
-			if (!ui) return DefWindowProc(hwnd, msg, wParam, lParam);
-            if (!ui->func.configure_callback) return 0;
-			ui->func.configure_callback(ui, user_data);
-            RedrawWindow(ui->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_UPDATENOW);
+			if (!wid) return DefWindowProc(hwnd, msg, wParam, lParam);
+            if (!wid->func.configure_callback) return 0;
+			wid->func.configure_callback(wid, user_data);
+            RedrawWindow(wid->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_UPDATENOW);
 			return 0;
 		// X11:Expose
 		case WM_PAINT:
-			if (!ui) return DefWindowProc(hwnd, msg, wParam, lParam);
-			if (!(ui->crb)) {
-				debug_print("WM_PAINT:BAILOUT:ui->crb==NULL");
+			if (!wid) return DefWindowProc(hwnd, msg, wParam, lParam);
+			if (!(wid->crb)) {
+				debug_print("WM_PAINT:BAILOUT:wid->crb==NULL");
 				return 0;
 			}
 			return onPaint(hwnd, wParam, lParam); // not possible on mswin: (only fetch the last expose event)
@@ -639,40 +639,40 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		// X11:ButtonPress
 		case WM_LBUTTONDOWN:
 		case WM_RBUTTONDOWN:
-			if (!ui) return DefWindowProc(hwnd, msg, wParam, lParam);
+			if (!wid) return DefWindowProc(hwnd, msg, wParam, lParam);
 			SetCapture(hwnd); // also receive WM_MOUSEMOVE from outside this window
 			if (msg == WM_LBUTTONDOWN)
 				xbutton.button = Button1;
 			else
 				xbutton.button = Button3;
-            if (ui->state == 4) break;
-            if (ui->flags & HAS_TOOLTIP) hide_tooltip(ui);
-            _button_press(ui, &xbutton, user_data);
+            if (wid->state == 4) break;
+            if (wid->flags & HAS_TOOLTIP) hide_tooltip(wid);
+            _button_press(wid, &xbutton, user_data);
             debug_print("Widget_t  ButtonPress %i\n", xbutton.button);
 			return 0;
 		case WM_MOUSEWHEEL:
-			if (!ui) return DefWindowProc(hwnd, msg, wParam, lParam);
+			if (!wid) return DefWindowProc(hwnd, msg, wParam, lParam);
 			// opposed to X11, WM_MOUSEWHEEL doesnt contain mouse coordinates
 			{
 				DWORD pos = GetMessagePos();
 				pt.x = GET_X_LPARAM(pos);
 				pt.y = GET_Y_LPARAM(pos);
 				if (ScreenToClient(hwnd, &pt)) {
-					ui->pos_x = pt.x;
-					ui->pos_y = pt.y;
+					wid->pos_x = pt.x;
+					wid->pos_y = pt.y;
 				}
 			}
 			if (GET_WHEEL_DELTA_WPARAM(wParam) <= 0) {
 				xbutton.button = Button5;
-				_button_press(ui, &xbutton, user_data);
+				_button_press(wid, &xbutton, user_data);
 			} else {
 				xbutton.button = Button4;
-				_button_press(ui, &xbutton, user_data);
+				_button_press(wid, &xbutton, user_data);
 			}
 			// forward WM_MOUSEWHEEL from menuitem to viewport (with slider)
 			// (viewport lies below menuitem, so doesnt receive WM_MOUSEWHEEL)
-			if(ui->app->hold_grab) {
-				Widget_t *view_port = ui->app->hold_grab->childlist->childs[0];
+			if(wid->app->hold_grab) {
+				Widget_t *view_port = wid->app->hold_grab->childlist->childs[0];
 				if (hwnd != view_port->widget)
 					SendMessage(view_port->widget, msg, wParam, lParam);
                 RedrawWindow(view_port->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_UPDATENOW);
@@ -686,13 +686,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				xbutton.button = Button1;
 			else
 				xbutton.button = Button3;
-            _check_grab(ui, &xbutton, ui->app);
-            if (ui->state == 4) break;
-            _has_pointer(ui, &xbutton);
-            if(ui->flags & HAS_POINTER) ui->state = 1;
-            else ui->state = 0;
-            _check_enum(ui, &xbutton);
-            ui->func.button_release_callback((void*)ui, &xbutton, user_data);
+            _check_grab(wid, &xbutton, wid->app);
+            if (wid->state == 4) break;
+            _has_pointer(wid, &xbutton);
+            if(wid->flags & HAS_POINTER) wid->state = 1;
+            else wid->state = 0;
+            _check_enum(wid, &xbutton);
+            wid->func.button_release_callback((void*)wid, &xbutton, user_data);
             debug_print("Widget_t  ButtonRelease %i\n", xbutton.button);
 			return 0;
 
@@ -708,41 +708,41 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			build_xkey_event(&xkey, msg, wParam, lParam);
 			// X11:KeyPress
 			if (msg != WM_KEYUP) { // WM_KEYDOWN and WM_CHAR: key_press_callback()
-				if (!ui) return DefWindowProc(hwnd, msg, wParam, lParam);
-				if (ui->state == 4) return 0;
+				if (!wid) return DefWindowProc(hwnd, msg, wParam, lParam);
+				if (wid->state == 4) return 0;
 				// on Linux, retrigger check happens in KeyRelease (WM_KEYUP)
 				unsigned short is_retriggered = 0;
-				if(ui->flags & NO_AUTOREPEAT) {
+				if(wid->flags & NO_AUTOREPEAT) {
 					if ((HIWORD(lParam) & KF_REPEAT) == KF_REPEAT)
 						is_retriggered = 1;
 				}
 				if (!is_retriggered) {
-					_check_keymap(ui, xkey);
-					ui->func.key_press_callback((void *)ui, &xkey, user_data);
+					_check_keymap(wid, xkey);
+					wid->func.key_press_callback((void *)wid, &xkey, user_data);
 					debug_print("Widget_t KeyPress %x\n", xkey.keycode);
 				}
 			}
 			//X11:KeyRelease
 			if (msg != WM_KEYDOWN) { // WM_KEYUP and WM_CHAR: key_release_callback()
-				if (ui->state == 4) return 0;
+				if (wid->state == 4) return 0;
 				// On MSWin, the REPEAT flag is always set for WM_KEYUP,
 				// so the retrigger check has to take place in WM_KEYDOWN instead
-				ui->func.key_release_callback((void *)ui, &xkey, user_data);
+				wid->func.key_release_callback((void *)wid, &xkey, user_data);
 				debug_print("Widget_t KeyRelease %x\n", xkey.keycode);
 			}
 			return 0;
 
 		// X11:LeaveNotify (X11:EnterNotify: see WM_MOUSEMOVE)
 		case WM_MOUSELEAVE:
-			if (!ui) return DefWindowProc(hwnd, msg, wParam, lParam);
+			if (!wid) return DefWindowProc(hwnd, msg, wParam, lParam);
 			// xputty -> xwidget: handled by "ButtonPress" event on Linux
 			// close popup menu if cursor moves out of widget
-            if(ui->app->hold_grab != NULL) {
+            if(wid->app->hold_grab != NULL) {
 				GetCursorPos(&pt);
 				Window win_cur = WindowFromPoint(pt);
                 bool is_item = false;
 				// still inside viewport? (finds menu entries in popup window)
-                Widget_t *view_port = ui->app->hold_grab->childlist->childs[0];
+                Widget_t *view_port = wid->app->hold_grab->childlist->childs[0];
 				if (view_port) { // should never be NULL, but who knows :)
 					int i = view_port->childlist->elem-1;
 					for(;i>-1;i--) {
@@ -756,7 +756,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				}
 				// still inside combobox? (finds combobox-button)
                 Widget_t *menu = NULL;
-				menu = (Widget_t *)ui->app->hold_grab->parent_struct;
+				menu = (Widget_t *)wid->app->hold_grab->parent_struct;
 				if (menu) { // can be NULL if not contained in combobox
 					int i = menu->childlist->elem-1;
 					for(;i>-1;i--) {
@@ -770,65 +770,65 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				}
                 if (!is_item) {
 					ReleaseCapture();
-                    widget_hide(ui->app->hold_grab);
-                    ui->app->hold_grab = NULL;
+                    widget_hide(wid->app->hold_grab);
+                    wid->app->hold_grab = NULL;
                 }
             }
 
 			// for emulating X11:EnterNotify
-			ui->mouse_inside = false;
+			wid->mouse_inside = false;
 
-            ui->flags &= ~HAS_FOCUS;
-            if (ui->state == 4) break;
+            wid->flags &= ~HAS_FOCUS;
+            if (wid->state == 4) break;
             //if(!(xev->xcrossing.state & Button1Mask)) {
 			if (!(wParam & MK_LBUTTON)) {
-                ui->state = 0;
-                ui->func.leave_callback((void*)ui, user_data);
-                if (!(ui->flags & IS_WINDOW))
+                wid->state = 0;
+                wid->func.leave_callback((void*)wid, user_data);
+                if (!(wid->flags & IS_WINDOW))
                     RedrawWindow(hwnd, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_UPDATENOW);
             }
-            if (ui->flags & HAS_TOOLTIP) hide_tooltip(ui);
+            if (wid->flags & HAS_TOOLTIP) hide_tooltip(wid);
             debug_print("Widget_t LeaveNotify:hwnd=%p",hwnd);
 
 			return 0;
 
 		// X11:MotionNotify
 		case WM_MOUSEMOVE:
-			if (!ui) return DefWindowProc(hwnd, msg, wParam, lParam);
-			if (!ui->mouse_inside) {
+			if (!wid) return DefWindowProc(hwnd, msg, wParam, lParam);
+			if (!wid->mouse_inside) {
 				// emulate X11:EnterNotify
-				ui->mouse_inside = true;
+				wid->mouse_inside = true;
 
-				ui->flags |= HAS_FOCUS;
-				if (ui->state == 4) break;
+				wid->flags |= HAS_FOCUS;
+				if (wid->state == 4) break;
 				//if(!(xev->xcrossing.state & Button1Mask)) {
 				if (!(wParam & MK_LBUTTON)) {
-					ui->state = 1;
-					ui->func.enter_callback((void*)ui, user_data);
-                    if (!(ui->flags & IS_WINDOW))
+					wid->state = 1;
+					wid->func.enter_callback((void*)wid, user_data);
+                    if (!(wid->flags & IS_WINDOW))
                         RedrawWindow(hwnd, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_UPDATENOW);
-					if (ui->flags & HAS_TOOLTIP) show_tooltip(ui);
-					else _hide_all_tooltips(ui);
+					if (wid->flags & HAS_TOOLTIP) show_tooltip(wid);
+					else _hide_all_tooltips(wid);
 				}
 				debug_print("Widget_t EnterNotify:hwnd=%p",hwnd);
 
 				SetMouseTracking(hwnd, true); // for receiving (next) WM_MOUSELEAVE
 			}
 			// hovering, etc.
-			if (ui->state == 4) return 0;
+			if (wid->state == 4) return 0;
 			if (wParam & MK_LBUTTON) // TODO: why is this if() required here, but not on linux?
-				adj_set_motion_state(ui, xmotion.x, xmotion.y);
-			ui->func.motion_callback((void*)ui, &xmotion, user_data);
+				adj_set_motion_state(wid, xmotion.x, xmotion.y);
+			wid->func.motion_callback((void*)wid, &xmotion, user_data);
 			debug_print("Widget_t MotionNotify x = %li Y = %li hwnd=%p\n",pt.x,pt.y,hwnd );
 			return 0;
 
 		case WM_USER + 01: // WM_DELETE_WINDOW
 			{
-			debug_print("WM:WM_DELETE_WINDOW:hwnd=%p:ui=%p",hwnd,ui);
+			debug_print("WM:WM_DELETE_WINDOW:hwnd=%p:wid=%p",hwnd,wid);
 #if 0
-			Xputty * main = ui->app;
+			Xputty * main = wid->app;
 			// xwidget -> xputty (run_embedded())
-			if (ui) {
+			if (wid) {
 				int i = childlist_find_widget(main->childlist, (Window)wParam);
 				if(i<1) return 0;
 				Widget_t *w = main->childlist->childs[i];
@@ -839,10 +839,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 #endif
 #if 1
 			// xwidget -> xputty (main_run())
-			if (ui) {
+			if (wid) {
 				if (hwnd == main->childlist->childs[0]->widget) { // main window (this is not invoked for any other window?)
 					main->run = false;
-					destroy_widget(ui, main);
+					destroy_widget(wid, main);
 				} else {
 					int i = childlist_find_widget(main->childlist, (Window)wParam);
 					if(i<1) return 0;
@@ -857,19 +857,19 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			return 1;
 		// X11:ClientMessage:WIDGET_DESTROY
 		case WM_USER + 02: // WIDGET_DESTROY
-			debug_print("WM:WIDGET_DESTROY:hwnd=%p:ui=%p",hwnd,ui);
+			debug_print("WM:WIDGET_DESTROY:hwnd=%p:wid=%p",hwnd,wid);
 #if 1
 			//os_widget_event_loop()
-			if (ui) {
-				int ch = childlist_has_child(ui->childlist);
+			if (wid) {
+				int ch = childlist_has_child(wid->childlist);
 				if (ch) {
 					int i = ch;
 					for(;i>0;i--) {
-						quit_widget(ui->childlist->childs[i-1]);
+						quit_widget(wid->childlist->childs[i-1]);
 					}
-					quit_widget(ui);
+					quit_widget(wid);
 				} else {
-					destroy_widget(ui,ui->app);
+					destroy_widget(wid,wid->app);
 				}
 				return 0;
 			}
