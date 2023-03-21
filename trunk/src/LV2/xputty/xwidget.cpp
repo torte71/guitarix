@@ -123,14 +123,9 @@ int key_mapping(Display *dpy, XKeyEvent *xkey) {
 }
 
 void destroy_widget(Widget_t * w, Xputty *main) {
-#ifdef _WIN32 //Debug
-//debug_print("destroy_widget:main=%p:w=%p:hwnd=%p",main,w,w?w->widget:0);
-debug_print("destroy_widget:main=%p:w=%p",main,w);
-#endif
     int count = childlist_find_child(main->childlist, w);
     if (count == 0 && main->run == true) {
 	// only standalone
-debug_print("%s:count==0 && main->run==true:quit()\n",__FUNCTION__);
         quit(w);
     } else if(childlist_find_child(main->childlist, w)>=0) {
         if(w->flags & REUSE_IMAGE) {
@@ -139,36 +134,29 @@ debug_print("%s:count==0 && main->run==true:quit()\n",__FUNCTION__);
         if(w->flags & HAS_MEM) {
             w->func.mem_free_callback(w, NULL);
         }
-debug_print("%s:childlist_remove_child:main->childlist=%p:w=%p\n",__FUNCTION__,main->childlist,w);
         childlist_remove_child(main->childlist, w);
         int ch = childlist_has_child(w->childlist);
         if (ch) {
             int i = ch;
             for(;i>0;i--) {
-debug_print("%s:destroy_widget:i=%d:w=%p\n",__FUNCTION__,i,w->childlist->childs[i-1]);
                 destroy_widget(w->childlist->childs[i-1],main);
             }
-debug_print("%s:destroy_widget:last:w=%p\n",__FUNCTION__,w);
             destroy_widget(w,main);
         }
         if(w->flags & IS_WIDGET) {
             Widget_t *p = (Widget_t *) w->parent;
-debug_print("%s:IS_WIDGET:remove_child:p->childlist=%p:w=%p\n",__FUNCTION__,p->childlist,w);
             childlist_remove_child(p->childlist, w);
         } else if(w->flags & IS_POPUP) {
 //only _WIN32?
             Widget_t *p = (Widget_t *) w->parent_struct;
-debug_print("%s:IS_POPUP:remove_child:p->childlist=%p:w=%p\n",__FUNCTION__,p->childlist,w);
             childlist_remove_child(p->childlist, w);
         } else if(w->flags & IS_TOOLTIP) {
 //only _WIN32?
             Widget_t *p = (Widget_t *) w->parent_struct;
-debug_print("%s:IS_TOOLTIP:remove_child:p->childlist=%p:w=%p\n",__FUNCTION__,p->childlist,w);
             childlist_remove_child(p->childlist, w);
         }
         delete_adjustment(w->adj_x);
         delete_adjustment(w->adj_y);
-debug_print("%s:childlist_destroy:list=%p",__FUNCTION__,w->childlist);
         childlist_destroy(w->childlist);
         cairo_surface_destroy(w->image);
         cairo_destroy(w->crb);

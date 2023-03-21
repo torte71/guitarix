@@ -234,7 +234,6 @@ void os_create_main_window_and_surface(Widget_t *w, Xputty *app, Window win,
 	WNDCLASS wndclass = {0};
 	HINSTANCE hInstance = NULL;
 
-debug_print("os_create_main_window_and_surface:x=%d:y=%d:w=%d:h=%d:w=%p:app=%p:win=%p\n",x,y,width,height,w,app,win);
 	snprintf(szMainUIClassName+16, 16, "%p", WndProc);
 	snprintf(szWidgetUIClassName+16, 16, "%p", WndProc);
 
@@ -294,7 +293,6 @@ debug_print("os_create_main_window_and_surface:x=%d:y=%d:w=%d:h=%d:w=%p:app=%p:w
 							width, height, // nWidth, nHeight
 							win, // hWndParent (no embeddeding takes place yet)
 							NULL, hInstance, (LPVOID)w); // hMenu, hInstance, lpParam
-debug_print("os_create_main_window_and_surface:w=%p:hwnd=%p:width=%d:height=%d",w,w->widget,width,height);
 	SetParent(w->widget, win); // embed into parentWindow
 	SetMouseTracking(w->widget, true); // for receiving WM_MOUSELEAVE
 //diff:SizeHints?
@@ -308,7 +306,6 @@ void os_create_widget_window_and_surface(Widget_t *w, Xputty *app, Widget_t *par
 	// prepare window class
 	WNDCLASS wndclass = {0};
 	HINSTANCE hInstance = NULL;
-debug_print("os_create_widget_window_and_surface:x=%d:y=%d:w=%d:h=%d:w=%p:app=%p:parent=%p\n",x,y,width,height,w,app,parent);
 
 	// create a permanent surface for drawing (see onPaint() event)
 	w->surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
@@ -331,8 +328,7 @@ debug_print("os_create_widget_window_and_surface:x=%d:y=%d:w=%d:h=%d:w=%p:app=%p
 							width, height, // nWidth, nHeight
 							parent->widget, // hWndParent (no embeddeding takes place yet)
 							NULL, hInstance, (LPVOID)w); // hMenu, hInstance, lpParam
-debug_print("os_create_widget_window_and_surface:w=%p:hwnd=%p",w,w->widget);
-													//
+
 	SetParent(w->widget, parent->widget); // embed into parentWindow
 	SetMouseTracking(w->widget, true); // for receiving WM_MOUSELEAVE
 //diff:no SizeHints
@@ -566,10 +562,6 @@ void build_xkey_event(XKeyEvent *ev, UINT msg, WPARAM wParam, LPARAM lParam) {
 }
 
 
-#define _debugwm
-#ifdef _debugwm
-#include "winutil.c"
-#endif
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	POINT pt;
@@ -579,13 +571,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	void *user_data = NULL;
 
 	// be aware: "ui" can be NULL during window creation (esp. if there is a debugger attached)
-	//gx_AxisFaceUI *ui = (gx_AxisFaceUI *)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 	Widget_t *ui = (Widget_t *)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 	Xputty *main = ui ? ui-> app : NULL;
-//debug_print("HWND:%p msg=%8.8x w=%p l=%p ui=%p state=%d\n",hwnd,msg,(void*)wParam,(void*)lParam,ui,(ui ? ui->state : 0));
-#ifdef _debugwm
-debug_wm(hwnd, msg, wParam, lParam, ui, widget_type_name(ui));
-#endif
 
 	xbutton.window = hwnd;
 	xbutton.x = GET_X_LPARAM(lParam);
@@ -628,9 +615,9 @@ debug_wm(hwnd, msg, wParam, lParam, ui, widget_type_name(ui));
 		// X11:ConfigureNotify
 		case WM_SIZE:
 			if (!ui) return DefWindowProc(hwnd, msg, wParam, lParam);
-if (!ui->func.configure_callback) return 0;
+            if (!ui->func.configure_callback) return 0;
 			ui->func.configure_callback(ui, user_data);
-RedrawWindow(ui->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_UPDATENOW);
+            RedrawWindow(ui->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_UPDATENOW);
 			return 0;
 		// X11:Expose
 		case WM_PAINT:
@@ -688,7 +675,7 @@ RedrawWindow(ui->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_UPDATENO
 				Widget_t *view_port = ui->app->hold_grab->childlist->childs[0];
 				if (hwnd != view_port->widget)
 					SendMessage(view_port->widget, msg, wParam, lParam);
-RedrawWindow(view_port->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_UPDATENOW);
+                RedrawWindow(view_port->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_UPDATENOW);
 			}
 			return 0;
 		// X11:ButtonRelease
@@ -797,8 +784,8 @@ RedrawWindow(view_port->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_U
 			if (!(wParam & MK_LBUTTON)) {
                 ui->state = 0;
                 ui->func.leave_callback((void*)ui, user_data);
-if (!(ui->flags & IS_WINDOW))
-	RedrawWindow(hwnd, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_UPDATENOW);
+                if (!(ui->flags & IS_WINDOW))
+                    RedrawWindow(hwnd, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_UPDATENOW);
             }
             if (ui->flags & HAS_TOOLTIP) hide_tooltip(ui);
             debug_print("Widget_t LeaveNotify:hwnd=%p",hwnd);
@@ -818,8 +805,8 @@ if (!(ui->flags & IS_WINDOW))
 				if (!(wParam & MK_LBUTTON)) {
 					ui->state = 1;
 					ui->func.enter_callback((void*)ui, user_data);
-if (!(ui->flags & IS_WINDOW))
-	RedrawWindow(hwnd, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_UPDATENOW);
+                    if (!(ui->flags & IS_WINDOW))
+                        RedrawWindow(hwnd, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_UPDATENOW);
 					if (ui->flags & HAS_TOOLTIP) show_tooltip(ui);
 					else _hide_all_tooltips(ui);
 				}
@@ -854,17 +841,14 @@ if (!(ui->flags & IS_WINDOW))
 			// xwidget -> xputty (main_run())
 			if (ui) {
 				if (hwnd == main->childlist->childs[0]->widget) { // main window (this is not invoked for any other window?)
-debug_print("%s:WM_DELETE_WINDOW:hwnd==ui->widget==%p:main->run=false + destroy_widget:w=%p:main=%p",__FUNCTION__,hwnd,ui,main);
 					main->run = false;
 					destroy_widget(ui, main);
 				} else {
 					int i = childlist_find_widget(main->childlist, (Window)wParam);
-debug_print("%s:WM_DELETE_WINDOW:childlist_find_widget:list=%p:hwnd=%p:i=%d",__FUNCTION__,main->childlist,(void*)wParam,i);
 					if(i<1) return 0;
 					Widget_t *w = main->childlist->childs[i];
 					if(w->flags & HIDE_ON_DELETE) widget_hide(w);
 					else { destroy_widget(main->childlist->childs[i],main);
-debug_print("%s:WM_DELETE_WINDOW:destroy_widget:%d:w=%p",__FUNCTION__,i,main->childlist->childs[i]);
 					}
 				}
 			}
@@ -900,7 +884,6 @@ debug_print("%s:WM_DELETE_WINDOW:destroy_widget:%d:w=%p",__FUNCTION__,i,main->ch
 
 LRESULT onPaint( HWND hwnd, WPARAM wParam, LPARAM lParam ) {
 	PAINTSTRUCT ps ;
-	//gx_AxisFaceUI *ui = (gx_AxisFaceUI *)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 	Widget_t *w = (Widget_t *)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 
 	// The cairo_win32_surface should only exist between BeginPaint()/EndPaint(),

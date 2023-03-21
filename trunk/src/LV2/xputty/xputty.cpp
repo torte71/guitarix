@@ -25,7 +25,6 @@ void main_init(Xputty *main) {
     main->dpy = os_open_display(0);
     assert(main->dpy);
     main->childlist = (Childlist_t*)malloc(sizeof(Childlist_t));
-debug_print("%s:main=%p:main->childlist=%p",__FUNCTION__,main,main->childlist);
     assert(main->childlist);
     childlist_init(main->childlist);
     main->color_scheme = (XColor_t*)malloc(sizeof(XColor_t));
@@ -156,10 +155,8 @@ void main_quit(Xputty *main) {
     int i = main->childlist->elem-1;
     for(;i>-1;i--) {
         Widget_t *w = main->childlist->childs[i];
-debug_print("%s:%d:destroy_widget:w=%p",__FUNCTION__,i,w);
         destroy_widget(w, main);
     }
-debug_print("%s:childlist_destroy:list=%p",__FUNCTION__,main->childlist);
     childlist_destroy(main->childlist);
     free(main->childlist);
     free(main->color_scheme);
