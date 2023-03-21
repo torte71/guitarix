@@ -24,6 +24,7 @@
 #define XWIDGET_H
 
 #include "xputty.h"
+#include "xwidget-platform.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -184,6 +185,7 @@ typedef enum {
  * @param WT_TUNER                      - add_tuner()
  * @param WT_VALUEDISPLAY               - add_valuedisplay()
  */
+
 typedef enum {
     WT_NONE,
     WT_WINDOW,
@@ -350,6 +352,8 @@ enum {
  * @param *app               - pointer to the main struct
  * @param widget             - the X11 Window
  * @param *parent            - pointer to the Parent Window or Widget_t
+ * @param *parent_struct     - pointer to the Parent struct (Widget_t)
+ * @param widget_type        - enum containing widget type/class (button, menu, ...)
  * @param event_callback     - the main XEvent callback
  * @param func               - struct holding the event callbacks
  * @param *surface           - pointer to the cairo xlib surface
@@ -375,6 +379,7 @@ enum {
  * @param *childlist         - pointer to Widget_t child list
  * @param xic                - Locale and UTF 8 support interface
  * @param xim                - Context to Locale and UTF 8 support
+ * @param mouse_inside       - _WIN32 helper for EnterNotify
  */
 
 struct Widget_t {
@@ -386,7 +391,7 @@ struct Widget_t {
     void *parent;
 /** pointer to the Parent struct */
     void *parent_struct;
-/** the kind of widget (button, menu, ...) */
+/** enum containing widget type/class (button, menu, ...) */
     WidgetType widget_type;
 /** the main XEvent callback */
     vfunc event_callback;
@@ -671,54 +676,16 @@ void expose_widget(Widget_t *w);
  * @param *xkey             - the key to map
  * @return int              - value (1-10) or 0 when not mapped 
  */
-typedef struct {
-  int width;
-  int height;
-  int x;
-  int y;
-  bool visible;
-} Metrics_t;
-
-
-const char *widget_type_name(Widget_t *w);
 
 int key_mapping(Display *dpy, XKeyEvent *xkey);
 
-bool os_get_keyboard_input(Widget_t *w, XKeyEvent *key, char *buf, size_t bufsize);
+/**
+ * @brief widget_type_name  - textual representation of (Widget_t*)->widget_type
+ * @param w                 - the Widget_t* to query (NULL is allowed)
+ * @return const char*      - zero terminated string; must not be free()d
+ */
 
-void os_free_pixmap(Widget_t *w, Pixmap pixmap);
-Display *os_open_display(char *display_name);
-void os_close_display(Display *dpy);
-Window os_get_root_window(Widget_t *w);
-void os_destroy_window(Widget_t *w);
-void os_translate_coords(Widget_t *w, Window from_window, Window to_window,
-                          int from_x, int from_y, int *to_x, int *to_y);
-void os_get_window_metrics(Widget_t *w_, Metrics_t *metrics);
-void os_get_surface_size(cairo_surface_t *surface, int *width, int *height);
-void os_move_window(Display *dpy, Widget_t *w, int x, int y);
-void os_resize_window(Display *dpy, Widget_t *w, int x, int y);
-void os_set_widget_surface_size(Widget_t *w, int width, int height);
-void os_create_main_window_and_surface(Widget_t *w, Xputty *app, Window win,
-                          int x, int y, int width, int height);
-void os_create_widget_window_and_surface(Widget_t *w, Xputty *app, Widget_t *parent,
-                          int x, int y, int width, int height);
-void os_set_title(Widget_t *w, const char *title);
-void os_widget_show(Widget_t *w);
-void os_widget_hide(Widget_t *w);
-void os_show_tooltip(Widget_t *wid, Widget_t *w);
-void os_expose_widget(Widget_t *w);
-void os_widget_event_loop(void *w_, void* event, Xputty *main, void* user_data);
-void os_send_configure_event(Widget_t *w,int x, int y, int width, int height);
-void os_send_button_press_event(Widget_t *w);
-void os_send_button_release_event(Widget_t *w);
-void os_send_systray_message(Widget_t *w);
-void os_adjustment_callback(void *w_, void *user_data);
-void os_quit(Widget_t *w);
-void os_quit_widget(Widget_t *w);
-
-Atom os_register_widget_destroy(Widget_t * wid);
-// xputty.cpp xchildlist.cpp
-Atom os_register_wm_delete_window(Widget_t * wid);
+const char *widget_type_name(Widget_t *w);
 
 #ifdef __cplusplus
 }
