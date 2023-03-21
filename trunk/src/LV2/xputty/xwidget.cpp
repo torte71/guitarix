@@ -173,7 +173,7 @@ Widget_t *create_window(Xputty *app, Window win,
     w->app = app;
     w->parent = &win;
     w->parent_struct = NULL;
-w->widget_type = WT_WINDOW;
+    w->widget_type = WT_WINDOW;
     w->label = NULL;
     memset(w->input_label, 0, 32 * (sizeof w->input_label[0]));
     w->state = 0;
@@ -262,7 +262,7 @@ Widget_t *create_widget(Xputty *app, Widget_t *parent,
     w->app = app;
     w->parent = parent;
     w->parent_struct = NULL;
-w->widget_type = WT_WIDGET;
+    w->widget_type = WT_WIDGET;
     w->label = NULL;
     memset(w->input_label, 0, 32 * (sizeof w->input_label[0]));
     w->state = 0;
