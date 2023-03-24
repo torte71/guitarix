@@ -102,7 +102,7 @@ void destroy_widget(Widget_t * w, Xputty *main) {
         if(w->flags & IS_WIDGET) {
             Widget_t *p = (Widget_t *) w->parent;
             childlist_remove_child(p->childlist, w);
-ifdef _WIN32 //childlist_remove
+#ifdef _WIN32 //childlist_remove
         } else if(w->flags & IS_POPUP) {
             Widget_t *p = (Widget_t *) w->parent_struct;
             childlist_remove_child(p->childlist, w);
@@ -219,13 +219,15 @@ Widget_t *create_window(Xputty *app, Window win,
     w->func.unmap_notify_callback = _dummy_callback;
     w->func.dialog_callback = _dummy_callback;
 
-    childlist_add_child(app->childlist,w);
     //XMapWindow(app->dpy, w->widget);
     debug_print("size of Func_t = %llu\n", (long long)(sizeof(w->func)/sizeof(void*)));
 
     debug_print("assert(w)\n");
     os_create_main_window_and_surface(w, app, win, x, y, width, height);
     create_cairo_context_and_buffer(w);
+#ifndef _WIN32 // childlist already set up
+    childlist_add_child(app->childlist,w);
+#endif
 
     return w;
 }
@@ -309,13 +311,15 @@ Widget_t *create_widget(Xputty *app, Widget_t *parent,
     w->func.unmap_notify_callback = _dummy_callback;
     w->func.dialog_callback = _dummy_callback;
 
-    childlist_add_child(app->childlist,w);
     //XMapWindow(app->dpy, w->widget);
     debug_print("size of Widget_t = %lld\n", (long long)(sizeof(struct Widget_t)));
 
     debug_print("assert(w)\n");
     os_create_widget_window_and_surface(w, app, parent, x, y, width, height);
     create_cairo_context_and_buffer(w);
+#ifndef _WIN32 // childlist already set up
+    childlist_add_child(app->childlist,w);
+#endif
 
     return w;
 }
