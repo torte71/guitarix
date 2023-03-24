@@ -99,10 +99,13 @@ static void fp_clear_dirbuffer(FilePicker *filepicker) {
     }
 }
 
-static inline int fp_prefill_dirbuffer(FilePicker *filepicker, char *path) {
-    int ret = 0;
-    if (strcmp (path, PATH_SEPARATOR) == 0) {
-#ifdef _WIN32 //DriveHack
+#ifdef _WIN32
+bool is_root_directory(char *path) {
+   return (((strlen(path)==3) && path[1] == ':' && path[2] == '\\')
+          ||((strlen(path)==1) && path[0] == '\\'));
+}
+
+void add_root_directory(FilePicker *filepicker, char *path) {
     DWORD drives = GetLogicalDrives();
     int i;
     for (i=0; i<='Z'-'A'; i++) {
@@ -113,23 +116,48 @@ static inline int fp_prefill_dirbuffer(FilePicker *filepicker, char *path) {
         asprintf(&filepicker->dir_names[filepicker->dir_counter-1], "%c:\\", 'A'+i);
       }
     }
-#else
-        filepicker->dir_names = (char **)realloc(filepicker->dir_names,
-          (filepicker->dir_counter + 1) * sizeof(char *));
-        assert(filepicker->dir_names != NULL);
-        asprintf(&filepicker->dir_names[filepicker->dir_counter++], "%s",path);
-        assert(&filepicker->dir_names[filepicker->dir_counter] != NULL);
+}
+
+bool is_file(DIR *dirp, struct dirent *dp) {
+    return ((dirp->dd_dta.attrib & _A_SUBDIR)==0);
+}
+
+bool is_directory(DIR *dirp, struct dirent *dp) {
+    return ((dirp->dd_dta.attrib & _A_SUBDIR) != 0);
+}
+
+#else // __linux__
+bool is_root_directory(char *path) {
+   return (strcmp (path, PATH_SEPARATOR) == 0);
+}
+
+void add_root_directory(FilePicker *filepicker, char *path) {
+    filepicker->dir_names = (char **)realloc(filepicker->dir_names,
+      (filepicker->dir_counter + 1) * sizeof(char *));
+    assert(filepicker->dir_names != NULL);
+    asprintf(&filepicker->dir_names[filepicker->dir_counter++], "%s",path);
+    assert(&filepicker->dir_names[filepicker->dir_counter] != NULL);
+}
+
+bool is_file(DIR *dirp, struct dirent *dp) {
+    return (dp-> d_type != DT_DIR && dp->d_type != DT_UNKNOWN);
+}
+
+bool is_directory(DIR *dirp, struct dirent *dp) {
+    return (dp -> d_type == DT_DIR);
+}
+
 #endif
+
+static inline int fp_prefill_dirbuffer(FilePicker *filepicker, char *path) {
+    int ret = 0;
+    if (is_root_directory(path)) {
+        add_root_directory(filepicker, path);
     } else {
         char *ho;
         asprintf(&ho, "%s",path);
         assert(ho != NULL);
-#ifdef _WIN32 //DriveHack
-	while (!((strlen(ho)==3) && ho[1] == ':' && ho[2] == '\\')
-	      &&(!((strlen(ho)==1) && ho[0] == '\\'))) {
-#else
-        while (strcmp (ho, PATH_SEPARATOR) != 0) {
-#endif
+        while (!is_root_directory(ho)) {
             filepicker->dir_names = (char **)realloc(filepicker->dir_names,
               (filepicker->dir_counter + 1) * sizeof(char *));
             assert(filepicker->dir_names != NULL);
@@ -137,12 +165,7 @@ static inline int fp_prefill_dirbuffer(FilePicker *filepicker, char *path) {
             assert(&filepicker->dir_names[filepicker->dir_counter] != NULL);
             ret++;
         }
-#ifdef _WIN32 //DriveHack
-	if (!((strlen(path)==3) && path[1] == ':' && path[2] == '\\')
-	   &&(!((strlen(path)==1) && path[0] == '\\'))) {
-#else
-        if (strcmp (path, PATH_SEPARATOR) != 0) {
-#endif
+        if (!is_root_directory(path)) {
             filepicker->dir_names = (char **)realloc(filepicker->dir_names,
               (filepicker->dir_counter + 1) * sizeof(char *));
             assert(filepicker->dir_names != NULL);
@@ -173,11 +196,7 @@ int fp_get_files(FilePicker *filepicker, char *path, int get_dirs) {
 
     while ((dp = readdir(dirp)) != NULL) {
 
-#ifndef _WIN32 //ReadDir
-        if(dp-> d_type != DT_DIR && strlen(dp->d_name)!=0 && dp->d_type != DT_UNKNOWN
-#else
-        if(((dirp->dd_dta.attrib & _A_SUBDIR)==0) && strlen(dp->d_name)!=0
-#endif
+        if(is_file(dirp, dp) && strlen(dp->d_name)!=0
           && strcmp(dp->d_name,"..")!=0 && fp_show_hidden_files(filepicker, dp->d_name) &&
           fp_show_filter_files(filepicker, dp->d_name)) {
 
@@ -187,11 +206,7 @@ int fp_get_files(FilePicker *filepicker, char *path, int get_dirs) {
             asprintf(&filepicker->file_names[filepicker->file_counter++],"%s",dp->d_name);
             assert(&filepicker->file_names[filepicker->file_counter] != NULL);
 
-#ifndef _WIN32 //ReadDir
-        } else if(get_dirs && dp -> d_type == DT_DIR && strlen(dp->d_name)!=0
-#else
-        } else if(get_dirs && ((dirp->dd_dta.attrib & _A_SUBDIR) != 0) && strlen(dp->d_name)!=0
-#endif
+        } else if(get_dirs && is_directory(dirp, dp) && strlen(dp->d_name)!=0
           && strcmp(dp->d_name,"..")!=0 && fp_show_hidden_files(filepicker, dp->d_name)) {
 
             filepicker->dir_names = (char **)realloc(filepicker->dir_names,
