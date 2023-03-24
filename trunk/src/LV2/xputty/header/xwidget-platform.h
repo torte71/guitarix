@@ -111,6 +111,9 @@ Atom os_register_widget_destroy(Widget_t * wid);
 
 Atom os_register_wm_delete_window(Widget_t * wid);
 
+void os_run_embedded(Xputty *main);
+void os_main_run(Xputty *main);
+
 #ifdef __cplusplus
 }
 #endif

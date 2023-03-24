@@ -434,6 +434,23 @@ Atom os_register_widget_destroy(Widget_t * wid) {
 	return msg;
 }
 
+void os_main_run(Xputty *main) {
+    MSG msg;
+    BOOL bRet;
+    while( (bRet = GetMessage(&msg, NULL, 0, 0)) != 0) {
+        if (bRet == -1) {
+          return; // error
+        } else {
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
+        }
+    }
+}
+
+void os_run_embedded(Xputty *main) {
+    // messageloop already polled by plugin host
+}
+
 // os specific
 
 
