@@ -18,7 +18,9 @@ static void quit_button_released(void *w_, void* button_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
     Widget_t *main = w->app->childlist->childs[0];
 
+#ifdef _WIN32
     SendMessage(main->widget, WM_CLOSE, 0, 0);
+#endif
 }
 static void destroy_button_released(void *w_, void* button_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
@@ -174,16 +176,6 @@ button->func.button_release_callback = file_button_released;
     widget_show_all(mainwin);
     /** run the event loop */
     main_run(&app);
-
-#ifdef _WIN32 //MessageLoop
-MSG msg;
-while(GetMessage(&msg, NULL, 0, 0))
-{
-    TranslateMessage(&msg);
-    DispatchMessage(&msg);
-}
-printf("loop exit\n");
-#endif
 
     /** clean up after the event loop is finished */
     main_quit(&app);
