@@ -73,8 +73,7 @@ static void menu_button_released(void *w_, void* button_, void* user_data) {
 Widget_t *file_dialog;
 static void file_button_released(void *w_, void* button_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
-    file_dialog = open_file_dialog(w, "\\c\\audio", "*");
-    //file_dialog = open_file_dialog(w, "\\c", "*");
+    file_dialog = open_file_dialog(w, "c:\\", "*");
 }
 
 
