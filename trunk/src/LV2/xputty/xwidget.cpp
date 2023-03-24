@@ -102,14 +102,14 @@ void destroy_widget(Widget_t * w, Xputty *main) {
         if(w->flags & IS_WIDGET) {
             Widget_t *p = (Widget_t *) w->parent;
             childlist_remove_child(p->childlist, w);
+ifdef _WIN32 //childlist_remove
         } else if(w->flags & IS_POPUP) {
-//only _WIN32?
             Widget_t *p = (Widget_t *) w->parent_struct;
             childlist_remove_child(p->childlist, w);
         } else if(w->flags & IS_TOOLTIP) {
-//only _WIN32?
             Widget_t *p = (Widget_t *) w->parent_struct;
             childlist_remove_child(p->childlist, w);
+#endif
         }
         delete_adjustment(w->adj_x);
         delete_adjustment(w->adj_y);
