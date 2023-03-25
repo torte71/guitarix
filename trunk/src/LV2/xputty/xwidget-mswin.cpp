@@ -205,6 +205,13 @@ void os_get_window_metrics(Widget_t *w_, Metrics_t *metrics) {
 	metrics->visible = IsWindowVisible(w_->widget);
 }
 
+// values are checked on WM_SIZE
+void os_set_window_min_size(Widget_t *w, int min_width, int min_height,
+                            int base_width, int base_height) {
+    w->metrics_min.width = min_width;
+    w->metrics_min.height = min_height;
+}
+
 void os_get_surface_size(cairo_surface_t *surface, int *width, int *height) {
     *width = cairo_image_surface_get_width(surface);
     *height = cairo_image_surface_get_height(surface);
@@ -299,9 +306,8 @@ void os_create_main_window_and_surface(Widget_t *w, Xputty *app, Window win,
 							NULL, hInstance, (LPVOID)w); // hMenu, hInstance, lpParam
 	SetParent(w->widget, win); // embed into parentWindow
 	SetMouseTracking(w->widget, true); // for receiving WM_MOUSELEAVE
-//diff:SizeHints?
-//    win_size_hints = XAllocSizeHints();
 
+    os_set_window_min_size(w, width/2, height/2, width, height);
 }
 
 void os_create_widget_window_and_surface(Widget_t *w, Xputty *app, Widget_t *parent,
@@ -338,8 +344,6 @@ void os_create_widget_window_and_surface(Widget_t *w, Xputty *app, Widget_t *par
 
 	SetParent(w->widget, parent->widget); // embed into parentWindow
 	SetMouseTracking(w->widget, true); // for receiving WM_MOUSELEAVE
-//diff:no SizeHints
-
 }
 
 void os_set_title(Widget_t *w, const char *title) {
@@ -639,10 +643,27 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		// X11:ConfigureNotify
 		case WM_SIZE:
 			if (!wid) return DefWindowProc(hwnd, msg, wParam, lParam);
-            if (!wid->func.configure_callback) return 0;
-			wid->func.configure_callback(wid, user_data);
-            RedrawWindow(wid->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_UPDATENOW);
-			return 0;
+            else {
+                // Limit window size:
+                // The plugin doesnt receive WM_MINMAXINFO or WM_SIZING.
+                // SWP_NOSIZE in WM_WINDOWPOSCHANGING cant handle width/height separately.
+                // Setting the client size afterwards turned out to be the best working option so far.
+                // Plugin: Limits the "zoom" (as the hosts window can always become smaller)
+                // Standalone: Limits the window size
+                int width = LOWORD(lParam);
+                int height = HIWORD(lParam);
+                if ((width < wid->metrics_min.width)
+                    || (height < wid->metrics_min.height)) {
+                    SetClientSize(hwnd, max(width, wid->metrics_min.width),
+                            max(height, wid->metrics_min.height));
+                    return 0;
+                }
+                // Resize handler
+                if (!wid->func.configure_callback) return 0;
+                wid->func.configure_callback(wid, user_data);
+                RedrawWindow(wid->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_UPDATENOW);
+                return 0;
+            }
 		// X11:Expose
 		case WM_PAINT:
 			if (!wid) return DefWindowProc(hwnd, msg, wParam, lParam);

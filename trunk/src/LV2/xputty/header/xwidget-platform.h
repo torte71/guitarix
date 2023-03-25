@@ -85,6 +85,8 @@ void os_destroy_window(Widget_t *w);
 void os_translate_coords(Widget_t *w, Window from_window, Window to_window,
                           int from_x, int from_y, int *to_x, int *to_y);
 void os_get_window_metrics(Widget_t *w_, Metrics_t *metrics);
+void os_set_window_min_size(Widget_t *w, int min_width, int min_height,
+                            int base_width, int base_height);
 void os_get_surface_size(cairo_surface_t *surface, int *width, int *height);
 void os_move_window(Display *dpy, Widget_t *w, int x, int y);
 void os_resize_window(Display *dpy, Widget_t *w, int x, int y);
