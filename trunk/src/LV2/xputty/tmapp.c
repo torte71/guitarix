@@ -39,8 +39,10 @@ void msg_button_dialog_callback(void * widget, void* user_data) {
   char *str = *(char**)user_data;
   printf("*user_data=%d\n",i);
   printf("str=%s\n",str);
+#ifdef _WIN32
   char *cv = convert_cp(CP_UTF8, 850, str); // IBM850 = DOS Latin1 for console
   printf("cv=%s\n",cv);
+#endif
 }
 Widget_t *message_dialog;
 static void msg_button_released(void *w_, void* button_, void* user_data) {
@@ -62,7 +64,11 @@ static void midi_button_released(void *w_, void* button_, void* user_data) {
 static void menu_button_released(void *w_, void* button_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
 
+#ifdef _WIN32
     Widget_t *menuwin = create_window(w->app, (HWND)-1, 0, 0, 200, 100);
+#else
+    Widget_t *menuwin = create_window(w->app, DefaultRootWindow(w->app->dpy)-1, 0, 0, 200, 100);
+#endif
     menu = create_menu(menuwin, 3*25);
     menu->parent_struct = w; // for check_grab()
     Widget_t* menu_item           = menu_add_item(menu, "menu_itemlabel");
