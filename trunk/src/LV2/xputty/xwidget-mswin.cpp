@@ -348,7 +348,8 @@ void os_create_widget_window_and_surface(Widget_t *w, Xputty *app, Widget_t *par
 
 void os_set_title(Widget_t *w, const char *title) {
 	debug_print("STUB:os_set_title:w=%p",w);
-	// STUB
+    if (title)
+        SetWindowText(w->widget, title);
 }
 
 void os_widget_show(Widget_t *w) {
