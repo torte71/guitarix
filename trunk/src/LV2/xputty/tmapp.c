@@ -95,6 +95,7 @@ int main (int argc, char ** argv)
 #ifdef _WIN32 //WindowBorders
     //mainwin = create_window(&app, HWND_DESKTOP, 0, 0, 300, 900);
     mainwin = create_window(&app, (HWND)-1, 0, 0, 300, 900);
+    os_set_title(mainwin, "apptitle");
     set_light_theme(&app);
 #else
     Widget_t *mainwin = create_window(&app, DefaultRootWindow(app.dpy), 0, 0, 300, 900);
