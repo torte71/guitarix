@@ -45,6 +45,14 @@ LRESULT onPaint( HWND hwnd, WPARAM wParam, LPARAM lParam );
 -----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
 
+void os_translate_coords(Widget_t *w, Window from_window, Window to_window,
+                          int from_x, int from_y, int *to_x, int *to_y) {
+    POINT Point = {from_x, from_y};
+    MapWindowPoints(from_window, to_window, &Point, 1);
+    *to_x = Point.x;
+    *to_y = Point.y;
+}
+
 Window os_get_root_window(Widget_t *w) {
     return HWND_DESKTOP;
 }
