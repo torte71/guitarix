@@ -284,6 +284,13 @@ void os_quit(Widget_t *w) {
 
 }
 
+void os_quit_widget(Widget_t *w) {
+    // who invokes this?
+    WPARAM wParam = (WPARAM)w->widget;
+    DWORD msg = os_register_widget_destroy(w);
+    int res = SendMessage(w->widget, msg, wParam, 0); // WIDGET_DESTROY
+}
+
 Atom os_register_wm_delete_window(Widget_t * wid) {
     Atom msg = WM_USER + 01;
     //Atom msg = RegisterWindowMessage("XPUTTY_WM_DELETE_WINDOW");
