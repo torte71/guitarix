@@ -29,7 +29,7 @@ void pop_menu_show(Widget_t *parent, Widget_t *menu, int elem, bool above) {
     if (!view_port->childlist->elem) return;
     _configure_menu(parent, menu, elem, above);
     pop_widget_show_all(menu);
-#ifdef _WIN32 //SetCaptureDisabled
+#ifdef _WIN32 //SetCaptureDisabled//XGrabPointer
     int err = 0;
     //SetCapture(view_port->widget);
 #else

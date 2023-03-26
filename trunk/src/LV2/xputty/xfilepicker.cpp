@@ -99,7 +99,7 @@ static void fp_clear_dirbuffer(FilePicker *filepicker) {
     }
 }
 
-#ifdef _WIN32
+#ifdef _WIN32 //file/drive functions
 bool is_root_directory(char *path) {
    return (((strlen(path)==3) && path[1] == ':' && path[2] == '\\')
           ||((strlen(path)==1) && path[0] == '\\'));
