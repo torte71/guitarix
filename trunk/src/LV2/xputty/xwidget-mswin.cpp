@@ -30,6 +30,9 @@ extern "C" {
 #include "xwidget.h"
 #include "xwidget_private.h"
 
+TCHAR szMainUIClassName[]   = TEXT("xputtyMainUI____0123456789ABCDEF");
+TCHAR szWidgetUIClassName[] = TEXT("xputtyWidgetUI__0123456789ABCDEF");
+
 // forward declarations
 void SetClientSize(HWND hwnd, int clientWidth, int clientHeight);
 BOOL SetMouseTracking(HWND hwnd, BOOL enable);
