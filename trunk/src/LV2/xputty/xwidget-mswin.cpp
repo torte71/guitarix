@@ -241,6 +241,10 @@ void os_show_tooltip(Widget_t *wid, Widget_t *w) {
     }
 }
 
+void os_expose_widget(Widget_t *w) {
+    RedrawWindow(w->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_UPDATENOW);
+}
+
 void os_widget_event_loop(void *w_, void* event, Xputty *main, void* user_data) {
     // nothing to do
 }
