@@ -51,11 +51,11 @@ void debug_lasterror(const char *prefix, const char *prefix2) {
                 NULL, err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
                 (LPSTR)&msg, 0, NULL);
 	if (size) {
-		debug_print("%s%s:ERR=%8.8lx (%ld): %s",prefix?prefix:"",prefix2?prefix2:"",err,err,msg);
+		debug_print("%s%s:ERR=%8.8lx (%ld): %s\n",prefix?prefix:"",prefix2?prefix2:"",err,err,msg);
 		LocalFree(msg);
 	} else {
 		DWORD fmt_err = GetLastError();
-		debug_print("%s%s:ERROR:FormatMessage for ERR=%8.8lx (%ld) returned %8.8lx (%ld)",
+		debug_print("%s%s:ERROR:FormatMessage for ERR=%8.8lx (%ld) returned %8.8lx (%ld)\n",
 				(prefix ? prefix : ""), (prefix2 ? prefix2 : ""), err, err, fmt_err, fmt_err);
 	}
 }
@@ -162,15 +162,13 @@ void os_close_display(Display *dpy) {
 }
 
 void os_destroy_window(Widget_t *w) {
-	debug_print("STUB:os_destroy_window:w=%p:hwnd=%p:%s",w,(w)?w->widget:NULL,widget_type_name(w));
-
 	// mswin automatically sends WM_DESTROY to all child windows
 	// floating windows need to be handled manually
 	if (w && (IsWindow(w->widget))) {
-		debug_print("STUB:os_destroy_window:DestroyWindow:hwnd=%p",(w)?w->widget:NULL);
+		//debug_print("os_destroy_window:DestroyWindow:hwnd=%p\n",(w)?w->widget:NULL);
 		DestroyWindow(w->widget);
 	} else {
-		debug_print("STUB:os_destroy_window:DestroyWindow:NOTFOUND:hwnd=%p",(w)?w->widget:NULL);
+		debug_print("os_destroy_window:DestroyWindow:NOTFOUND:hwnd=%p\n",(w)?w->widget:NULL);
 	}
 }
 
@@ -347,24 +345,20 @@ void os_create_widget_window_and_surface(Widget_t *w, Xputty *app, Widget_t *par
 }
 
 void os_set_title(Widget_t *w, const char *title) {
-	debug_print("STUB:os_set_title:w=%p",w);
     if (title)
         SetWindowText(w->widget, title);
 }
 
 void os_widget_show(Widget_t *w) {
-	debug_print("os_widget_show:w=%p",w);
 	ShowWindow(w->widget, SW_SHOW);
 }
 
 void os_widget_hide(Widget_t *w) {
-	debug_print("os_widget_hide:w=%p",w);
 	ShowWindow(w->widget, SW_HIDE);
 }
 
 void os_show_tooltip(Widget_t *wid, Widget_t *w) {
 	POINT pt;
-	debug_print("os_show_tooltip:wid=%p:w=%p",wid,w);
 	if (GetCursorPos(&pt)) {
 		SetWindowPos(w->widget, NULL, //hWnd, hWndInsertAfter
 		  pt.x+10, pt.y-10, 0, 0, SWP_NOSIZE|SWP_NOZORDER); //X, Y, width, height, uFlags
@@ -372,28 +366,22 @@ void os_show_tooltip(Widget_t *wid, Widget_t *w) {
 }
 
 void os_expose_widget(Widget_t *w) {
-	debug_print("os_expose_widget:w=%p",w);
 	RedrawWindow(w->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_UPDATENOW);
 }
 
 void os_widget_event_loop(void *w_, void* event, Xputty *main, void* user_data) {
-	debug_print("STUB:os_widget_event_loop:w=%p",w_);
-	// STUB
+	// nothing to do
 }
 void os_send_configure_event(Widget_t *w,int x, int y, int width, int height) {
-	debug_print("STUB:os_send_configure_event:x=%d:y=%d:width=%d:height=%d:w=%p\n",x,y,width,height,w);
 	// STUB
 }
 void os_send_button_press_event(Widget_t *w) {
-	debug_print("STUB:os_send_button_press_event:w=%p",w);
 	// STUB
 }
 void os_send_button_release_event(Widget_t *w) {
-	debug_print("STUB:os_send_button_release_event:w=%p",w);
 	// STUB
 }
 void os_send_systray_message(Widget_t *w) {
-	debug_print("STUB:os_send_systray_message:w=%p",w);
 	// STUB
 }
 
@@ -404,21 +392,19 @@ void os_adjustment_callback(void *w_, void *user_data) {
 }
 
 void os_quit(Widget_t *w) {
-	debug_print("STUB:os_quit:w=%p",w);
 	if (w) {
 		WPARAM wParam = (WPARAM)get_toplevel_widget(w->app)->widget;
 		DWORD msg = os_register_wm_delete_window(w);
 		int res = SendMessage(w->widget, msg, wParam, 0); // WM_DELETE_WINDOW
-		debug_print("STUB:os_quit:w=%p:hwnd/dest=%p:wPar/toplvl=%16.16llx:msg=%8.8lx:res=%d",w,(w)?w->widget:NULL,wParam,msg,res);
 	}
 	// UnregisterClass silently fails, if there are still more windows of this class
 	if (UnregisterClass(szMainUIClassName, NULL)) {
-		debug_print("UnregisterMainClass:%s:OK", szMainUIClassName);
+		debug_print("UnregisterMainClass:%s:OK\n", szMainUIClassName);
 	} else
 		debug_lasterror("UnregisterMainClass:", szMainUIClassName);
 
 	if (UnregisterClass(szWidgetUIClassName, NULL)) {
-		debug_print("UnregisterWidgetClass:%s:OK", szWidgetUIClassName);
+		debug_print("UnregisterWidgetClass:%s:OK\n", szWidgetUIClassName);
 	} else
 		debug_lasterror("UnregisterWidgetClass" ,szWidgetUIClassName);
 
@@ -428,21 +414,17 @@ void os_quit_widget(Widget_t *w) {
 	WPARAM wParam = (WPARAM)w->widget;
 	DWORD msg = os_register_widget_destroy(w);
 	int res = SendMessage(w->widget, msg, wParam, 0); // WIDGET_DESTROY
-	debug_print("STUB:os_quit_widget:w=%p:hwnd=%p:msg=%8.8lx:res=%d",w,(w)?w->widget:NULL,msg,res);
-	// STUB
 }
 
 Atom os_register_wm_delete_window(Widget_t * wid) {
 	Atom msg = WM_USER + 01;
 	//Atom msg = RegisterWindowMessage("XPUTTY_WM_DELETE_WINDOW");
-	debug_print("STUB:os_register_wm_delete_window:w=%p:msg=%8.8lx",wid,msg);
 	return msg;
 }
 
 Atom os_register_widget_destroy(Widget_t * wid) {
 	Atom msg = WM_USER + 02 ;
 	//Atom msg = RegisterWindowMessage("XPUTTY_WIDGET_DESTROY");
-	debug_print("STUB:os_register_widget_destroy:w=%p:msg=%8.8lx",wid,msg);
 	return msg;
 }
 
