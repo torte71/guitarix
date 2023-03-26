@@ -241,6 +241,10 @@ void os_show_tooltip(Widget_t *wid, Widget_t *w) {
     }
 }
 
+void os_widget_event_loop(void *w_, void* event, Xputty *main, void* user_data) {
+    // nothing to do
+}
+
 Atom os_register_wm_delete_window(Widget_t * wid) {
     Atom msg = WM_USER + 01;
     //Atom msg = RegisterWindowMessage("XPUTTY_WM_DELETE_WINDOW");
