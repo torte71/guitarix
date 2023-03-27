@@ -41,7 +41,7 @@ void os_destroy_window(Widget_t *w) {
 }
 
 Window os_get_root_window(Widget_t *w) {
-	return DefaultRootWindow(w->app->dpy);
+    return DefaultRootWindow(w->app->dpy);
 }
 
 void os_translate_coords(Widget_t *w, Window from_window, Window to_window,
