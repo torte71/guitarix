@@ -336,6 +336,7 @@ void widget_set_title(Widget_t *w, const char *title) {
 }
 
 void widget_show(Widget_t *w) {
+    w->func.map_notify_callback(w, NULL);
     os_widget_show(w);
 }
 
@@ -344,6 +345,7 @@ void widget_hide(Widget_t *w) {
     for(;i<w->childlist->elem;i++) {
         widget_hide(w->childlist->childs[i]);
     }
+    w->func.unmap_notify_callback(w, NULL);
     os_widget_hide(w);
 }
 
@@ -351,6 +353,7 @@ void widget_show_all(Widget_t *w) {
     if (w->flags & IS_POPUP || w->flags & IS_TOOLTIP) {
         return;
     } else {
+        w->func.map_notify_callback(w, NULL);
         os_widget_show(w);
         int i=0;
         for(;i<w->childlist->elem;i++) {
@@ -360,6 +363,7 @@ void widget_show_all(Widget_t *w) {
 }
 
 void pop_widget_show_all(Widget_t *w) {
+    w->func.map_notify_callback(w, NULL);
     os_widget_show(w);
     int i=0;
     for(;i<w->childlist->elem;i++) {

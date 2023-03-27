@@ -187,12 +187,10 @@ void os_set_title(Widget_t *w, const char *title) {
 }
 
 void os_widget_show(Widget_t *w) {
-    w->func.map_notify_callback(w, NULL);
     XMapWindow(w->app->dpy, w->widget);
 }
 
 void os_widget_hide(Widget_t *w) {
-    w->func.unmap_notify_callback(w, NULL);
     XUnmapWindow(w->app->dpy, w->widget);
 }
 
