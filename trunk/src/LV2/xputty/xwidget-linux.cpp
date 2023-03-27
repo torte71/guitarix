@@ -120,16 +120,7 @@ void os_create_main_window_and_surface(Widget_t *w, Xputty *app, Window win,
 
     XSelectInput(app->dpy, w->widget, event_mask);
 
-    XSizeHints* win_size_hints;
-    win_size_hints = XAllocSizeHints();
-    win_size_hints->flags =  PMinSize|PBaseSize|PWinGravity;
-    win_size_hints->min_width = width/2;
-    win_size_hints->min_height = height/2;
-    win_size_hints->base_width = width;
-    win_size_hints->base_height = height;
-    win_size_hints->win_gravity = CenterGravity;
-    XSetWMNormalHints(app->dpy, w->widget, win_size_hints);
-    XFree(win_size_hints);
+    os_set_window_min_size(w, width/2, height/2, width, height);
 
     w->surface =  cairo_xlib_surface_create (app->dpy, w->widget,  
                   DefaultVisual(app->dpy, DefaultScreen(app->dpy)), width, height);
