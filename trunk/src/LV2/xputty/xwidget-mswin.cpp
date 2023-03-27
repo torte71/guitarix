@@ -427,6 +427,57 @@ void os_run_embedded(Xputty *main) {
 
 /*------------- the event loop ---------------*/
 
+void build_xkey_event(XKeyEvent *ev, UINT msg, WPARAM wParam, LPARAM lParam) {
+    UINT uVirtKey = (UINT)wParam;
+    UINT uScanCode = (UINT)(HIWORD(lParam) & 0x1FF);
+    BYTE lpKeyState[256];
+    if (GetKeyboardState(lpKeyState)) {
+        //https://stackoverflow.com/questions/42667205/maximum-number-of-characters-output-from-win32-tounicode-toascii
+        // required size for the return buffer isn't exactly clear, maybe 255, so 1K should be a safe guess
+        WCHAR lpChar[1024];
+        UINT uFlags = 0x04; // 1=menu is active, 4=dont change anything
+        if (msg == WM_CHAR) {
+            ev->vk = uVirtKey;
+            ev->vk_is_final_char = 1;
+        } else {
+            ToUnicode(uVirtKey, uScanCode, lpKeyState, lpChar, 2, uFlags);
+            ev->vk = lpChar[0];
+            ev->vk_is_final_char = 0;
+        }
+    }
+    // handle special characters (only in KEYUP/DOWN?)
+    switch (uScanCode) {
+        case 0x0029: ev->keycode = XK_dead_circumflex;  break;
+        case 0x000e: ev->keycode = XK_BackSpace;        break;
+        case 0x000f: ev->keycode = XK_Tab;              break;
+        case 0x001c: ev->keycode = XK_Return;           break;
+        case 0x0147: ev->keycode = XK_Home;             break;
+        case 0x014b: ev->keycode = XK_Left;             break;
+        case 0x0148: ev->keycode = XK_Up;               break;
+        case 0x014d: ev->keycode = XK_Right;            break;
+        case 0x0150: ev->keycode = XK_Down;             break;
+        case 0x014f: ev->keycode = XK_End;              break;
+        case 0x0152: ev->keycode = XK_Insert;           break;
+        case 0x011c: ev->keycode = XK_KP_Enter;         break;
+        case 0x0047: ev->keycode = XK_KP_Home;          break;
+        case 0x004b: ev->keycode = XK_KP_Left;          break;
+        case 0x0048: ev->keycode = XK_KP_Up;            break;
+        case 0x004d: ev->keycode = XK_KP_Right;         break;
+        case 0x0050: ev->keycode = XK_KP_Down;          break;
+        case 0x004f: ev->keycode = XK_KP_End;           break;
+        case 0x0052: ev->keycode = XK_KP_Insert;        break;
+        case 0x004e: ev->keycode = XK_KP_Add;           break;
+        case 0x004a: ev->keycode = XK_KP_Subtract;      break;
+        default:
+            if (ev->vk == 0xfc) //'ü'
+                ev->keycode = XK_udiaeresis;
+            else if (ev->vk == 0xdc) //'Ü'
+                ev->keycode = XK_dead_diaeresis;
+            else
+                ev->keycode = ev->vk;
+    }
+}
+
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     POINT pt;
