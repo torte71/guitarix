@@ -26,7 +26,7 @@ extern "C" {
 #endif
 
 Display *os_open_display(char *display_name) {
-	return XOpenDisplay(display_name);
+    return XOpenDisplay(display_name);
 }
 
 void os_close_display(Display *dpy) {
