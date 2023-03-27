@@ -77,7 +77,7 @@ void os_set_window_min_size(Widget_t *w, int min_width, int min_height,
 }
 
 void os_move_window(Display *dpy, Widget_t *w, int x, int y) {
-	XMoveWindow(dpy,w->widget, x, y);
+    XMoveWindow(dpy,w->widget, x, y);
 }
 
 void os_resize_window(Display *dpy, Widget_t *w, int x, int y) {
