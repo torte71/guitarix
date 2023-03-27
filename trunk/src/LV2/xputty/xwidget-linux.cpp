@@ -437,7 +437,7 @@ Atom os_register_wm_delete_window(Widget_t * wid) {
 }
 
 Atom os_register_widget_destroy(Widget_t * wid) {
-	return XInternAtom(wid->app->dpy, "WIDGET_DESTROY", False);
+    return XInternAtom(wid->app->dpy, "WIDGET_DESTROY", False);
 }
 
 void os_main_run(Xputty *main) {
