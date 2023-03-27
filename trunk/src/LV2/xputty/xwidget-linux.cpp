@@ -81,7 +81,7 @@ void os_move_window(Display *dpy, Widget_t *w, int x, int y) {
 }
 
 void os_resize_window(Display *dpy, Widget_t *w, int x, int y) {
-	XResizeWindow(dpy, w->widget, x, y);
+    XResizeWindow(dpy, w->widget, x, y);
 }
 
 void os_get_surface_size(cairo_surface_t *surface, int *width, int *height) {
