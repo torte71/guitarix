@@ -42,7 +42,7 @@ jobs:
     - name: build
       run: |
         cd trunk
-        ./tmbuild.sh
+        ./waf configure --check-cxx-compiler=g++ --no-standalone --no-faust --includeresampler --includeconvolver --no-avahi --no-bluez --no-nsm --no-desktop-update --static-lib && ./waf build && ./waf install --destdir=_bin
 
     - name: zip
       run: cd trunk ; 7z a -mx9 ../plugin.7z _bin ; cd ..
