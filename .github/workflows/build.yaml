@@ -1,0 +1,83 @@
+name: build
+
+on: [push]
+
+#defaults:
+  #run:
+  #  shell: bash
+
+jobs:
+  ####################
+  build-windows:
+    runs-on: windows-latest
+
+    defaults:
+      run:
+        shell: msys2 {0}
+
+    steps:
+    - name: Prepare MSys2
+      uses: msys2/setup-msys2@v2
+      with:
+        update: true
+        install: >-
+          mingw-w64-x86_64-7zip
+          git
+          base-devel
+          mingw-w64-x86_64-gcc
+          mingw-w64-x86_64-pkg-config
+          mingw-w64-x86_64-libsigc++
+          mingw-w64-x86_64-lv2
+          mingw-w64-x86_64-eigen3
+          mingw-w64-x86_64-fftw
+          mingw-w64-x86_64-libffi
+          mingw-w64-x86_64-libsndfile
+          mingw-w64-x86_64-cairo
+
+    - name: Check out sources
+      uses: actions/checkout@v3.3.0
+      with:
+        submodules: recursive
+
+    - name: build
+      run: |
+        cd trunk
+        ./tmbuild.sh
+
+    - name: zip
+      run: cd trunk ; 7z a -mx9 ../plugin.7z _bin ; cd ..
+
+    - uses: actions/upload-artifact@v3.1.2
+      with:
+        name: guitarix-lv2-plugins-win64.7z
+        path: plugin.7z
+
+  ####################
+  build-linux:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out sources
+      uses: actions/checkout@v3.3.0
+    - name: install dependencies
+      run: |
+        sudo apt-get install lv2-dev debhelper fakeroot pkg-config meson libsigc++-2.0-dev libeigen3-dev libfftw3-dev libffi-dev libsndfile1-dev libcairo-dev
+    - name: configure
+      run: |
+        cd trunk
+        ./waf configure -j 4 --no-standalone --no-faust --includeconvolver --includeresampler --no-avahi --no-bluez --no-nsm --no-desktop-update
+    - name: build
+      run: |
+        cd trunk
+        ./waf build && ./waf --destdir=$(pwd)/_bin install
+
+    - name: create archive
+      run: |
+        cd trunk
+        tar -cvjf guitarix-lv2-plugins-linux64.tar.bz2 _bin
+
+    - uses: actions/upload-artifact@v3.1.2
+      with:
+        name: guitarix-lv2-plugins-linux64.tar.bz2
+        path: trunk/guitarix-lv2-plugins-linux64.tar.bz2
+
