@@ -125,8 +125,8 @@ http://transmogrifox.webs.com/vactrol.m
     ] .
 
 <http://guitarix.sourceforge.net/plugins/gxtubetremelo#gui>
-  a guiext:X11UI;
-  guiext:binary <gxtubetremelo_gui.so>;
+  a guiext:@LV2UI_TYPE@;
+  guiext:binary <gxtubetremelo_gui@LIB_EXT@>;
         lv2:extensionData guiext::idle ;
         lv2:extensionData guiext:resize ;
         lv2:extensionData guiext:idleInterface;

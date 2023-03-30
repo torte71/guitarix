@@ -114,8 +114,8 @@ All other trademarks are the property of their respective holders.'
     ] .
 
 <http://guitarix.sourceforge.net/plugins/gxts9#gui>
-  a guiext:X11UI;
-  guiext:binary <gxts9_gui.so>;
+  a guiext:@LV2UI_TYPE@;
+  guiext:binary <gxts9_gui@LIB_EXT@>;
         lv2:extensionData guiext::idle ;
         lv2:extensionData guiext:resize ;
         lv2:extensionData guiext:idleInterface;

@@ -147,8 +147,8 @@ rdfs:comment """
     ] .
 
 <http://guitarix.sourceforge.net/plugins/gx_jcm800pre_st#gui>
-  a guiext:X11UI;
-  guiext:binary <gx_jcm800pre_st_gui.so>;
+  a guiext:@LV2UI_TYPE@;
+  guiext:binary <gx_jcm800pre_st_gui@LIB_EXT@>;
         lv2:extensionData guiext::idle ;
         lv2:extensionData guiext:resize ;
         lv2:extensionData guiext:idleInterface;
