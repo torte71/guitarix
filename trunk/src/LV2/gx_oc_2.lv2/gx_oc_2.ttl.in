@@ -101,8 +101,8 @@ rdfs:comment """
     ] .
 
 <http://guitarix.sourceforge.net/plugins/gx_oc_2_gui#_oc_2_>
-  a guiext:X11UI;
-  guiext:binary <gx_oc_2_gui.so>;
+  a guiext:@LV2UI_TYPE@;
+  guiext:binary <gx_oc_2_gui@LIB_EXT@>;
         lv2:extensionData guiext::idle ;
         lv2:extensionData guiext:resize ;
         lv2:extensionData guiext:idleInterface;

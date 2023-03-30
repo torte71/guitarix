@@ -92,8 +92,8 @@ rdfs:comment """
     ].
 
 <http://guitarix.sourceforge.net/plugins/gx_fuzzface_gui#_fuzzface_>
-  a guiext:X11UI;
-  guiext:binary <gx_fuzzface_gui.so>;
+  a guiext:@LV2UI_TYPE@;
+  guiext:binary <gx_fuzzface_gui@LIB_EXT@>;
         lv2:extensionData guiext::idle ;
         lv2:extensionData guiext:resize ;
         lv2:extensionData guiext:idleInterface;
