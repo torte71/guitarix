@@ -19,3 +19,6 @@ def build(bld):
         includes = ['../xputty/header','../xputty/header/widgets','../xputty/resources',],
         use = ['xcairo','X11', 'CAIRO','LV2CORE'],
         )
+    bld.lv2_ttl(
+        lv2_base = lv2_base,
+        )
