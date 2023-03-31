@@ -130,22 +130,6 @@ def build(bld):
                 use=['ZITA_RESAMPLER'],
     )
 
-    lib_ext = '.so'
-    if bld.env.MODGUI:
-        sub_list = [('@LIB_EXT@', lib_ext)]
-    else:
-        sub_list = [('@LIB_EXT@', lib_ext),
-                    (',\n        <modgui.ttl> ', ' '),
-                    (', <modgui.ttl>', ' '),
-                    (', <modguis.ttl>', ' '),
-                    ]
-    for x in subdirs:
-        bld(rule     = g_module.sub_file,
-            source   = '%s/manifest.ttl.in' % x,
-            target   = '%s/manifest.ttl' % x,
-            sub_list = sub_list,
-            install_path = '${LV2DIR}/%s' % x,
-        )
     bld.recurse(subdirs)
 
    # if bld.env['LV2GUI']:

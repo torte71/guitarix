@@ -2,11 +2,15 @@ import inspect, pprint, os
 from waflib import Configure
 from waflib.Errors import WafError
 from waflib.TaskGen import feature, before_method
+from waflib.Context import g_module
 
+# What was intention of lv2_prepare_link()?
+# env.cxxshlib_PATTERN is already correctly set by waf ('%s.so' on Linux and '%s.dll' on Windows)
 @feature('lv2')
 @before_method('apply_link')
 def lv2_prepare_link(self):
-    self.env.cxxshlib_PATTERN = '%s.so'
+    return
+    #self.env.cxxshlib_PATTERN = '%s.so'
 
 def get_lv2_base(bld, kw, nframes=3):
     try:
@@ -45,11 +49,6 @@ def lv2(bld, *k, **kw):
     if not bld.env['OPT'] and bld.env['SSE2']:
         cxxflags = [ "-msse2", "-mfpmath=sse"]
     lv2_add_common(tg, lv2_base, dst, ["LV2_SO"], cxxflags=cxxflags + bld.env['OS_LV2_CXXFLAGS'])
-    if bld.env['MODGUI']:
-        bld.install_files(dst, bld.path.ant_glob('*.ttl'), relative_trick=True)
-        bld.install_files(dst, bld.path.ant_glob('modgui/**/*'), relative_trick=True)
-    else:
-        bld.install_files(dst, bld.path.ant_glob('*.ttl', excl=['modgui.ttl']), relative_trick=True)
     return tg
 
 @Configure.conf
@@ -59,6 +58,52 @@ def lv2_gui(bld, *k, **kw):
     lv2_base, dst = get_lv2_base(bld, kw)
     tg = bld.shlib(features='strip', *k, **kw)
     lv2_add_common(tg, lv2_base+'_gui', dst, ["LV2_GUI"], bld.env['OS_LV2_CXXFLAGS'])
+    return tg
+
+@Configure.conf
+def lv2_ttl(bld, *k, **kw):
+    lv2_base, dst = get_lv2_base(bld, kw)
+    # OS specific names in *.ttl files:
+    if bld.env.OS == 'win32':
+        lv2ui_type = 'WindowsUI'
+        lib_ext = '.dll'
+    else:
+        lv2ui_type = 'X11'
+        lib_ext = '.so'
+    # always set extension (.so / .dll)
+    sub_list = [('@LIB_EXT@', lib_ext)]
+    # select X11UI / WindowsUI
+    # the whole (unprocessed) paragraph could be removed, if LV2GUI is unset
+    # otoh LV2 simply ignores settings for unknown or unsupported "guiext:" (in this case "@LV2UI_TYPE@")
+    if bld.env.LV2GUI:
+        sub_list.extend( [('@LV2UI_TYPE@', lv2ui_type)] )
+    # remove reference to modgui ttl files (if not used)
+    if not bld.env.MODGUI:
+        sub_list.extend( [(',\n        <modgui.ttl> ', ' '),
+                         (', <modgui.ttl>', ' '),
+                         (', <modguis.ttl>', ' ')] )
+    # update manifest.ttl (no gui)
+    tg = bld(rule     = g_module.sub_file,
+            source   = 'manifest.ttl.in',
+            target   = 'manifest.ttl',
+            sub_list = sub_list,
+            install_path = '${LV2DIR}/%s.lv2' % lv2_base,
+            )
+    # update $PLUGIN.ttl (gui)
+    if bld.env['LV2GUI']:
+        bld(rule     = g_module.sub_file,
+            source   = '%s.ttl.in' % lv2_base,
+            target   = '%s.ttl' % lv2_base,
+            sub_list = sub_list,
+            install_path = '${LV2DIR}/%s.lv2' % lv2_base,
+            )
+    # add ttl/modgui stuff to install list
+    if bld.env['MODGUI']:
+        bld.install_files(dst, bld.path.ant_glob('*.ttl'), relative_trick=True)
+        bld.install_files(dst, bld.path.ant_glob('modgui/**/*'), relative_trick=True)
+    else:
+        bld.install_files(dst, bld.path.ant_glob('*.ttl', excl=['modgui.ttl']), relative_trick=True)
+    # do I have to return something here?
     return tg
 
 def options(opt):
