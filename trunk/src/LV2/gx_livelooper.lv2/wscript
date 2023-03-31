@@ -17,6 +17,5 @@ def build(bld):
         lv2_base = lv2_base,
         source   = ' gx_livelooper_ui.cpp',
         includes = ['../xputty/header','../xputty/header/widgets','../xputty/resources',],
-        cxxflags=['-fvisibility=hidden','-Wl,-z,noexecstack','-Wl,-z,relro,-z,now','-Wl,--exclude-libs,ALL'],
         use = ['xcairo','X11', 'CAIRO','LV2CORE'],
         )
