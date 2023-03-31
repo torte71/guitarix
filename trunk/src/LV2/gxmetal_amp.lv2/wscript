@@ -22,3 +22,6 @@ def build(bld):
         use = ['xcairo','X11', 'CAIRO','LV2CORE'],
         )
 
+    bld.lv2_ttl(
+        lv2_base = lv2_base,
+        )
