@@ -99,3 +99,14 @@ Review required:
 - Livelooper
   - Makes short pause/silence after recording?
 
+- Font rendering problems
+  - Characters with underlengths (e.g. "g") get mispositioned (moved
+    upwards the amount of the underlengh) and are truncated as a
+    result (see comboboxes in gx_amp)
+  - Fonts look kind of edgy/rough, as if smoothing or antialiasing
+    do not work.
+    The alternative which is autoselected, if "Roboto" font is
+    not installed (unsure, which one it actually is), looks better,
+    than an installed Roboto font rendered by this library,
+    so it's left in that state.
+
